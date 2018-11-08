@@ -5,32 +5,54 @@ Transformations, feature engineering and extraction
 import pandas as pd
 import numpy as np
 
-
-
-cols = ['code_module', 'code_presentation', 'gender', 'region', 'highest_education', 'imd_band', 'age_band', 'disability']
-
-# drop null values (about 3.5% of rows)
-def drop_nulls(dataframe):
-    '''
-    Drops rows with null values from dataframe
-    '''
-    return dataframe.dropna(axis = 0)
-
 # join student registration to student info
 def _join_reg(df1, df2):
     '''
-    Joins the student registrations table to the student info (master)table on three columns: code_module, code_presentation, id_student.
+    Joins the student registrations table to the student info (master)table on three columns: code_module, code_presentation, id_student. Records without a value for 'date unregistration' are set to zero
     '''
-    return pd.merge(s_df, r_df, how='outer', on=['code_module', 'code_presentation', 'id_student'])
+    return pd.merge(df1, df2, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)
 
 # join vle to student vle
 # join vle to student info
 
 
 # join assessments to student assessments
-# join joint assessments to studentinfo
-# calculate final grade for courses completed
+def _join_asssessments(df1, df2):
+    '''
+    Joins the assessments table to the student assessment table on id_assessment; drop rows with null values (about 1.5%); relabel 'date' as 'due_date'.
+    '''
+    df3 = pd.merge(df1, df2, how='outer', on=['id_assessment']).dropna()
+    df3['id_student'] = df3['id_student'].astype('int64')
+    df3['days_submitted_early'] = df3['due_date'] - df3['date_submitted']
+    return df3
 
+# create features:
+
+# average score and days submitted early per student/module/presentation
+
+def _averages_from_assessments(df):
+    '''
+    Returns per student/module/presentation averages of assessment score, days submitted early, and estimated final score
+
+    Parameters:
+    ----------
+    input {dataframes}: studentAssessment, assessment
+    output {dataframe}: df['avg_score', 'avg_days_submitted_early', 'est_final_score']
+    '''
+
+    df['weighted_score'] = df['score'] * df['weight'] / 100
+    av_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).mean()[['score', 'days_submitted_early']].info()
+    f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
+    merged =  pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+    merged.rename({'score':'avg_score', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
+    return merged
+    
+# drop null values (about 3.5% of rows)
+def drop_nulls(dataframe):
+    '''
+    Drops rows with null values from dataframe
+    '''
+    return dataframe.dropna(axis = 0)
 
 # make dummmies: module pres, result, gender, region, highest_ed, imd_band, age_band, diability
 def one_hot(dataframe, columns):
@@ -60,7 +82,25 @@ def _encode_target(dataframe):
 
 
 if __name__ == "__main__":
-    # import the dataframes
 
-    # join assessments
+    _cols_to_onehot = ['code_module', 'code_presentation', 'gender',    'region', 'highest_education', 'imd_band', 'age_band', 'disability']
+
+
+    # import the dataframes
+    main_df = pd.read_csv('../data/raw/studentInfo.csv')
+    reg_df = pd.read_csv('../data/raw/studentRegistration.csv')
+    st_asmt_df = pd.read_csv('../data/raw/studentAssessment.csv')
+    asmt_df = pd.read_csv('../data/raw/assessments.csv')
+    st_vle_df = pd.read_csv('../data/raw/studentVle.csv')
+    vle_df = pd.read_csv('../data/raw/vle.csv')
+
+    # perfom transformations / feature engineering
+
+
+    # join dataframes!
+    
+    pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)    
+    
+    pd.merge(main_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
     pd.merge(std_asmt_df, asmt_df, how='outer', on='id_assessment')
