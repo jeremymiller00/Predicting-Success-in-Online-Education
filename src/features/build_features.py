@@ -14,6 +14,14 @@ def _join_reg(df1, df2):
 
 # join vle to student vle
 # join vle to student info
+def _join_vle(df1, df2):
+    '''
+    input {vle, studentvle dataframes}
+    output {joined dataframe}
+    '''
+    return pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
+
+# create features from vle
 
 
 # join assessments to student assessments
@@ -23,13 +31,11 @@ def _join_asssessments(df1, df2):
     '''
     df3 = pd.merge(df1, df2, how='outer', on=['id_assessment']).dropna()
     df3['id_student'] = df3['id_student'].astype('int64')
-    df3['days_submitted_early'] = df3['due_date'] - df3['date_submitted']
+    df3['days_submitted_early'] = df3['date'] - df3['date_submitted']
     return df3
 
-# create features:
-
+# create features from assessments
 # average score and days submitted early per student/module/presentation
-
 def _averages_from_assessments(df):
     '''
     Returns per student/module/presentation averages of assessment score, days submitted early, and estimated final score
@@ -39,12 +45,20 @@ def _averages_from_assessments(df):
     input {dataframes}: studentAssessment, assessment
     output {dataframe}: df['avg_score', 'avg_days_submitted_early', 'est_final_score']
     '''
-
+    # add weighted score for each assessment
     df['weighted_score'] = df['score'] * df['weight'] / 100
-    av_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).mean()[['score', 'days_submitted_early']].info()
+
+    # caluculate mean scores, days submitted early
+    av_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).mean()[['score', 'days_submitted_early']]
+
+    # calculate estimated final score
     f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
-    merged =  pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
+    # merge and rename columns
+    merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
     merged.rename({'score':'avg_score', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
+
     return merged
     
 # drop null values (about 3.5% of rows)
@@ -54,23 +68,26 @@ def drop_nulls(dataframe):
     '''
     return dataframe.dropna(axis = 0)
 
-# make dummmies: module pres, result, gender, region, highest_ed, imd_band, age_band, diability
+# make dummmies
 def one_hot(dataframe, columns):
     '''
     Concatenates dummy variable (one-hot encoded) columns onto original dataframe for specified columns. Original columns are dropped.
 
     Parameters:
     ----------
-    input {dataframe}: 
-    output {list}: list of columns to be one-hot encoded and dropped
+    input {dataframe, list}: original dataframe, list of columns to be one-hot encoded and dropped
+    output {dataframe}: resulting modified dataframe
     '''
-
     dumms = pd.get_dummies(dataframe[columns], dummy_na=True, drop_first=True)
     full_df = pd.concat([dataframe, dumms], axis = 1)
-    return full_df.drop(cols, axis = 1)
+    return full_df.drop(columns, axis = 1)
+
+
+# encode some columns as string? student_id?
+
 
 # encode target: pass/fail
-
+# three potential targets: pass/fail, type of result, final score
 def _encode_target(dataframe):
     '''
     Encodes target column 'final_result' into two categories from four.
@@ -78,7 +95,6 @@ def _encode_target(dataframe):
     '''
     dataframe['module_not_completed'] = (dataframe['final_result'] == 'Fail') | (dataframe['final_result'] == 'Withdrawn')
     return dataframe
-
 
 
 if __name__ == "__main__":
@@ -97,7 +113,7 @@ if __name__ == "__main__":
     # perfom transformations / feature engineering
 
 
-    # join dataframes!
+    # join dataframes to main_df
     
     pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)    
     
