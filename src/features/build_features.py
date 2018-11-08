@@ -11,7 +11,9 @@ import numpy as np
 
 # fill in null values in imd_band? use other features to predict?
 
-cols = ['gender', 'region', 'highest_education', 'imd_band', 'age_band', 'disability']
+# joins assessments to student assessments
+
+cols = ['code_module', 'code_presentation', 'gender', 'region', 'highest_education', 'imd_band', 'age_band', 'disability']
 
 def drop_nulls(dataframe):
     '''

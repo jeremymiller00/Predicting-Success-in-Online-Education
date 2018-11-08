@@ -2,9 +2,10 @@
 
 
 ## Basic Research Nov 7-8
+Review literature
 
 ### Note from reading dataset info:
-Calculating final grades requires making some assumptions about assessment weights - weight of the assessment in %. Typically, Exams are treated separately and have the weight 100%; the sum of all other assessments is 100%.
+Calculating final grades requires making some assumptions about assessment weights - weight of the assessment in %. Typically, Exams are treated separately and have the weight 100%; the sum of all other assessments is 100%. But we do have the weights!
 
 B and J presentations should be analyzed separately as they may be different in stucture 
 
@@ -18,6 +19,9 @@ Looks like studentVLE has row for every student for every date they logged in fo
 Same with student assessment?
 
 ## Data merging and prep Nov7-
+Aggregate other features into student info table
+Start simple and build up
+
 
 
 ## Inputs and Outputs of model Defined
