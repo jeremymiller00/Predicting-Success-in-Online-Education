@@ -1,0 +1,3 @@
+October 24, 2018
+
+Initial review of the data show that they are clean and rich. Looks like a great data set to use.
