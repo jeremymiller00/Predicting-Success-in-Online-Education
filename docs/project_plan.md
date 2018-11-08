@@ -1,19 +1,7 @@
 # Capstone Project Plan
 
 
-## Minumum Viable Product Due Nov 16
-
-
-## Code Freeze Nov 26
-
-
-## Data cleaning and merging
-
-
-## Inputs and Outputs of model
-
-
-## Steps in process
+## Basic Research Nov 7-8
 
 ### Note from reading dataset info:
 Calculating final grades requires making some assumptions about assessment weights - weight of the assessment in %. Typically, Exams are treated separately and have the weight 100%; the sum of all other assessments is 100%.
@@ -25,3 +13,17 @@ Nevertheless, for some presentations the corresponding previous B/J presentation
 ### Questions about data set
 
 Are the courses undergraduate or postgraduate?
+
+Looks like studentVLE has row for every student for every date they logged in for each module? If I aggregate I lose the fidelity?
+Same with student assessment?
+
+## Data merging and prep Nov7-
+
+
+## Inputs and Outputs of model Defined
+
+
+## Minumum Viable Product Due Nov 16
+
+
+## Code Freeze Nov 26
