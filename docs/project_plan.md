@@ -2,7 +2,9 @@
 
 
 ## Basic Research Nov 7-8
-Review literature
+Review literature:
+
+
 
 ### Note from reading dataset info:
 Calculating final grades requires making some assumptions about assessment weights - weight of the assessment in %. Typically, Exams are treated separately and have the weight 100%; the sum of all other assessments is 100%. But we do have the weights!
