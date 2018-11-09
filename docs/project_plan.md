@@ -38,7 +38,9 @@ vle:
     activity type
     activity type vs sum_click
 
-do more joint plots when big table assembled
+do more joint plots when big table assembled!
+clicks vs ...
+target vs ...
 ---
 
 Observations:
@@ -52,13 +54,17 @@ Missing data:
 dates have some nan values, 5%
 
 
-## Data merging and prep Nov7-
+## Data merging and prep Nov7-10
 Aggregate other features into student info table
 Start simple and build up
-
-
+Have big table by Nov 10
 
 ## Inputs and Outputs of model Defined
+
+## Split data
+
+## Develop pipeline
+
 
 
 ## Minumum Viable Product Due Nov 16
