@@ -39,28 +39,32 @@ def _features_from_vle(df):
     '''
     
     # caluculate total clicks per student/module/presentation
-    total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation']).mean()[['score', 'days_submitted_early']]
+    total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['sum_click']]
 
-    # calculate estimated final score
-    f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
+    # calculate number of days vle accesses
+    days_accessed = df.groupby(by=['id_student', 'code_module', 'code_presentation']).count()[['date']]
+
+    # calculate max clicks in one day
+    max_clicks = df.groupby(by=['id_student',
+    'code_module', 'code_presentation']).max()[['sum_click']]
 
     # merge and rename columns
     merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
-    merged.rename({'score':'avg_score', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
+    merged.rename({'date':'days_accessed', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
     
     pass
 
 
 # join assessments to student assessments
-def _join_asssessments(df1, df2):
+def _join_asssessments(st_asmt_df, asmt_df):
     '''
     Joins the assessments table to the student assessment table on id_assessment; drop rows with null values (about 1.5%); relabel 'date' as 'due_date'.
     '''
-    df3 = pd.merge(df1, df2, how='outer', on=['id_assessment']).dropna()
-    df3['id_student'] = df3['id_student'].astype('int64')
-    df3['days_submitted_early'] = df3['date'] - df3['date_submitted']
-    return df3
+    merged = pd.merge(st_asmt_df, asmt_df, how='outer', on=['id_assessment']).dropna()
+    merged['id_student'] = merged['id_student'].astype('int64')
+    merged['days_submitted_early'] = merged['date'] - merged['date_submitted']
+    return merged
 
 # create features from assessments
 # average score and days submitted early per student/module/presentation

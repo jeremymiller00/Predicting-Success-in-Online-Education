@@ -5,7 +5,6 @@
 Review literature:
 
 
-
 ### Note from reading dataset info:
 Calculating final grades requires making some assumptions about assessment weights - weight of the assessment in %. Typically, Exams are treated separately and have the weight 100%; the sum of all other assessments is 100%. But we do have the weights!
 
@@ -14,11 +13,20 @@ B and J presentations should be analyzed separately as they may be different in 
 Nevertheless, for some presentations the corresponding previous B/J presentation do not exist and therefore the J presentation must be used to inform the B presentation or vice versa. In the dataset this is the case of CCC, EEE and GGG modules.
 
 ### Questions about data set
-
 Are the courses undergraduate or postgraduate?
 
 Looks like studentVLE has row for every student for every date they logged in for each module? If I aggregate I lose the fidelity?
 Same with student assessment?
+
+## Plot univariate and multivariate summaries of the data
+Observations:
+
+
+Outliers:
+
+
+Missing data:
+
 
 ## Data merging and prep Nov7-
 Aggregate other features into student info table
