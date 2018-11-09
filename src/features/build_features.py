@@ -1,5 +1,7 @@
 '''
 Transformations, feature engineering and extraction
+
+Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transfomation. Second level transformations and beyond are speficied with generic keyword arguements.
 '''
 
 import pandas as pd
@@ -13,15 +15,41 @@ def _join_reg(df1, df2):
     return pd.merge(df1, df2, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)
 
 # join vle to student vle
-# join vle to student info
-def _join_vle(df1, df2):
+def _join_vle(st_vle_df, vle_df):
     '''
     input {vle, studentvle dataframes}
     output {joined dataframe}
     '''
+    # drop columns with mostly null values
+    vle_df.drop(['week_from', 'week_to'], axis = 1, inplace = True)
+
+    # merge together
     return pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
 
+
 # create features from vle
+def _features_from_vle(df):
+    '''
+    Create model feaures from virtual learning environment data
+
+    Parameters:
+    ----------
+    input {dataframe}: joined dataframe of all vle data
+    output {dataframe}: dataframe for be joined to main df
+    '''
+    
+    # caluculate total clicks per student/module/presentation
+    total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation']).mean()[['score', 'days_submitted_early']]
+
+    # calculate estimated final score
+    f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
+
+    # merge and rename columns
+    merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
+    merged.rename({'score':'avg_score', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
+    
+    pass
 
 
 # join assessments to student assessments
