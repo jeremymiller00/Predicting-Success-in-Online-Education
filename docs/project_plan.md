@@ -20,8 +20,9 @@ Same with student assessment?
 
 ## Plot univariate and multivariate summaries of the data
 Observations:
+Student info: disabability looks less likely to complete, presentation may have an effect, 
 
-
+56 of the assessments have weight zero!
 Outliers:
 
 

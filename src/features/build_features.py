@@ -4,6 +4,8 @@ Transformations, feature engineering and extraction
 Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transfomation. Second level transformations and beyond are speficied with generic keyword arguements.
 '''
 
+#working on vle transforms
+
 import pandas as pd
 import numpy as np
 
@@ -136,7 +138,7 @@ if __name__ == "__main__":
 
     # import the dataframes
     main_df = pd.read_csv('../data/raw/studentInfo.csv')
-    reg_df = pd.read_csv('../data/raw/studentRegistration.csv')
+    reg_df = pd.read_csv('../data/raw/studentRegistrations.csv')
     st_asmt_df = pd.read_csv('../data/raw/studentAssessment.csv')
     asmt_df = pd.read_csv('../data/raw/assessments.csv')
     st_vle_df = pd.read_csv('../data/raw/studentVle.csv')
