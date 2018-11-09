@@ -50,7 +50,7 @@ Outliers:
 
 
 Missing data:
-56 of the assessments have weight zero! 25%
+56 of the assessments have weight zero! 25% news flash-these are formative assessments
 dates have some nan values, 5%
 
 
@@ -60,6 +60,10 @@ Start simple and build up
 Have big table by Nov 10
 
 ## Inputs and Outputs of model Defined
+Features:
+
+
+Target(s)
 
 ## Split data
 
