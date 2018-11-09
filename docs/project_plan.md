@@ -19,14 +19,37 @@ Looks like studentVLE has row for every student for every date they logged in fo
 Same with student assessment?
 
 ## Plot univariate and multivariate summaries of the data
+to plot: 
+student info: done
+student registration:
+    date reg
+    date unreg
+
+student assessment:
+    date submitted
+    score
+    date submitted vs score
+
+assessments:
+    assessment type
+    assessment type vs score
+
+vle:
+    activity type
+    activity type vs sum_click
+
+do more joint plots when big table assembled
+---
+
 Observations:
 Student info: disabability looks less likely to complete, presentation may have an effect, 
 
-56 of the assessments have weight zero!
 Outliers:
 
 
 Missing data:
+56 of the assessments have weight zero! 25%
+dates have some nan values, 5%
 
 
 ## Data merging and prep Nov7-
