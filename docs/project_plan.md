@@ -24,22 +24,19 @@ It varies, but each student has at least one assessment.
 ## Plot univariate and multivariate summaries of the data
 to plot: 
 student info: done
-student registration:
-    date reg
-    date unreg
 
-student assessment:
-    date submitted
-    score
-    date submitted vs score
+student registration: done
+
+student assessment: done
+Weak correlations between feaures overall
 
 assessments:
-    assessment type
-    assessment type vs score
+TMA more left tailed: median around 80
+Exams more right tailed: median around 70
 
 vle:
-    activity type
-    activity type vs sum_click
+more clicks for 'resource' by far
+runner-up categories: oucontent, url, subpage
 
 do more joint plots when big table assembled!
 clicks vs ...
