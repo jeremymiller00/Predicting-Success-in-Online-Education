@@ -1,26 +1,33 @@
 '''
 Transformations, feature engineering and extraction
 
-Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transfomation. Second level transformations and beyond are speficied with generic keyword arguements.
+Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transfomation (typically a join with a relevant table). Second level transformations and beyond are speficied with generic keyword arguements.
 '''
-
-#working on vle transforms
 
 import pandas as pd
 import numpy as np
 
 # join student registration to student info
-def _join_reg(df1, df2):
+def _join_reg(main_df, reg_df):
     '''
     Joins the student registrations table to the student info (master)table on three columns: code_module, code_presentation, id_student. Records without a value for 'date unregistration' are set to zero
+
+    Parameters:
+    --------
+    input {dataframes}: studenInfo, studentRegistration
+    output {dataframe}: joined dataframe
     '''
     return pd.merge(df1, df2, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)
 
 # join vle to student vle
 def _join_vle(st_vle_df, vle_df):
     '''
-    input {vle, studentvle dataframes}
-    output {joined dataframe}
+    Joins vle table to studentVle table. Drops columns which are mostly null values.
+
+    Parameters:
+    --------
+    input {dataframes}: vle, studentVle dataframes
+    output {dataframe}: joined dataframe
     '''
     # drop columns with mostly null values
     vle_df.drop(['week_from', 'week_to'], axis = 1, inplace = True)
@@ -55,21 +62,26 @@ def _features_from_vle(df):
 
     merged.rename({'date':'days_accessed', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
     
-    pass
+    return merged
 
 
 # join assessments to student assessments
 def _join_asssessments(st_asmt_df, asmt_df):
     '''
     Joins the assessments table to the student assessment table on id_assessment; drop rows with null values (about 1.5%); relabel 'date' as 'due_date'.
+
+    Parameters:
+    ----------
+    input {dataframes}: studentAssessment, assessments
+    output {dataframe}: joined dataframe with new feature 'days_submited_early'.
     '''
     merged = pd.merge(st_asmt_df, asmt_df, how='outer', on=['id_assessment']).dropna()
     merged['id_student'] = merged['id_student'].astype('int64')
+    # this should be in the next function for best practice
     merged['days_submitted_early'] = merged['date'] - merged['date_submitted']
     return merged
 
 # create features from assessments
-# average score and days submitted early per student/module/presentation
 def _features_from_assessments(df):
     '''
     Returns per student/module/presentation averages of assessment score, days submitted early, and estimated final score
@@ -94,7 +106,6 @@ def _features_from_assessments(df):
     only_first_assessment = temp_merged[temp_merged['days_submitted_early_x'] == temp_merged['days_submitted_early_y']][['score']]
     only_first_assessment.rename({'score': 'first_assessment_score'}, axis = 1, inplace = True)
     
-
     # merge dataframes
     merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
@@ -131,7 +142,7 @@ def one_hot(dataframe, columns):
 
 
 # encode target: pass/fail
-# three potential targets: pass/fail, type of result, final score
+# three potential targets: pass/fail, type of result, esi final score
 def _encode_target(dataframe):
     '''
     Encodes target column 'final_result' into two categories from four.
@@ -140,10 +151,10 @@ def _encode_target(dataframe):
     dataframe['module_not_completed'] = (dataframe['final_result'] == 'Fail') | (dataframe['final_result'] == 'Withdrawn')
     return dataframe
 
-
+####################################################################
 if __name__ == "__main__":
 
-    _cols_to_onehot = ['code_module', 'code_presentation', 'gender',    'region', 'highest_education', 'imd_band', 'age_band', 'disability']
+    _cols_to_onehot = ['code_module', 'code_presentation', 'gender',    'region', 'highest_education', 'imd_band', 'age_band', 'disability', 'date_registration', ]
 
 
     # import the dataframes
