@@ -70,13 +70,13 @@ def _join_asssessments(st_asmt_df, asmt_df):
 
 # create features from assessments
 # average score and days submitted early per student/module/presentation
-def _averages_from_assessments(df):
+def _features_from_assessments(df):
     '''
     Returns per student/module/presentation averages of assessment score, days submitted early, and estimated final score
 
     Parameters:
     ----------
-    input {dataframes}: studentAssessment, assessment
+    input {dataframes}: joined assessment dataframe (from studentAssessment, assessment)
     output {dataframe}: df['avg_score', 'avg_days_submitted_early', 'est_final_score']
     '''
     # add weighted score for each assessment
@@ -88,10 +88,20 @@ def _averages_from_assessments(df):
     # calculate estimated final score
     f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
 
-    # merge and rename columns
+    # score on first assessment per student / module / presentation
+    earliest_assessment = df.groupby(by=['code_module', 'code_presentation', 'id_student']).max()[['days_submitted_early']]
+    temp_merged = pd.merge(df, earliest_assessment, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'])
+    only_first_assessment = temp_merged[temp_merged['days_submitted_early_x'] == temp_merged['days_submitted_early_y']][['score']]
+    only_first_assessment.rename({'score': 'first_assessment_score'}, axis = 1, inplace = True)
+    
+
+    # merge dataframes
     merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
-    merged.rename({'score':'avg_score', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
+    merged = pd.merge(merged, only_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
+    # rename columns
+    merged.rename({'score':'avg_score', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score', 'days_submitted_early_y': 'score_first_assessment', 'days_submitted_early_x': 'days_submitted_early'}, axis = 'columns', inplace=True)
 
     return merged
     
@@ -154,3 +164,5 @@ if __name__ == "__main__":
     pd.merge(main_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     pd.merge(std_asmt_df, asmt_df, how='outer', on='id_assessment')
+
+    # write out to csv
