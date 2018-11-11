@@ -30,7 +30,7 @@ def _join_vle(st_vle_df, vle_df):
     output {dataframe}: joined dataframe
     '''
     # drop columns with mostly null values
-    vle_df.drop(['week_from', 'week_to'], axis = 1, inplace = True)
+    # vle_df.drop(['week_from', 'week_to'], axis = 1, inplace = True)
 
     # merge together
     return pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
@@ -48,20 +48,24 @@ def _features_from_vle(df):
     
     # caluculate total clicks per student/module/presentation
     total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['sum_click']]
+    total_clicks.reset_index(inplace=True)
+    total_clicks.rename({'sum_click':'total_clicks_in_course'}, axis = 'columns',inplace=True)
 
     # calculate number of days vle accesses
     days_accessed = df.groupby(by=['id_student', 'code_module', 'code_presentation']).count()[['date']]
+    days_accessed.reset_index(inplace=True)
+    days_accessed.rename({'date':'sum_days_vle_accessed'}, axis = 'columns',inplace=True)
 
     # calculate max clicks in one day
     max_clicks = df.groupby(by=['id_student',
     'code_module', 'code_presentation']).max()[['sum_click']]
+    max_clicks.reset_index(inplace=True)
+    max_clicks.rename({'sum_click':'max_clicks_one_day'}, axis = 'columns',inplace=True)
 
     # merge and rename columns
     merged = pd.merge(total_clicks, days_accessed, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     merged = pd.merge(merged, max_clicks, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
-
-    merged.rename({'date':'days_accessed', 'days_submitted_early':  'avg_days_sub_early', 'weighted_score': 'est_final_score'}, axis = 'columns', inplace=True)
     
     return merged
 
@@ -105,25 +109,28 @@ def _features_from_assessments(df):
     f_df.reset_index(inplace=True)
     f_df.rename({'weighted_score':'estimated_final_score'}, axis = 'columns',inplace=True)
 
-    # score on first assessment per student / module / presentation
+    # first assessment date and score per student / module / presentation
+    # separate date and score? use min of date for score
     earliest_assessment_date = df.groupby(by=['code_module', 'code_presentation', 'id_student']).max()[['days_submitted_early']]
     earliest_assessment_date.reset_index(inplace=True)
     earliest_assessment_date.rename({'days_submitted_early':'days_early_first_assessment'}, axis = 'columns',inplace=True)
 
-    temp_merged = pd.merge(df, earliest_assessment_date, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'])
+    # all good above here
 
-    # earliest_assessment_date.reset_index(inplace=True)
 
-    only_first_assessment = temp_merged[temp_merged['days_submitted_early'] == temp_merged['days_early_first_assessment']][['code_module', 'code_presentation', 'id_student','score', 'days_early_first_assessment']]
 
-    only_first_assessment.rename({'score': 'first_assessment_score'}, axis = 'columns', inplace = True)
+
+
+    # temp_merged = pd.merge(df, earliest_assessment_date, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'])
+
+    # only_first_assessment = temp_merged[temp_merged['days_submitted_early'] == temp_merged['days_early_first_assessment']][['code_module', 'code_presentation', 'id_student','score', 'days_early_first_assessment']]
+
+    # only_first_assessment.rename({'score': 'first_assessment_score'}, axis = 'columns', inplace = True)
 
     # merge dataframes
-    merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+    merged = pd.merge(av_df, f_df, how='inner', on = ['code_module', 'code_presentation', 'id_student'])
 
-    merged2 = pd.merge(merged, only_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
-
-    final_assessment_df = pd.merge(df, merged2, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'])
+    final_assessment_df = pd.merge(merged, only_first_assessment, how='inner', on = ['code_module', 'code_presentation', 'id_student'])
 
     return final_assessment_df
     
@@ -165,7 +172,7 @@ if __name__ == "__main__":
 
     _cols_to_onehot = ['code_module', 'code_presentation', 'gender',    'region', 'highest_education', 'imd_band', 'age_band', 'disability', 'date_registration', ]
 
-    # import the dataframes
+    # load in the dataframes
     main_df = pd.read_csv('data/raw/studentInfo.csv')
     reg_df = pd.read_csv('data/raw/studentRegistrations.csv')
     st_asmt_df = pd.read_csv('data/raw/studentAssessment.csv')
@@ -173,28 +180,28 @@ if __name__ == "__main__":
     st_vle_df = pd.read_csv('data/raw/studentVle.csv')
     vle_df = pd.read_csv('data/raw/vle.csv')
 
-
-
     # perfom transformations / feature engineering
-    main_reg_df = _join_reg(main_df, reg_df)
+    main_df = _join_reg(main_df, reg_df)
+    main_df = _encode_target(main_df)
     joined_vle_df = _join_vle(st_vle_df, vle_df)
     features_vle = _features_from_vle(joined_vle_df)
     joined_assessments = _join_asssessments(st_asmt_df, asmt_df)
     features_assessments = _features_from_assessments(joined_assessments)
 
+
+    # testline
+    main_df.info()
+
+    whos
+
     # join dataframes to main_df
     
-    pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)    
+    main_df = pd.merge(main_df, features_vle, how='outer', on=['code_module', 'code_presentation', 'id_student'])  
     
-    pd.merge(main_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
-
-    pd.merge(std_asmt_df, asmt_df, how='outer', on='id_assessment')
-
-    # drop nulls
-    main_df_dropped_nulls = drop_nulls(main_df)
+    main_df = pd.merge(main_df, features_assessments, how='inner', on = ['code_module', 'code_presentation', 'id_student'])
 
     # one-hot encode categorical variables
-    main_df_final = one_hot(main_df_dropped_nulls, _cols_to_onehot)
+    main_df_final = one_hot(main_df, _cols_to_onehot)
 
     # write out to csv
-    main_df_final.to_csv('../../processed/transformed_data_with_features.csv')
+    main_df_final.to_csv('data/processed/transformed_data_with_features.csv')
