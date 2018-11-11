@@ -62,12 +62,19 @@ def _features_from_vle(df):
     max_clicks.reset_index(inplace=True)
     max_clicks.rename({'sum_click':'max_clicks_one_day'}, axis = 'columns',inplace=True)
 
+    # first date vle accessed
+    first_accessed = df.groupby(by=['id_student', 'code_module', 'code_presentation']).min()[['date']]
+    first_accessed.reset_index(inplace=True)
+    first_accessed.rename({'date':'first_date_vle_accessed'}, axis = 'columns',inplace=True)
+
     # merge and rename columns
     merged = pd.merge(total_clicks, days_accessed, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
-    merged = pd.merge(merged, max_clicks, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+    merged1 = pd.merge(merged, max_clicks, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
     
-    return merged
+    merged2 = pd.merge(merged1, first_accessed, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
+    return merged2
 
 # join assessments to student assessments
 def _join_asssessments(st_asmt_df, asmt_df):
@@ -126,7 +133,9 @@ def _features_from_assessments(df):
     # merge dataframes
     merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
-    merged2 = pd.merge(merged, date_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+    merged1 = pd.merge(merged, early_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
+    merged2 = pd.merge(merged1, date_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     final_assessment_df = pd.merge(merged2, score_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
@@ -186,14 +195,7 @@ if __name__ == "__main__":
     joined_assessments = _join_asssessments(st_asmt_df, asmt_df)
     features_assessments = _features_from_assessments(joined_assessments)
 
-
-    # testline
-    main_df.info()
-
-    # whos
-
-    # join dataframes to main_df
-    
+    # join dataframes to main_df    
     main_df = pd.merge(main_df, features_vle, how='outer', on=['code_module', 'code_presentation', 'id_student'])  
     
     main_df = pd.merge(main_df, features_assessments, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
