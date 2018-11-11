@@ -109,28 +109,26 @@ def _features_from_assessments(df):
     f_df.reset_index(inplace=True)
     f_df.rename({'weighted_score':'estimated_final_score'}, axis = 'columns',inplace=True)
 
-    # first assessment date and score per student / module / presentation
-    # separate date and score? use min of date for score
-    earliest_assessment_date = df.groupby(by=['code_module', 'code_presentation', 'id_student']).max()[['days_submitted_early']]
-    earliest_assessment_date.reset_index(inplace=True)
-    earliest_assessment_date.rename({'days_submitted_early':'days_early_first_assessment'}, axis = 'columns',inplace=True)
+    # first assessment date and score
+    early_first_assessment = df.groupby(by=['code_module', 'code_presentation', 'id_student']).max()[['days_submitted_early']]
+    early_first_assessment.reset_index(inplace=True)
+    early_first_assessment.rename({'days_submitted_early':'days_early_first_assessment'}, axis = 'columns',inplace=True)
 
-    # all good above here
+    date_first_assessment = df.groupby(by=['code_module', 'code_presentation', 'id_student']).min()[['date']]
+    date_first_assessment.reset_index(inplace=True)
+    date_first_assessment.rename({'date':'date_first_assessment'}, axis = 'columns',inplace=True)
 
+    temp_merged = pd.merge(df, date_first_assessment, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'])
 
-
-
-
-    # temp_merged = pd.merge(df, earliest_assessment_date, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'])
-
-    # only_first_assessment = temp_merged[temp_merged['days_submitted_early'] == temp_merged['days_early_first_assessment']][['code_module', 'code_presentation', 'id_student','score', 'days_early_first_assessment']]
-
-    # only_first_assessment.rename({'score': 'first_assessment_score'}, axis = 'columns', inplace = True)
+    score_first_assessment = temp_merged[temp_merged['date'] == temp_merged['date_first_assessment']][['code_module', 'code_presentation', 'id_student','score']]
+    score_first_assessment.rename({'score':'score_first_assessment'}, axis = 'columns', inplace=True)
 
     # merge dataframes
-    merged = pd.merge(av_df, f_df, how='inner', on = ['code_module', 'code_presentation', 'id_student'])
+    merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
-    final_assessment_df = pd.merge(merged, only_first_assessment, how='inner', on = ['code_module', 'code_presentation', 'id_student'])
+    merged2 = pd.merge(merged, date_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+
+    final_assessment_df = pd.merge(merged2, score_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     return final_assessment_df
     
@@ -192,13 +190,13 @@ if __name__ == "__main__":
     # testline
     main_df.info()
 
-    whos
+    # whos
 
     # join dataframes to main_df
     
     main_df = pd.merge(main_df, features_vle, how='outer', on=['code_module', 'code_presentation', 'id_student'])  
     
-    main_df = pd.merge(main_df, features_assessments, how='inner', on = ['code_module', 'code_presentation', 'id_student'])
+    main_df = pd.merge(main_df, features_assessments, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
