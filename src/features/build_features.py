@@ -201,5 +201,8 @@ if __name__ == "__main__":
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
 
+    # drop duplicate index column
+    main_df.drop('Unnamed: 0', axis = 1, inplace = True)
+
     # write out to csv
     main_df_final.to_csv('data/processed/transformed_data_with_features.csv')

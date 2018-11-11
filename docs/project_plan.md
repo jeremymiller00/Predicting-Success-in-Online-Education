@@ -16,7 +16,7 @@ Nevertheless, for some presentations the corresponding previous B/J presentation
 Are the courses undergraduate or postgraduate?
 
 Looks like studentVLE has row for every student for every date they logged in for each module? If I aggregate I lose the fidelity?
-Same with student assessment?
+Same with student assessment? -- Feature engineering to the rescue.
 
 How many assessment are there for each student in each module / presentation?
 It varies, but each student has at least one assessment.
@@ -63,7 +63,8 @@ Have big table by Nov 10
 Features: (+ means 'need to add')
 date registered
 
-Total clicks in module
+Clicks per day of module
+Percent of module days VLE accessed
 Number of days VLE asccessed
 Max clicks in one day
 + days since last interaction?
@@ -71,7 +72,7 @@ Max clicks in one day
 Mean assessment score (thus far for new data points)
 Days assessment submitted early
 estimated final module score
-+ score on first assessment
+score on first assessment
 module
 presentation
 gender
@@ -81,8 +82,11 @@ imd_band
 age_band
 disability
 
+** Target(s) **
+Module not completed
+Final result
+Estimated final grade
 
-Target(s)
 
 ## Split data
 
