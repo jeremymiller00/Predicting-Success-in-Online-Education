@@ -186,8 +186,8 @@ def _encode_target(dataframe):
     # create boolean: not completed y/n
     dataframe['module_not_completed'] = (dataframe['final_result'] == 'Fail') | (dataframe['final_result'] == 'Withdrawn')
 
-    final_result_num = []
     # create numeric column for final_result
+    final_result_num = []
     for idx, row in dataframe.iterrows():
         if row['final_result'] == 'Withdrawn':
             final_result_num.append(0)
