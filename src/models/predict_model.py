@@ -1,5 +1,4 @@
 
-
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import make_scorer
@@ -7,6 +6,27 @@ from sklearn.model_selection import PredefinedSplit, GridSearchCV
 from sklearn.pipeline import Pipeline
 import numpy as np
 import pandas as pd
+
+
+
+def standard_confusion_matrix(y_true, y_pred):
+    """Make confusion matrix with format:
+                  -----------
+                  | TP | FP |
+                  -----------
+                  | FN | TN |
+                  -----------
+    Parameters
+    ----------
+    y_true : ndarray - 1D
+    y_pred : ndarray - 1D
+
+    Returns
+    -------
+    ndarray - 2D
+    """
+    [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
+    return np.array([[tp, fp], [fn, tn]])
 
 
 class DataType(BaseEstimator, TransformerMixin):
@@ -50,6 +70,9 @@ def rmsle(y_hat, y, y_min=5000):
 
 if __name__ == '__main__':
 
+    # fill na values
+    # standard scalar
+    # grid search cv
     # define X and y: data should be already split
     # actually need three train / test / splits (completed, final result (numeric, ordered), estimated final score
     # separate models and grid searches for each

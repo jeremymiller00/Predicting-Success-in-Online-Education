@@ -235,6 +235,17 @@ if __name__ == "__main__":
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
 
+    # split the data: three possible targets
+    X = main_df_final.drop(['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score'], axis = 1)
+
+    y = main_df_final[['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score']]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
     # write out to csv
     main_df_final.to_csv('data/processed/transformed_data_with_features.csv')
+    X_train.to_csv('data/processed/X_train.csv')
+    X_test.to_csv('data/processed/X_test.csv')
+    y_train.to_csv('data/processed/y_train.csv')
+    y_test.to_csv('data/processed/y_test.csv')
 
