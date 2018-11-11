@@ -6,6 +6,7 @@ Inital dataframes imported in the if __name__ == '__main__' block are specified 
 
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 # cast id to string
 def to_string(X, cols):
@@ -151,16 +152,13 @@ def _features_from_assessments(df):
 
     score_first_assessment = temp_merged[temp_merged['date'] == temp_merged['date_first_assessment']][['code_module', 'code_presentation', 'id_student','score']]
     score_first_assessment.rename({'score':'score_first_assessment'}, axis = 'columns', inplace=True)
-    score_first_assessment.drop('date_first_assessment', axis = 1, inplace = True)
 
     # merge dataframes
     merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     merged1 = pd.merge(merged, early_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
-    merged2 = pd.merge(merged1, date_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
-
-    final_assessment_df = pd.merge(merged2, score_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+    final_assessment_df = pd.merge(merged1, score_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     return final_assessment_df
     
@@ -232,10 +230,11 @@ if __name__ == "__main__":
     main_df = pd.merge(main_df, features_assessments, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     # cast id_student to type string
-    main_df = to_string(main_df)
+    main_df = to_string(main_df, ['id_student'])
 
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
 
     # write out to csv
     main_df_final.to_csv('data/processed/transformed_data_with_features.csv')
+
