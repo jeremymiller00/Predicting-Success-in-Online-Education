@@ -46,15 +46,21 @@ def _features_from_vle(df):
     output {dataframe}: dataframe for be joined to main df
     '''
     
-    # caluculate total clicks per student/module/presentation
+    # caluculate clicks/day (total clicks / course length)
     total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['sum_click']]
     total_clicks.reset_index(inplace=True)
     total_clicks.rename({'sum_click':'total_clicks_in_course'}, axis = 'columns',inplace=True)
+    total_clicks = pd.merge(total_clicks, courses_df, how="outer", on = ['code_module', 'code_presentation', 'id_student'])
+    total_clicks['clicks_per_day'] = total_clicks['total_clicks_in_course'] / total_clicks['module_presentation_length']
+    total_clicks.drop(['total_clicks_in_course', 'module_presentation_length'], axis = 1, inplace = True)
 
-    # calculate number of days vle accesses
+    # calculate percentage of days vle accesses (sum_days_accessed / course length)***
     days_accessed = df.groupby(by=['id_student', 'code_module', 'code_presentation']).count()[['date']]
     days_accessed.reset_index(inplace=True)
     days_accessed.rename({'date':'sum_days_vle_accessed'}, axis = 'columns',inplace=True)
+    days_accessed = pd.merge(days_accessed, courses_df, how="outer", on = ['code_module', 'code_presentation', 'id_student'])
+    days_accessed['pct_days_vle_accessed'] = days_accessed['sum_days_vle_accessed'] / days_accessed['module_presentation_length']
+    total_clicks.drop(['sum_days_accessed_vle', 'module_presentation_length'], axis = 1, inplace = True)
 
     # calculate max clicks in one day
     max_clicks = df.groupby(by=['id_student',
@@ -181,6 +187,7 @@ if __name__ == "__main__":
 
     # load in the dataframes
     main_df = pd.read_csv('data/raw/studentInfo.csv')
+    courses_df = pd.read_csv('data/raw/courses.csv')
     reg_df = pd.read_csv('data/raw/studentRegistrations.csv')
     st_asmt_df = pd.read_csv('data/raw/studentAssessment.csv')
     asmt_df = pd.read_csv('data/raw/assessments.csv')
