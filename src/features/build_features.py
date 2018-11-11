@@ -7,6 +7,20 @@ Inital dataframes imported in the if __name__ == '__main__' block are specified 
 import pandas as pd
 import numpy as np
 
+# cast id to string
+def to_string(X, cols):
+    '''
+    Casts specified columns of dataframe to type string.
+
+    Parameters:
+    ----------
+    input {dataframe, list}: dataframe, list of columns to be cast as type string
+    output {dataframe}: dataframe
+    '''
+    for col in cols:
+        X[col] = X[col].astype('str')
+    return X
+
 # join student registration to student info
 def _join_reg(main_df, reg_df):
     '''
@@ -17,7 +31,9 @@ def _join_reg(main_df, reg_df):
     input {dataframes}: studenInfo, studentRegistration
     output {dataframe}: joined dataframe
     '''
-    return pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)
+    df = pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)
+    df.drop('date_unregistration', axis = 1, inplace = True)
+    return df
 
 # join vle to student vle
 def _join_vle(st_vle_df, vle_df):
@@ -135,6 +151,7 @@ def _features_from_assessments(df):
 
     score_first_assessment = temp_merged[temp_merged['date'] == temp_merged['date_first_assessment']][['code_module', 'code_presentation', 'id_student','score']]
     score_first_assessment.rename({'score':'score_first_assessment'}, axis = 'columns', inplace=True)
+    score_first_assessment.drop('date_first_assessment', axis = 1, inplace = True)
 
     # merge dataframes
     merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
@@ -168,7 +185,23 @@ def _encode_target(dataframe):
     Encodes target column 'final_result' into two categories from four.
     Retains original target column
     '''
+    # create boolean: not completed y/n
     dataframe['module_not_completed'] = (dataframe['final_result'] == 'Fail') | (dataframe['final_result'] == 'Withdrawn')
+
+    final_result_num = []
+    # create numeric column for final_result
+    for idx, row in dataframe.iterrows():
+        if row['final_result'] == 'Withdrawn':
+            final_result_num.append(0)
+        elif row['final_result'] == 'Fail':
+            final_result_num.append(1)
+        elif row['final_result'] == 'Pass':
+            final_result_num.append(2)
+        else:
+            final_result_num.append(3)
+
+    dataframe['final_result_num'] = np.array(final_result_num)
+
     return dataframe
 
 ####################################################################
@@ -198,11 +231,11 @@ if __name__ == "__main__":
     
     main_df = pd.merge(main_df, features_assessments, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
+    # cast id_student to type string
+    main_df = to_string(main_df)
+
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
-
-    # drop duplicate index column
-    main_df.drop('Unnamed: 0', axis = 1, inplace = True)
 
     # write out to csv
     main_df_final.to_csv('data/processed/transformed_data_with_features.csv')
