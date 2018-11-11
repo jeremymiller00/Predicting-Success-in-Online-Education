@@ -1,7 +1,7 @@
 '''
 Transformations, feature engineering and extraction
 
-Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transfomation (typically a join with a relevant table). Second level transformations and beyond are speficied with generic keyword arguements.
+Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transformation (typically a join with a relevant table). Second level transformations and beyond are speficied with generic keyword arguements.
 '''
 
 import pandas as pd
@@ -50,7 +50,7 @@ def _features_from_vle(df):
     total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['sum_click']]
     total_clicks.reset_index(inplace=True)
     total_clicks.rename({'sum_click':'total_clicks_in_course'}, axis = 'columns',inplace=True)
-    total_clicks = pd.merge(total_clicks, courses_df, how="outer", on = ['code_module', 'code_presentation', 'id_student'])
+    total_clicks = pd.merge(total_clicks, courses_df, how="outer", on = ['code_module', 'code_presentation'])
     total_clicks['clicks_per_day'] = total_clicks['total_clicks_in_course'] / total_clicks['module_presentation_length']
     total_clicks.drop(['total_clicks_in_course', 'module_presentation_length'], axis = 1, inplace = True)
 
@@ -58,9 +58,9 @@ def _features_from_vle(df):
     days_accessed = df.groupby(by=['id_student', 'code_module', 'code_presentation']).count()[['date']]
     days_accessed.reset_index(inplace=True)
     days_accessed.rename({'date':'sum_days_vle_accessed'}, axis = 'columns',inplace=True)
-    days_accessed = pd.merge(days_accessed, courses_df, how="outer", on = ['code_module', 'code_presentation', 'id_student'])
+    days_accessed = pd.merge(days_accessed, courses_df, how="outer", on = ['code_module', 'code_presentation'])
     days_accessed['pct_days_vle_accessed'] = days_accessed['sum_days_vle_accessed'] / days_accessed['module_presentation_length']
-    total_clicks.drop(['sum_days_accessed_vle', 'module_presentation_length'], axis = 1, inplace = True)
+    days_accessed.drop(['sum_days_vle_accessed', 'module_presentation_length'], axis = 1, inplace = True)
 
     # calculate max clicks in one day
     max_clicks = df.groupby(by=['id_student',
@@ -147,13 +147,6 @@ def _features_from_assessments(df):
 
     return final_assessment_df
     
-# drop null values (about 3.5% of rows)
-def drop_nulls(dataframe):
-    '''
-    Drops rows with null values from dataframe
-    '''
-    return dataframe.dropna(axis = 0)
-
 # make dummmies
 def one_hot(dataframe, columns):
     '''
@@ -167,8 +160,6 @@ def one_hot(dataframe, columns):
     dumms = pd.get_dummies(dataframe[columns], dummy_na=True, drop_first=True)
     full_df = pd.concat([dataframe, dumms], axis = 1)
     return full_df.drop(columns, axis = 1)
-
-# encode some columns as string? student_id?
 
 # encode target: pass/fail
 # three potential targets: pass/fail, type of result, esi final score
