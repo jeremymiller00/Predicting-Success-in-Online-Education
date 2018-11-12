@@ -3,11 +3,11 @@
     You can find documentation on using this class here:
     http://scikit-learn.org/stable/modules/pipeline.html
 """
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score
 from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline, FeatureUnion
 import numpy as np
 import pandas as pd
 
@@ -23,16 +23,6 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 
 
-class FilterColumns(BaseEstimator, TransformerMixin):
-    """Drop duplicated index column.
-    """
-    def fit(self, X, y):
-        return self
-
-    def transform(self, X):
-        return X.drop('Unnamed: 0', axis = 1, inplace=True)
-
-
 class FillNaN(BaseEstimator, TransformerMixin):
     """
     Fill all NaN values with zero. NaN values are result of zero division in feature engineering. Columns affected: clicks_per_day, pct_days_vle_accesed max_clicks_one_day, first_date_vle_accessed, avg_score, avg_days_sub_early, estimated_final_score, days_early_first_assessment, score_first_assessment.
@@ -44,6 +34,18 @@ class FillNaN(BaseEstimator, TransformerMixin):
         return X.fillna(value = 0, axis = 1, inplace = True)
 
 
+class ItemSelector(BaseEstimator, TransformerMixin):
+
+    def __init__(self, columns):
+        self.columns = columns
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X):
+        return X[:, self.columns]
+
+
 class CustomScalar(BaseEstimator, TransformerMixin):
     '''
     Scale numeric data with sklearn StandardScalar
@@ -52,27 +54,13 @@ class CustomScalar(BaseEstimator, TransformerMixin):
         self.scalar = StandardScaler()
 
     def fit(self, X, y):
-        self.scalar_cols = ['num_of_prev_attempts', 'studied_credits',
-        'clicks_per_day', 'pct_days_vle_accessed', 'max_clicks_one_day',
-        'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early' 'days_early_first_assessment',
-        'score_first_assessment']
-        self.scalar.fit(X[self.scalar_cols], y)
+        self.scalar.fit(X)
         return self
 
     def transform(self, X):
-        X_scaled = self.scalar.transform(X[self.scalar_cols])
-        return pd.concat([X_scaled, X[~self.scalar_cols]], axis=1)
+        X_scaled = self.scalar.transform(X)
+        return X_scaled
 
-def rmsle(y_hat, y, y_min=5000):
-    """Calculate the root mean squared log error between y
-    predictions and true ys.
-    (hard-coding y_min for dumb reasons, sorry)
-    """
-
-    if y_min is not None:
-        y_hat = np.clip(y_hat, y_min, None)
-    log_diff = np.log(y_hat+1) - np.log(y+1)
-    return np.sqrt(np.mean(log_diff**2))
 
 def standard_confusion_matrix(y_true, y_pred):
     """Make confusion matrix with format:
@@ -93,7 +81,7 @@ def standard_confusion_matrix(y_true, y_pred):
     [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
     return np.array([[tp, fp], [fn, tn]])
 
-###########################################################################
+########################################################################
 if __name__ == '__main__':
     # fill na values
     # standard scalar
@@ -103,35 +91,45 @@ if __name__ == '__main__':
     # actually need three train / test / splits (completed, final result (numeric, ordered), estimated final score
     # separate models and grid searches for each
     X_train = pd.read_csv('data/processed/X_train.csv')
-    y_train = pd.read_csv('data/processed/X_train.csv')
-    X_test = pd.read_csv('data/processed/X_train.csv')
-    y_test = pd.read_csv('data/processed/X_train.csv')
+    y_train = pd.read_csv('data/processed/y_train.csv')
+    X_test = pd.read_csv('data/processed/X_test.csv')
+    y_test = pd.read_csv('data/processed/y_test.csv')
 
     models = ['MLPClassifier', 'KNeighborsClassifier', 'SVC', 'GaussianProcessClassifier', 'RBF', 'DecisionTreeClassifier', 'RandomForestClassifier', 'AdaBoostClassifier', 'GradientBoostingClassifier', 'GaussianNB', 'QuadraticDiscriminantAnalysis', 'LogisticRegression']
 
+    scalar_cols = ['num_of_prev_attempts', 'studied_credits',
+    'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
+    'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early''days_early_first_assessment',
+    'score_first_assessment']
 
-    p = Pipeline([
-        ('filter_cols', FilterColumns()),
+    lr = LogisticRegression()
+
+    p = Pipeline(steps = [
         ('fill_nan', FillNaN()),
-        ('scalar', CustomScalar()),
+        ('feature_proccessing', FeatureUnion(transformer_list = [
+            ('categorical', FunctionTransformer(lambda data: data[~scalar_cols])),
+            ('numeric', Pipeline(steps = [
+                ('select', FunctionTransformer(lambda data: data[scalar_cols])),
+                ('scale', StandardScaler())
+            ]))
+        ])),
         ('lr', LogisticRegression())
     ])
 
     # GridSearch
-    params = {'C': [1, 50, 100, 100],
-            'penalty': ['l1', 'l2'],
-            'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
-            'max_iter': [50, 100, 500],
-            'warm_start': ['False', 'True'],
+    params = {
+            'lr__C': [1, 10, 100],
+            'lr__penalty': ['l1', 'l2'],
+            'lr__solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
+            'lr__max_iter': [50, 100, 500],
+            'lr__warm_start': ['False', 'True'],
     }
 
-    lr = LogisticRegression()
-
-    gscv = GridSearchCV(lr, param_grid=params,
+    gscv = GridSearchCV(p, param_grid=params,
                         scoring='recall',
                         cv=5)
                         
-    clf = gscv.fit(X_train, y_train)
+    clf = gscv.fit(X_train.drop('id_student', axis=1), y_train)
 
     print('Best parameters: {}'.format(clf.best_params_))
     print('Best RMSLE: {}'.format(clf.best_score_))
