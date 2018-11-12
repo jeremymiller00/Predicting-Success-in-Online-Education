@@ -1,7 +1,6 @@
 
-""" This solution makes heavy use of sklearn's Pipeline class.
-    You can find documentation on using this class here:
-    http://scikit-learn.org/stable/modules/pipeline.html
+""" 
+Functions -based solution
 """
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -12,48 +11,40 @@ import numpy as np
 import pandas as pd
 
 # from sklearn.neural_network import MLPClassifier
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
 # from sklearn.gaussian_process import GaussianProcessClassifier
 # from sklearn.gaussian_process.kernels import RBF
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
-# from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
 # from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 
 
-class FillNaN(BaseEstimator, TransformerMixin):
+def fill_na_subset(df, columns):
     """
     Fill all NaN values with zero. NaN values are result of zero division in feature engineering. Columns affected: clicks_per_day, pct_days_vle_accesed max_clicks_one_day, first_date_vle_accessed, avg_score, avg_days_sub_early, estimated_final_score, days_early_first_assessment, score_first_assessment.
     """
-    def fit(self, X, y):
-        return self
+    pass
 
-    def transform(self, X):
-        return X.fillna(value = 0, axis = 1, inplace = False)
-
-
-class CustomScalar(BaseEstimator, TransformerMixin):
+def scale_subset(df, columns):
     '''
-    Scale numeric data with sklearn StandardScalar
+    Use sklearn StandardScalar to scale only numeric columns.
+
+    Parameters:
+    ----------
+    input {dataframe, list}: dataframe containing mixed feature variable types, list of names of numeric feature columns
+    output: {dataframe}: dataframe with numeric features scaled and categorical features unchanged
+
     '''
-    def __init__(self):
-        self.scalar = StandardScaler()
-
-    def fit(self, X, y):
-        self.numeric_cols = ['num_of_prev_attempts', 'studied_credits',
-        'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
-        'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',   'days_early_first_assessment',
-        'score_first_assessment']
-        self.numeric = X[self.numeric_cols]
-        self.categorical = X.drop(self.numeric_cols, axis = 1)
-        self.scalar.fit(self.numeric)
-        return self
-
-    def transform(self, X):
-        X_scaled = pd.DataFrame(self.scalar.transform(self.numeric))
-        return pd.concat([X_scaled, self.categorical], axis = 1)
+    scalar = StandardScaler()
+    numeric = df[columns]
+    categorical = df.drop(columns, axis = 1)
+    scalar.fit(numeric)
+    num_scaled = pd.DataFrame(scalar.transform(numeric))
+    num_scaled.rename(columns = dict(zip(num_scaled.columns, numeric_cols)), inplace = True)
+    return pd.concat([num_scaled, categorical], axis = 1)
 
 
 def standard_confusion_matrix(y_true, y_pred):
@@ -86,21 +77,21 @@ if __name__ == '__main__':
     y_train = pd.read_csv('data/processed/y_train.csv')
     # X_test = pd.read_csv('data/processed/X_test.csv')
     # y_test = pd.read_csv('data/processed/y_test.csv')
+    X_train_mini = X_train.iloc[:100].drop('id_student', axis=1)
+    y_train_mini = y_train['module_not_completed'].iloc[:100]
 
-    # models = ['MLPClassifier', 'KNeighborsClassifier', 'SVC', 'GaussianProcessClassifier', 'RBF', 'DecisionTreeClassifier', 'RandomForestClassifier', 'AdaBoostClassifier', 'GradientBoostingClassifier', 'GaussianNB', 'QuadraticDiscriminantAnalysis', 'LogisticRegression']
+    numeric_cols = ['num_of_prev_attempts', 'studied_credits',
+    'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
+    'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',  'days_early_first_assessment',
+    'score_first_assessment']
 
-    # numeric_cols = ['num_of_prev_attempts', 'studied_credits',
-    # 'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
-    # 'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early','days_early_first_assessment',
-    # 'score_first_assessment']
+    # fill and scale
+    X_train_mini.fillna(value = 0, inplace = True)
+    X_train_mini_scaled = scale_subset(X_train_mini, numeric_cols)
 
-    # categorical_cols = X_train.drop(numeric_cols, axis = 1).columns
-
-    # lr = LogisticRegression()
-
-    p = Pipeline(steps = [
-        ('fill_nan', FillNaN()),
-        ('scaling', CustomScalar()),
+    # p = Pipeline(steps = [
+    #     ('fill_nan', FillNaN()),
+    #     ('scaling', CustomScalar()),
 
         # ('feature_proccessing', FeatureUnion(transformer_list = [
         #     ('categorical', FunctionTransformer(lambda data: data[categorical_cols])),
@@ -109,38 +100,113 @@ if __name__ == '__main__':
         #         ('scale', StandardScaler())
         #     ]))
         # ])),
-        ('lr', LogisticRegression())
-    ])
+    #     ('lr', LogisticRegression())
+    # ])
 
-    # try skipping the pipeline, gridsearch
+    # estimators
     # lr = LogisticRegression()
+    rf = RandomForestClassifier()
+    # dt = DecisionTreeClassifier()
+    # gb = GradientBoostingClassifier()
+    # ada = AdaBoostClassifier()
+    # nb = GaussianNB()
+    # svc = SVC()
+    
+    # GridSearch parameters
+    # lr_params = {
+    #         'C': [0.001, 0.01, 0.1, 1, 10, 100],
+    #         'penalty': ['l2'],
+    #         'solver': ['newton-cg','lbfgs', 'liblinear'],
+    #         'max_iter': [25, 50, 100, 200, 500, 1000],
+    #         'warm_start': ['False', 'True'],
+    # }
 
-    # GridSearch
-    params = {
-            'lr__C': [0.001, 0.01, 0.1, 1, 10, 100],
-            'lr__penalty': ['l2'],
-            'lr__solver': ['newton-cg','lbfgs', 'liblinear'],
-            'lr__max_iter': [25, 50, 100, 200],
-            'lr__warm_start': ['False', 'True'],
+    rf_params = {
+            'n_estimators': [10, 100, 500, 1000, 5000],
+            'max_depth': [3, 5, 10, 50],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 3, 5],
+            'max_features': ['auto', 'sqrt', 'log2'],
+            'min_impurity_decrease': [0, 1, 5],
     }
+    
+    # dt_params = {
+    #         'max_depth': [3, 5, 10, 50],
+    #         'min_samples_split': [2, 5, 10],
+    #         'min_samples_leaf': [1, 3, 5],
+    #         'max_features': ['auto', 'sqrt', 'log2'],
+    #         'min_impurity_decrease': [0, 1, 5],
+    # }
+    
+    # gb_params = {
+    #         'max_depth': [2, 3, 5],
+    #         'learing_rate': [0.001, 0.01, 0.1, 1]
+    #         'n_estimators': [10, 100, 500, 1000, 5000],
+    #         'subsample': [1, 0.5, 0.3, 0.1]
+    #         'min_samples_split': [2, 5, 10],
+    #         'min_samples_leaf': [1, 3, 5],
+    #         'max_features': ['auto', 'sqrt', 'log2'],
+    #         'min_impurity_decrease': [0, 1, 5],
+    # }
 
-    clf = GridSearchCV(p, param_grid=params,
+    # ada_params = {
+    #         'learing_rate': [0.001, 0.01, 0.1, 1]
+    #         'n_estimators': [10, 100, 500, 1000, 5000],
+    # }
+
+    # svc_params = {
+    #         'C': [0.001, 0.01, 0.1, 1, 10, 100],
+    #         'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+    #         'degree': [1,3,5,7],
+    #         'gamma': [0.001, 0.01, 0.1],
+    #         'probability': ['True'],
+    # }
+
+    # lr_clf = GridSearchCV(lr, param_grid=lr_params,
+    #                     scoring='recall',
+    #                     n_jobs=-1,
+    #                     cv=5)
+
+    rf_clf = GridSearchCV(rf, param_grid=rf_params,
                         scoring='recall',
+                        n_jobs=-1,
                         cv=5)
 
-    # clf = gscv.fit(X_train.drop('id_student', axis=1), y_train)
-    X_train_mini = X_train.iloc[:1000].drop('id_student', axis=1).fillna(value=0, axis=1)
-    y_train_mini = y_train['module_not_completed'].iloc[:1000].values.reshape(-1,1)
+    # dt_clf = GridSearchCV(dt, param_grid=dt_params,
+    #                     scoring='recall',
+    #                     n_jobs=-1,
+    #                     cv=5)
 
-    clf.fit(X_train_mini, y_train_mini)
+    # gb_clf = GridSearchCV(gb, param_grid=gb_params,
+    #                     scoring='recall',
+    #                     n_jobs=-1,
+    #                     cv=5)
+
+    # ada_clf = GridSearchCV(ada, param_grid=ada_params,
+    #                     scoring='recall',
+    #                     n_jobs=-1,
+    #                     cv=5)
+
+    # svc_clf = GridSearchCV(svc, param_grid=svc_params,
+    #                     scoring='recall',
+    #                     n_jobs=-1,
+    #                     cv=5)
+
+    # lr_clf.fit(X_train_mini, y_train_mini)
+    rf_clf.fit(X_train_mini, y_train_mini)
+    # dt_clf.fit(X_train_mini, y_train_mini)
+    # gb_clf.fit(X_train_mini, y_train_mini)
+    # ada_clf.fit(X_train_mini, y_train_mini)
+    # svc_clf.fit(X_train_mini, y_train_mini)
 
     # print('Coefficients: {}'.format(clf.coef_))
     # print('Best Recall: {}'.format(clf.best_score_))
 
+    # print('Best LR parameters: {}'.format(lr_clf.best_params_))
+    # print('Best LR Recall: {}'.format(lr_clf.best_score_))
 
-    print('Best parameters: {}'.format(clf.best_params_))
-    # print('Best Recall: {}'.format(clf.best_score_))
-
+    print('Best RF parameters: {}'.format(rf_clf.best_params_))
+    print('Best RF Recall: {}'.format(rf_clf.best_score_))
 
 
 
