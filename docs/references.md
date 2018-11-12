@@ -14,3 +14,8 @@
 [https://blog.rinesi.com/the-normalcy-of-online-learning-the-more-study-the-better-you-do/](https://blog.rinesi.com/the-normalcy-of-online-learning-the-more-study-the-better-you-do/)  
 
 [https://nycdatascience.com/blog/student-works/r-visualization/clicks-grades-relationship-student-interactions-virtual-learning-environment-overall-grade/](https://nycdatascience.com/blog/student-works/r-visualization/clicks-grades-relationship-student-interactions-virtual-learning-environment-overall-grade/)
+
+## Other
+
+[https://help.open.ac.uk/documents/policies/assessment-handbook/files/12/assessment-handbook-after290912.pdf](https://help.open.ac.uk/documents/policies/assessment-handbook/files/12/assessment-handbook-after290912.pdf
+)
