@@ -216,6 +216,10 @@ if __name__ == "__main__":
     st_vle_df = pd.read_csv('data/raw/studentVle.csv')
     vle_df = pd.read_csv('data/raw/vle.csv')
 
+    # test
+    main_df.columns
+    X_train.columns
+
     # perfom transformations / feature engineering
     main_df = _join_reg(main_df, reg_df)
     main_df = _encode_target(main_df)
@@ -243,9 +247,9 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     # write out to csv
-    main_df_final.to_csv('data/processed/transformed_data_with_features.csv')
-    X_train.to_csv('data/processed/X_train.csv')
-    X_test.to_csv('data/processed/X_test.csv')
-    y_train.to_csv('data/processed/y_train.csv')
-    y_test.to_csv('data/processed/y_test.csv')
+    main_df_final.to_csv('data/processed/transformed_data_with_features.csv', index=False)
+    X_train.to_csv('data/processed/X_train.csv', index=False)
+    X_test.to_csv('data/processed/X_test.csv', index=False)
+    y_train.to_csv('data/processed/y_train.csv', index=False)
+    y_test.to_csv('data/processed/y_test.csv', index=False)
 

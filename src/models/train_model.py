@@ -30,7 +30,7 @@ class FilterColumns(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        return X.drop('Unnamed: 0', axis = 1)
+        return X.drop('Unnamed: 0', axis = 1, inplace=True)
 
 
 class FillNaN(BaseEstimator, TransformerMixin):
@@ -44,7 +44,7 @@ class FillNaN(BaseEstimator, TransformerMixin):
         return X.fillna(value = 0, axis = 1, inplace = True)
 
 
-class CustomScalar(TransformerMixin):
+class CustomScalar(BaseEstimator, TransformerMixin):
     '''
     Scale numeric data with sklearn StandardScalar
     '''
@@ -61,8 +61,7 @@ class CustomScalar(TransformerMixin):
 
     def transform(self, X):
         X_scaled = self.scalar.transform(X[self.scalar_cols])
-        return X_scaled
-
+        return pd.concat([X_scaled, X[~self.scalar_cols]], axis=1)
 
 def rmsle(y_hat, y, y_min=5000):
     """Calculate the root mean squared log error between y
@@ -119,18 +118,16 @@ if __name__ == '__main__':
     ])
 
     # GridSearch
-    params = {'penalty': ['l1', 'l2'],
-            'C': [1, 50, 100, 100], # stuck here
+    params = {'C': [1, 50, 100, 100],
+            'penalty': ['l1', 'l2'],
             'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
             'max_iter': [50, 100, 500],
             'warm_start': ['False', 'True'],
     }
 
-    # Turns our rmsle func into a scorer of the type required
-    # # by gridsearchcv.
-    # rmsle_scorer = make_scorer(rmsle, greater_is_better=False)
+    lr = LogisticRegression()
 
-    gscv = GridSearchCV(p, param_grid=params,
+    gscv = GridSearchCV(lr, param_grid=params,
                         scoring='recall',
                         cv=5)
                         
