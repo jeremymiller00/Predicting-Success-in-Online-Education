@@ -23,25 +23,6 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 
 
-def standard_confusion_matrix(y_true, y_pred):
-    """Make confusion matrix with format:
-                  -----------
-                  | TP | FP |
-                  -----------
-                  | FN | TN |
-                  -----------
-    Parameters
-    ----------
-    y_true : ndarray - 1D
-    y_pred : ndarray - 1D
-
-    Returns
-    -------
-    ndarray - 2D
-    """
-    [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
-    return np.array([[tp, fp], [fn, tn]])
-
 class FilterColumns(BaseEstimator, TransformerMixin):
     """Drop duplicated index column.
     """
@@ -94,6 +75,25 @@ def rmsle(y_hat, y, y_min=5000):
     log_diff = np.log(y_hat+1) - np.log(y+1)
     return np.sqrt(np.mean(log_diff**2))
 
+def standard_confusion_matrix(y_true, y_pred):
+    """Make confusion matrix with format:
+                  -----------
+                  | TP | FP |
+                  -----------
+                  | FN | TN |
+                  -----------
+    Parameters
+    ----------
+    y_true : ndarray - 1D
+    y_pred : ndarray - 1D
+
+    Returns
+    -------
+    ndarray - 2D
+    """
+    [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
+    return np.array([[tp, fp], [fn, tn]])
+
 ###########################################################################
 if __name__ == '__main__':
     # fill na values
@@ -103,45 +103,46 @@ if __name__ == '__main__':
     # X is everything except finalresult, finalresultnum, modulenotcompleted, estimatedfinalscore
     # actually need three train / test / splits (completed, final result (numeric, ordered), estimated final score
     # separate models and grid searches for each
-    X_train = pd.read_csv('data/processed/X_train')
-    y_train = pd.read_csv('data/processed/X_train')
-    X_test = pd.read_csv('data/processed/X_train')
-    y_test = pd.read_csv('data/processed/X_train')
+    X_train = pd.read_csv('data/processed/X_train.csv')
+    y_train = pd.read_csv('data/processed/X_train.csv')
+    X_test = pd.read_csv('data/processed/X_train.csv')
+    y_test = pd.read_csv('data/processed/X_train.csv')
 
-models = ['MLPClassifier', 'KNeighborsClassifier', 'SVC', 'GaussianProcessClassifier', 'RBF', 'DecisionTreeClassifier', 'RandomForestClassifier', 'AdaBoostClassifier', 'GradientBoostingClassifier', 'GaussianNB', 'QuadraticDiscriminantAnalysis', 'LogisticRegression']
+    models = ['MLPClassifier', 'KNeighborsClassifier', 'SVC', 'GaussianProcessClassifier', 'RBF', 'DecisionTreeClassifier', 'RandomForestClassifier', 'AdaBoostClassifier', 'GradientBoostingClassifier', 'GaussianNB', 'QuadraticDiscriminantAnalysis', 'LogisticRegression']
 
 
     p = Pipeline([
+        ('filter_cols', FilterColumns()),
         ('fill_nan', FillNaN()),
-        ('type_change', DataType()),
-        ('replace_outliers', ReplaceOutliers()),
-        ('compute_age', ComputeAge()),
-        ('nearest_average', ComputeNearestMean()),
-        ('columns', ColumnFilter()),
+        ('scalar', CustomScalar()),
         ('lr', LogisticRegression())
     ])
-    df = df.reset_index()
 
     # GridSearch
-    params = {'nearest_average__window': [3, 5, 7]}
+    params = {'penalty': ['l1', 'l2'],
+            'C': [1, 50, 100, 100], # stuck here
+            'solver': ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga'],
+            'max_iter': [50, 100, 500],
+            'warm_start': ['False', 'True'],
+    }
 
     # Turns our rmsle func into a scorer of the type required
-    # by gridsearchcv.
-    rmsle_scorer = make_scorer(rmsle, greater_is_better=False)
+    # # by gridsearchcv.
+    # rmsle_scorer = make_scorer(rmsle, greater_is_better=False)
 
     gscv = GridSearchCV(p, param_grid=params,
-                        scoring=rmsle_scorer,
-                        cv=cross_val,
-                        n_jobs=-1)
-    clf = gscv.fit(df.reset_index(), y)
+                        scoring='recall',
+                        cv=5)
+                        
+    clf = gscv.fit(X_train, y_train)
 
     print('Best parameters: {}'.format(clf.best_params_))
     print('Best RMSLE: {}'.format(clf.best_score_))
 
-    test = pd.read_csv('data/test.csv')
-    test = test.sort_values(by='SalesID')
+    # test = pd.read_csv('data/test.csv')
+    # test = test.sort_values(by='SalesID')
 
-    test_predictions = np.clip(clf.predict(test), y_min_cutoff, None)
-    test['SalePrice'] = test_predictions
-    outfile = 'data/solution_benchmark.csv'
-    test[['SalesID', 'SalePrice']].to_csv(outfile, index=False)
+    # test_predictions = np.clip(clf.predict(test), y_min_cutoff, None)
+    # test['SalePrice'] = test_predictions
+    # outfile = 'data/solution_benchmark.csv'
+    # test[['SalesID', 'SalePrice']].to_csv(outfile, index=False)
