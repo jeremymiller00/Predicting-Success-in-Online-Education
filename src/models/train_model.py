@@ -5,6 +5,8 @@ Functions -based solution
 import numpy as np
 import pandas as pd
 import pickle
+import os
+from s3fs.core import S3FileSystem
 
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -72,10 +74,13 @@ if __name__ == '__main__':
     # grid search cv
     # make base estimator a parameter
 
+    # local paths
     X_train = pd.read_csv('data/processed/X_train.csv')
     y_train = pd.read_csv('data/processed/y_train.csv')
     # X_test = pd.read_csv('data/processed/X_test.csv')
     # y_test = pd.read_csv('data/processed/y_test.csv')
+
+
     X_train_mini = X_train.iloc[:20].drop('id_student', axis=1)
     y_train_mini = y_train['module_not_completed'].iloc[:20]
 
@@ -129,7 +134,6 @@ if __name__ == '__main__':
             'min_impurity_decrease': [0, 1, 5],
     }
     
-
     # dt_params = {
     #         'max_depth': [3, 5, 10, 50],
     #         'min_samples_split': [2, 5, 10],
