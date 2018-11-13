@@ -33,7 +33,6 @@ def _join_reg(main_df, reg_df):
     output {dataframe}: joined dataframe
     '''
     df = pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)
-    df.drop('date_unregistration', axis = 1, inplace = True)
     return df
 
 # join vle to student vle
@@ -216,10 +215,6 @@ if __name__ == "__main__":
     st_vle_df = pd.read_csv('data/raw/studentVle.csv')
     vle_df = pd.read_csv('data/raw/vle.csv')
 
-    # test
-    main_df.columns
-    X_train.columns
-
     # perfom transformations / feature engineering
     main_df = _join_reg(main_df, reg_df)
     main_df = _encode_target(main_df)
@@ -235,6 +230,9 @@ if __name__ == "__main__":
 
     # cast id_student to type string
     main_df = to_string(main_df, ['id_student'])
+
+    # filter out students who dropped before the first day of the course
+    main_df = main_df[(main_df['date_unregistration'] > 0) | (main_df['date_unregistration'].isnull())]
 
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
