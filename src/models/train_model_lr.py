@@ -81,6 +81,7 @@ if __name__ == '__main__':
     # fill and scale
     # X_train_mini.fillna(value = 0, inplace = True)
     # X_train_mini = scale_subset(X_train_mini, numeric_cols)
+    X_train.drop('date_unregistration', axis = 1, inplace = True)
     X_train.fillna(value = 0, inplace = True)
     X_train = scale_subset(X_train, numeric_cols)
 
