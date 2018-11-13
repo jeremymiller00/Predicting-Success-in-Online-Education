@@ -231,9 +231,6 @@ if __name__ == "__main__":
     # cast id_student to type string
     main_df = to_string(main_df, ['id_student'])
 
-    # test line
-    main_df.shape
-
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
 
@@ -241,7 +238,7 @@ if __name__ == "__main__":
     main_df = main_df[(main_df['date_unregistration'] > 0) | (main_df['date_unregistration'].isnull())]
 
     # split the data: three possible targets
-    X = main_df_final.drop(['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score'], axis = 1)
+    X = main_df_final.drop(['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score', 'date_unregistration', 'id_student'], axis = 1)
 
     y = main_df_final[['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score']]
 

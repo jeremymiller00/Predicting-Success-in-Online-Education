@@ -12,12 +12,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 
 
-def fill_na_subset(df, columns):
-    """
-    Fill all NaN values with zero. NaN values are result of zero division in feature engineering. Columns affected: clicks_per_day, pct_days_vle_accesed max_clicks_one_day, first_date_vle_accessed, avg_score, avg_days_sub_early, estimated_final_score, days_early_first_assessment, score_first_assessment.
-    """
-    pass
-
 def scale_subset(df, columns):
     '''
     Use sklearn StandardScalar to scale only numeric columns.
@@ -56,22 +50,16 @@ def standard_confusion_matrix(y_true, y_pred):
     [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
     return np.array([[tp, fp], [fn, tn]])
 
-########################################################################
-if __name__ == '__main__':
-    # fill na values
-    # standard scalar
-    # grid search cv
-    # make base estimator a parameter
+######################################################################
 
-    # local paths
+if __name__ == '__main__':
+
     X_train = pd.read_csv('data/processed/X_train.csv')
     y_train = pd.read_csv('data/processed/y_train.csv')
     y_train = y_train['module_not_completed']
-    # X_test = pd.read_csv('data/processed/X_test.csv')
-    # y_test = pd.read_csv('data/processed/y_test.csv')
-
-    # X_train = X_train.iloc[:10].drop('id_student', axis=1)
-    # y_train = y_train['module_not_completed'].iloc[:10]
+    X_test = pd.read_csv('data/processed/X_test.csv')
+    y_test = pd.read_csv('data/processed/y_test.csv')
+    y_test = y_test['module_not_completed']
 
     numeric_cols = ['num_of_prev_attempts', 'studied_credits',
     'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
@@ -79,11 +67,12 @@ if __name__ == '__main__':
     'score_first_assessment']
 
     # fill and scale
-    # X_train_mini.fillna(value = 0, inplace = True)
-    # X_train_mini = scale_subset(X_train_mini, numeric_cols)
     X_train.drop('date_unregistration', axis = 1, inplace = True)
     X_train.fillna(value = 0, inplace = True)
     X_train = scale_subset(X_train, numeric_cols)
+    X_test.drop('date_unregistration', axis = 1, inplace = True)
+    X_test.fillna(value = 0, inplace = True)
+    X_test = scale_subset(X_test, numeric_cols)
 
     # estimators
     lr = LogisticRegression()
@@ -104,29 +93,30 @@ if __name__ == '__main__':
 
     lr_clf.fit(X_train, y_train)
 
-    # test line
     log_reg_model = lr_clf.best_estimator_
     predictions = log_reg_model.predict(X_train)
 
-    #working here!
     print('Best Model: {}'.format(log_reg_model))
-    print('Best Model parameters: {}'.format(log_reg_model.best_params_))
-    print('Best Model Log Loss: {}'.format(log_reg_model.best_score_))
-    print('Best Model Log Recall: {}'.format(log_reg_model.best_score_))
-    print('Best Model Roc Auc: {}'.format(log_reg_model.best_score_))
-
-
+    print('Best Model parameters: {}'.format(lr_clf.best_params_))
+    print('Best Model Log Loss: {}'.format(lr_clf.best_score_))
 
     # save model
-    pickle.dump(log_reg_model, open('src/models/completion_classifier_lr.p', 'wb')) 
+    pickle.dump(log_reg_model, open('models/logistic_regression_completion.p', 'wb'))
 
+    # evaluation
+    predictions = log_reg_model.predict(X_test)
+    roc_auc = roc_auc_score(y_test, predictions)
+    probas = log_reg_model.predict_proba(X_test)[:, 1:]
+    tprs, fprs, thresh = roc_curve(y_test, probas)
+    recall = recall_score(y_test, predictions)
 
-
-
-    # test = pd.read_csv('data/test.csv')
-    # test = test.sort_values(by='SalesID')
-
-    # test_predictions = np.clip(clf.predict(test), y_min_cutoff, None)
-    # test['SalePrice'] = test_predictions
-    # outfile = 'data/solution_benchmark.csv'
-    # test[['SalesID', 'SalePrice']].to_csv(outfile, index=False)
+    plt.figure(figsize=(12,10))
+    plt.plot(fprs, tprs, 
+         label='Logistic Regression', 
+         color='red')
+    plt.plot([0,1],[0,1], 'k:')
+    plt.legend()
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
+    plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
+    plt.show()

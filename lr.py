@@ -3,7 +3,7 @@ LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True,
           n_jobs=None, penalty='l2', random_state=None, solver='newton-cg',
           tol=0.0001, verbose=0, warm_start='False')
 
-coefficients
+coef_
 array([[ 8.59794484e-02,  5.09805225e-02,  7.62511735e-01,
         -2.80804022e+00, -3.16013717e-01, -1.71615576e-01,
         -1.72440581e+00,  8.65701806e-01, -1.00008310e+00,
@@ -23,3 +23,9 @@ array([[ 8.59794484e-02,  5.09805225e-02,  7.62511735e-01,
         -3.14858196e-01, -3.97381862e-01, -6.11513347e-01,
         -6.04666833e-01,  3.77295810e-01,  6.08443429e-01,
          0.00000000e+00,  3.06476241e-01,  0.00000000e+00]])
+
+intercept_
+array([-0.36978294])
+
+log_reg_model.classes_
+array([False,  True])
