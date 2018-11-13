@@ -203,12 +203,12 @@ if __name__ == '__main__':
                         n_jobs=-1,
                         cv=5)
 
-    lr_clf.fit(X_train_mini, y_train_mini)
-    rf_clf.fit(X_train_mini, y_train_mini)
-    dt_clf.fit(X_train_mini, y_train_mini)
-    gb_clf.fit(X_train_mini, y_train_mini)
-    ada_clf.fit(X_train_mini, y_train_mini)
-    svc_clf.fit(X_train_mini, y_train_mini)
+    lr_clf.fit(X_train, y_train)
+    rf_clf.fit(X_train, y_train)
+    dt_clf.fit(X_train, y_train)
+    gb_clf.fit(X_train, y_train)
+    ada_clf.fit(X_train, y_train)
+    svc_clf.fit(X_train, y_train)
 
     # print('Best LR parameters: {}'.format(lr_clf.best_params_))
     # print('Best LR Recall: {}'.format(lr_clf.best_score_))
