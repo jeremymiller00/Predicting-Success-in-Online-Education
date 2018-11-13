@@ -152,11 +152,11 @@ if __name__ == '__main__':
     # }
 
     gb_params = {
-            'max_depth': [2, 3, 5],
-            'learning_rate': [0.001, 0.01, 0.1, 1],
-            'n_estimators': [10, 100, 500, 1000, 5000],
-            'subsample': [1, 0.5, 0.3, 0.1],
-            'max_features': ['auto', 'sqrt', 'log2'],
+            'max_depth': [2, 3],
+            'learning_rate': [0.1, 1],
+            'n_estimators': [100, 1000],
+            'subsample': [1, 0.5],
+            'max_features': ['auto'],
     }
 
     # ada_params = {
