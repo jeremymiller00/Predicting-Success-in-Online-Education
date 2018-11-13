@@ -2,23 +2,22 @@
 """ 
 Functions -based solution
 """
-from sklearn.preprocessing import StandardScaler, FunctionTransformer
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.metrics import make_scorer, confusion_matrix, recall_score
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline, FeatureUnion
 import numpy as np
 import pandas as pd
+import pickle
+
+from sklearn.preprocessing import StandardScaler, FunctionTransformer
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline, FeatureUnion
 
 # from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-# from sklearn.gaussian_process import GaussianProcessClassifier
-# from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
-# from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 
 
@@ -77,8 +76,8 @@ if __name__ == '__main__':
     y_train = pd.read_csv('data/processed/y_train.csv')
     # X_test = pd.read_csv('data/processed/X_test.csv')
     # y_test = pd.read_csv('data/processed/y_test.csv')
-    X_train_mini = X_train.iloc[:100].drop('id_student', axis=1)
-    y_train_mini = y_train['module_not_completed'].iloc[:100]
+    X_train_mini = X_train.iloc[:20].drop('id_student', axis=1)
+    y_train_mini = y_train['module_not_completed'].iloc[:20]
 
     numeric_cols = ['num_of_prev_attempts', 'studied_credits',
     'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
@@ -121,15 +120,25 @@ if __name__ == '__main__':
     #         'warm_start': ['False', 'True'],
     # }
 
+    # rf_params = {
+    #         'n_estimators': [10, 100, 1000],
+    #         'max_depth': [5, 10, 50],
+    #         'min_samples_split': [2, 5, 10],
+    #         'min_samples_leaf': [1, 3, 5],
+    #         'max_features': ['auto', 'sqrt', 'log2'],
+    #         'min_impurity_decrease': [0, 1, 5],
+    # }
+    
     rf_params = {
-            'n_estimators': [10, 100, 500, 1000, 5000],
-            'max_depth': [3, 5, 10, 50],
+            'n_estimators': [50, 100, 1000],
+            'max_depth': [3, 5, 10],
             'min_samples_split': [2, 5, 10],
             'min_samples_leaf': [1, 3, 5],
             'max_features': ['auto', 'sqrt', 'log2'],
             'min_impurity_decrease': [0, 1, 5],
     }
     
+
     # dt_params = {
     #         'max_depth': [3, 5, 10, 50],
     #         'min_samples_split': [2, 5, 10],
@@ -199,16 +208,23 @@ if __name__ == '__main__':
     # ada_clf.fit(X_train_mini, y_train_mini)
     # svc_clf.fit(X_train_mini, y_train_mini)
 
-    # print('Coefficients: {}'.format(clf.coef_))
-    # print('Best Recall: {}'.format(clf.best_score_))
-
     # print('Best LR parameters: {}'.format(lr_clf.best_params_))
     # print('Best LR Recall: {}'.format(lr_clf.best_score_))
 
-    print('Best RF parameters: {}'.format(rf_clf.best_params_))
-    print('Best RF Recall: {}'.format(rf_clf.best_score_))
+    # model_dict = {}
+    # models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
+    # for model in models:
+    #     model_dict[model] = [model.best_score_]
+    # best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
 
+    # test line
+    best_model = rf_clf
 
+    print('Best Model: {}'.format(best_model))
+    print('Best Model parameters: {}'.format(best_model.best_params_))
+    print('Best Model Recall: {}'.format(best_model.best_score_))
+
+    pickle.dump(best_model, open('/src/models/completion_classifier.p', 'wb')) # save model
 
     # test = pd.read_csv('data/test.csv')
     # test = test.sort_values(by='SalesID')
