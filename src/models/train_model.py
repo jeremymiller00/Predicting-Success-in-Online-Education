@@ -5,8 +5,6 @@ Functions -based solution
 import numpy as np
 import pandas as pd
 import pickle
-import os
-from s3fs.core import S3FileSystem
 
 from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -108,7 +106,7 @@ if __name__ == '__main__':
     # ])
 
     # estimators
-    # lr = LogisticRegression()
+    lr = LogisticRegression()
     rf = RandomForestClassifier()
     # dt = DecisionTreeClassifier()
     # gb = GradientBoostingClassifier()
@@ -117,13 +115,13 @@ if __name__ == '__main__':
     # svc = SVC()
     
     # GridSearch parameters
-    # lr_params = {
-    #         'C': [0.001, 0.01, 0.1, 1, 10, 100],
-    #         'penalty': ['l2'],
-    #         'solver': ['newton-cg','lbfgs', 'liblinear'],
-    #         'max_iter': [25, 50, 100, 200, 500, 1000],
-    #         'warm_start': ['False', 'True'],
-    # }
+    lr_params = {
+            'C': [0.001, 0.01, 0.1, 1, 10, 100],
+            'penalty': ['l2'],
+            'solver': ['newton-cg','lbfgs', 'liblinear'],
+            'max_iter': [25, 50, 100, 200, 500, 1000],
+            'warm_start': ['False', 'True'],
+    }
 
     rf_params = {
             'n_estimators': [50, 100, 1000],
@@ -166,10 +164,10 @@ if __name__ == '__main__':
     #         'probability': ['True'],
     # }
 
-    # lr_clf = GridSearchCV(lr, param_grid=lr_params,
-    #                     scoring='recall',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    lr_clf = GridSearchCV(lr, param_grid=lr_params,
+                        scoring='recall',
+                        n_jobs=-1,
+                        cv=5)
 
     rf_clf = GridSearchCV(rf, param_grid=rf_params,
                         scoring='recall',
@@ -196,7 +194,7 @@ if __name__ == '__main__':
     #                     n_jobs=-1,
     #                     cv=5)
 
-    # lr_clf.fit(X_train_mini, y_train_mini)
+    lr_clf.fit(X_train_mini, y_train_mini)
     rf_clf.fit(X_train_mini, y_train_mini)
     # dt_clf.fit(X_train_mini, y_train_mini)
     # gb_clf.fit(X_train_mini, y_train_mini)
@@ -206,14 +204,15 @@ if __name__ == '__main__':
     # print('Best LR parameters: {}'.format(lr_clf.best_params_))
     # print('Best LR Recall: {}'.format(lr_clf.best_score_))
 
-    # model_dict = {}
+    model_dict = {}
     # models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
-    # for model in models:
-    #     model_dict[model] = [model.best_score_]
-    # best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
+    models = [lr_clf, rf_clf]
+    for model in models:
+        model_dict[model] = [model.best_score_]
+    best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
 
     # test line
-    best_model = rf_clf
+    # best_model = rf_clf
 
     print('Best Model: {}'.format(best_model))
     print('Best Model parameters: {}'.format(best_model.best_params_))
