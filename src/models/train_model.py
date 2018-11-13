@@ -75,12 +75,12 @@ if __name__ == '__main__':
     # local paths
     X_train = pd.read_csv('data/processed/X_train.csv')
     y_train = pd.read_csv('data/processed/y_train.csv')
+    y_train = y_train['module_not_completed']
     # X_test = pd.read_csv('data/processed/X_test.csv')
     # y_test = pd.read_csv('data/processed/y_test.csv')
 
-
-    # X_train_mini = X_train.iloc[:10].drop('id_student', axis=1)
-    # y_train_mini = y_train['module_not_completed'].iloc[:10]
+    # X_train = X_train.iloc[:10].drop('id_student', axis=1)
+    # y_train = y_train['module_not_completed'].iloc[:10]
 
     numeric_cols = ['num_of_prev_attempts', 'studied_credits',
     'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
