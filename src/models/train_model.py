@@ -172,7 +172,7 @@ if __name__ == '__main__':
     # }
 
     svc_params = {
-            'probability': ['True'],
+            'probability': 'True',
     }
 
     # lr_clf = GridSearchCV(lr, param_grid=lr_params,
