@@ -79,8 +79,8 @@ if __name__ == '__main__':
     # y_test = pd.read_csv('data/processed/y_test.csv')
 
 
-    X_train_mini = X_train.iloc[:10].drop('id_student', axis=1)
-    y_train_mini = y_train['module_not_completed'].iloc[:10]
+    # X_train_mini = X_train.iloc[:10].drop('id_student', axis=1)
+    # y_train_mini = y_train['module_not_completed'].iloc[:10]
 
     numeric_cols = ['num_of_prev_attempts', 'studied_credits',
     'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
@@ -88,8 +88,10 @@ if __name__ == '__main__':
     'score_first_assessment']
 
     # fill and scale
-    X_train_mini.fillna(value = 0, inplace = True)
-    X_train_mini = scale_subset(X_train_mini, numeric_cols)
+    # X_train_mini.fillna(value = 0, inplace = True)
+    # X_train_mini = scale_subset(X_train_mini, numeric_cols)
+    X_train.fillna(value = 0, inplace = True)
+    X_train = scale_subset(X_train, numeric_cols)
 
     # p = Pipeline(steps = [
     #     ('fill_nan', FillNaN()),
@@ -139,24 +141,24 @@ if __name__ == '__main__':
             'min_impurity_decrease': [0, 1, 5],
     }
     
-    # gb_params = {
-    #         'max_depth': [2, 3, 5],
-    #         'learning_rate': [0.001, 0.01, 0.1, 1],
-    #         'n_estimators': [10, 100, 500, 1000, 5000],
-    #         'subsample': [1, 0.5, 0.3, 0.1],
-    #         'min_samples_split': [2, 5, 10],
-    #         'min_samples_leaf': [1, 3, 5],
-    #         'max_features': ['auto', 'sqrt', 'log2'],
-    #         'min_impurity_decrease': [0, 1, 5],
-    # }
-
     gb_params = {
-            'max_depth': [2, 3],
-            'learning_rate': [0.1, 1],
-            'n_estimators': [100, 1000],
-            'subsample': [1, 0.5],
-            'max_features': ['auto'],
+            'max_depth': [2, 3, 5],
+            'learning_rate': [0.001, 0.01, 0.1, 1],
+            'n_estimators': [50, 100, 500, 1000, 5000],
+            'subsample': [1, 0.5, 0.3, 0.1],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 3, 5],
+            'max_features': ['auto', 'sqrt', 'log2'],
+            'min_impurity_decrease': [0, 1, 5],
     }
+
+    # gb_params = {
+    #         'max_depth': [2, 3],
+    #         'learning_rate': [0.1, 1],
+    #         'n_estimators': [100, 1000],
+    #         'subsample': [1, 0.5],
+    #         'max_features': ['auto'],
+    # }
 
     ada_params = {
             'learning_rate': [0.001, 0.01, 0.1, 1],
