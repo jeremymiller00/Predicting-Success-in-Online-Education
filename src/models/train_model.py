@@ -109,8 +109,8 @@ if __name__ == '__main__':
     # lr = LogisticRegression()
     # rf = RandomForestClassifier()
     # dt = DecisionTreeClassifier()
-    gb = GradientBoostingClassifier()
-    # ada = AdaBoostClassifier()
+    # gb = GradientBoostingClassifier()
+    ada = AdaBoostClassifier()
     # nb = GaussianNB()
     # svc = SVC()
     
@@ -151,18 +151,18 @@ if __name__ == '__main__':
     #         'min_impurity_decrease': [0, 1, 5],
     # }
 
-    gb_params = {
-            'max_depth': [2, 3],
-            'learning_rate': [0.1, 1],
-            'n_estimators': [100, 1000],
-            'subsample': [1, 0.5],
-            'max_features': ['auto'],
-    }
-
-    # ada_params = {
-    #         'learning_rate': [0.001, 0.01, 0.1, 1],
-    #         'n_estimators': [10, 100, 500, 1000, 5000],
+    # gb_params = {
+    #         'max_depth': [2, 3],
+    #         'learning_rate': [0.1, 1],
+    #         'n_estimators': [100, 1000],
+    #         'subsample': [1, 0.5],
+    #         'max_features': ['auto'],
     # }
+
+    ada_params = {
+            'learning_rate': [0.001, 0.01, 0.1, 1],
+            'n_estimators': [10, 100, 500, 1000, 5000],
+    }
 
     # svc_params = {
     #         'C': [0.001, 0.01, 0.1, 1, 10, 100],
@@ -187,15 +187,15 @@ if __name__ == '__main__':
     #                     n_jobs=-1,
     #                     cv=5)
 
-    gb_clf = GridSearchCV(gb, param_grid=gb_params,
-                        scoring='recall',
-                        n_jobs=-1,
-                        cv=5)
-
-    # ada_clf = GridSearchCV(ada, param_grid=ada_params,
+    # gb_clf = GridSearchCV(gb, param_grid=gb_params,
     #                     scoring='recall',
     #                     n_jobs=-1,
     #                     cv=5)
+
+    ada_clf = GridSearchCV(ada, param_grid=ada_params,
+                        scoring='recall',
+                        n_jobs=-1,
+                        cv=5)
 
     # svc_clf = GridSearchCV(svc, param_grid=svc_params,
     #                     scoring='recall',
@@ -205,8 +205,8 @@ if __name__ == '__main__':
     # lr_clf.fit(X_train_mini, y_train_mini)
     # rf_clf.fit(X_train_mini, y_train_mini)
     # dt_clf.fit(X_train_mini, y_train_mini)
-    gb_clf.fit(X_train_mini, y_train_mini)
-    # ada_clf.fit(X_train_mini, y_train_mini)
+    # gb_clf.fit(X_train_mini, y_train_mini)
+    ada_clf.fit(X_train_mini, y_train_mini)
     # svc_clf.fit(X_train_mini, y_train_mini)
 
     # print('Best LR parameters: {}'.format(lr_clf.best_params_))
@@ -220,7 +220,7 @@ if __name__ == '__main__':
     # best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
 
     # test line
-    best_model = gb_clf
+    best_model = ada_clf
 
     print('Best Model: {}'.format(best_model))
     print('Best Model parameters: {}'.format(best_model.best_params_))
