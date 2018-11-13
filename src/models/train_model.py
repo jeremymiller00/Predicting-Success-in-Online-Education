@@ -120,15 +120,6 @@ if __name__ == '__main__':
     #         'warm_start': ['False', 'True'],
     # }
 
-    # rf_params = {
-    #         'n_estimators': [10, 100, 1000],
-    #         'max_depth': [5, 10, 50],
-    #         'min_samples_split': [2, 5, 10],
-    #         'min_samples_leaf': [1, 3, 5],
-    #         'max_features': ['auto', 'sqrt', 'log2'],
-    #         'min_impurity_decrease': [0, 1, 5],
-    # }
-    
     rf_params = {
             'n_estimators': [50, 100, 1000],
             'max_depth': [3, 5, 10],
@@ -224,7 +215,9 @@ if __name__ == '__main__':
     print('Best Model parameters: {}'.format(best_model.best_params_))
     print('Best Model Recall: {}'.format(best_model.best_score_))
 
-    pickle.dump(best_model, open('/src/models/completion_classifier.p', 'wb')) # save model
+    # save model
+    pickle.dump(best_model, open('src/models/completion_classifier.p', 'wb')) 
+
 
     # test = pd.read_csv('data/test.csv')
     # test = test.sort_values(by='SalesID')
