@@ -140,15 +140,23 @@ if __name__ == '__main__':
     #         'min_impurity_decrease': [0, 1, 5],
     # }
     
+    # gb_params = {
+    #         'max_depth': [2, 3, 5],
+    #         'learning_rate': [0.001, 0.01, 0.1, 1],
+    #         'n_estimators': [10, 100, 500, 1000, 5000],
+    #         'subsample': [1, 0.5, 0.3, 0.1],
+    #         'min_samples_split': [2, 5, 10],
+    #         'min_samples_leaf': [1, 3, 5],
+    #         'max_features': ['auto', 'sqrt', 'log2'],
+    #         'min_impurity_decrease': [0, 1, 5],
+    # }
+
     gb_params = {
             'max_depth': [2, 3, 5],
             'learning_rate': [0.001, 0.01, 0.1, 1],
             'n_estimators': [10, 100, 500, 1000, 5000],
             'subsample': [1, 0.5, 0.3, 0.1],
-            'min_samples_split': [2, 5, 10],
-            'min_samples_leaf': [1, 3, 5],
             'max_features': ['auto', 'sqrt', 'log2'],
-            'min_impurity_decrease': [0, 1, 5],
     }
 
     # ada_params = {
