@@ -163,10 +163,18 @@ if __name__ == '__main__':
     #         'n_estimators': [10, 100, 500, 1000, 5000],
     # }
 
+    # svc_params = {
+    #         'C': [0.001, 0.01, 0.1, 1, 10, 100],
+    #         'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+    #         'degree': [1, 3, 5],
+    #         'gamma': [0.001, 0.01, 0.1],
+    #         'probability': ['True'],
+    # }
+
     svc_params = {
             'C': [0.001, 0.01, 0.1, 1, 10, 100],
-            'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
-            'degree': ['1'],
+            'kernel': ['linear']''
+            'degree': [1, 3, 5],
             'gamma': [0.001, 0.01, 0.1],
             'probability': ['True'],
     }
