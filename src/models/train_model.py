@@ -163,17 +163,17 @@ if __name__ == '__main__':
     #         'n_estimators': [10, 100, 500, 1000, 5000],
     # }
 
-    # svc_params = {
-    #         'C': [0.001, 0.01, 0.1, 1, 10, 100],
-    #         'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
-    #         'degree': [1, 3, 5],
-    #         'gamma': [0.001, 0.01, 0.1],
-    #         'probability': ['True'],
-    # }
-
     svc_params = {
-            'probability': 'True',
+            'C': [0.001, 0.01, 0.1, 1, 10, 100],
+            'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+            'degree': [1, 3, 5],
+            'gamma': [0.001, 0.01, 0.1],
+            'probability': [1]
     }
+
+    # svc_params = {
+    #         'probability': 'True'
+    # }
 
     # lr_clf = GridSearchCV(lr, param_grid=lr_params,
     #                     scoring='recall',
