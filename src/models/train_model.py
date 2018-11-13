@@ -223,7 +223,7 @@ if __name__ == '__main__':
     # best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
 
     # test line
-    best_model = sv_clf
+    best_model = svc_clf
 
     print('Best Model: {}'.format(best_model))
     print('Best Model parameters: {}'.format(best_model.best_params_))
