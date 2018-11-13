@@ -60,17 +60,13 @@ if __name__ == '__main__':
     X_test = pd.read_csv('data/processed/X_test.csv')
     y_test = pd.read_csv('data/processed/y_test.csv')
     y_test = y_test['module_not_completed']
-
     numeric_cols = ['num_of_prev_attempts', 'studied_credits',
     'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
-    'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',  'days_early_first_assessment',
+    'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',   'days_early_first_assessment',
     'score_first_assessment']
-
     # fill and scale
-    X_train.drop('date_unregistration', axis = 1, inplace = True)
     X_train.fillna(value = 0, inplace = True)
     X_train = scale_subset(X_train, numeric_cols)
-    X_test.drop('date_unregistration', axis = 1, inplace = True)
     X_test.fillna(value = 0, inplace = True)
     X_test = scale_subset(X_test, numeric_cols)
 
@@ -109,6 +105,10 @@ if __name__ == '__main__':
     probas = log_reg_model.predict_proba(X_test)[:, 1:]
     tprs, fprs, thresh = roc_curve(y_test, probas)
     recall = recall_score(y_test, predictions)
+
+    print('Roc Auc: {}'.format(roc_auc))
+    print('Recall Score: {}'.format(recall))
+    print('Best Model Log Loss: {}'.format(lr_clf.best_score_))
 
     plt.figure(figsize=(12,10))
     plt.plot(fprs, tprs, 
