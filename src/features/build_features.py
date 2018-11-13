@@ -32,7 +32,7 @@ def _join_reg(main_df, reg_df):
     input {dataframes}: studenInfo, studentRegistration
     output {dataframe}: joined dataframe
     '''
-    df = pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student']).fillna(value = 0)
+    df = pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student'])
     return df
 
 # join vle to student vle
@@ -231,11 +231,14 @@ if __name__ == "__main__":
     # cast id_student to type string
     main_df = to_string(main_df, ['id_student'])
 
-    # filter out students who dropped before the first day of the course
-    main_df = main_df[(main_df['date_unregistration'] > 0) | (main_df['date_unregistration'].isnull())]
+    # test line
+    main_df.shape
 
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
+
+    # # filter out students who dropped before the first day of the course
+    # main_df = main_df[(main_df['date_unregistration'] > 0) | (main_df['date_unregistration'].isnull())]
 
     # split the data: three possible targets
     X = main_df_final.drop(['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score'], axis = 1)

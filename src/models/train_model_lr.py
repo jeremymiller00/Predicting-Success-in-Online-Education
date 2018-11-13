@@ -97,28 +97,27 @@ if __name__ == '__main__':
     }
 
     lr_clf = GridSearchCV(lr, param_grid=lr_params,
-                        scoring='recall',
+                        scoring='neg_log_loss',
                         n_jobs=-1,
                         cv=5)
 
     lr_clf.fit(X_train, y_train)
 
-#     model_dict = {}
-#     models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
-#     # models = [lr_clf, rf_clf]
-#     for model in models:
-#         model_dict[model] = [model.best_score_]
-#     best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
-
     # test line
-    best_model = lr_clf
+    log_reg_model = lr_clf.best_estimator_
+    predictions = log_reg_model.predict(X_train)
 
-    print('Best Model: {}'.format(best_model))
-    print('Best Model parameters: {}'.format(best_model.best_params_))
-    print('Best Model Recall: {}'.format(best_model.best_score_))
+    #working here!
+    print('Best Model: {}'.format(log_reg_model))
+    print('Best Model parameters: {}'.format(log_reg_model.best_params_))
+    print('Best Model Log Loss: {}'.format(log_reg_model.best_score_))
+    print('Best Model Log Recall: {}'.format(log_reg_model.best_score_))
+    print('Best Model Roc Auc: {}'.format(log_reg_model.best_score_))
+
+
 
     # save model
-    pickle.dump(best_model, open('src/models/completion_classifier.p', 'wb')) 
+    pickle.dump(log_reg_model, open('src/models/completion_classifier_lr.p', 'wb')) 
 
 
 
