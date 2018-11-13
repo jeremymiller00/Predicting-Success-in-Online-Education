@@ -87,34 +87,15 @@ if __name__ == '__main__':
     y_train = pd.read_csv('data/processed/y_train.csv')
     # X_test = pd.read_csv('data/processed/X_test.csv')
     # y_test = pd.read_csv('data/processed/y_test.csv')
-    X_train_mini = X_train.iloc[:1000].drop('id_student', axis=1)
-    y_train_mini = y_train['module_not_completed'].iloc[:1000]
+    X_train_mini = X_train.iloc[:100].drop('id_student', axis=1)
+    y_train_mini = y_train['module_not_completed'].iloc[:100]
 
-    # models = ['MLPClassifier', 'KNeighborsClassifier', 'SVC', 'GaussianProcessClassifier', 'RBF', 'DecisionTreeClassifier', 'RandomForestClassifier', 'AdaBoostClassifier', 'GradientBoostingClassifier', 'GaussianNB', 'QuadraticDiscriminantAnalysis', 'LogisticRegression']
-
-    # numeric_cols = ['num_of_prev_attempts', 'studied_credits',
-    # 'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
-    # 'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early','days_early_first_assessment',
-    # 'score_first_assessment']
-
-    X_train_mini = X_train_mini.fillna(value = 0)
 
     p = Pipeline(steps = [
-        # ('fill_nan', FillNaN()),
+        ('fill_nan', FillNaN()),
         ('scaling', CustomScalar()),
-
-        # ('feature_proccessing', FeatureUnion(transformer_list = [
-        #     ('categorical', FunctionTransformer(lambda data: data[categorical_cols])),
-        #     ('numeric', Pipeline(steps = [
-        #         ('select', FunctionTransformer(lambda data: data[numeric_cols])),
-        #         ('scale', StandardScaler())
-        #     ]))
-        # ])),
         ('lr', LogisticRegression())
     ])
-
-    # try skipping the pipeline, gridsearch
-    # lr = LogisticRegression()
 
     # GridSearch
     params = {
@@ -131,14 +112,22 @@ if __name__ == '__main__':
 
     clf.fit(X_train_mini, y_train_mini)
 
-    # print('Coefficients: {}'.format(clf.coef_))
-    # print('Best Recall: {}'.format(clf.best_score_))
+    model_dict = {}
+    # models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
+    models = [lr_clf, rf_clf]
+    for model in models:
+        model_dict[model] = [model.best_score_]
+    best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
 
+    # test line
+    # best_model = rf_clf
 
-    print('Best parameters: {}'.format(clf.best_params_))
-    # print('Best Recall: {}'.format(clf.best_score_))
+    print('Best Model: {}'.format(best_model))
+    print('Best Model parameters: {}'.format(best_model.best_params_))
+    print('Best Model Recall: {}'.format(best_model.best_score_))
 
-
+    # save model
+    pickle.dump(best_model, open('src/models/completion_classifier.p', 'wb')) 
 
 
     # test = pd.read_csv('data/test.csv')

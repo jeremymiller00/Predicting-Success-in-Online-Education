@@ -79,8 +79,8 @@ if __name__ == '__main__':
     # y_test = pd.read_csv('data/processed/y_test.csv')
 
 
-    X_train_mini = X_train.iloc[:20].drop('id_student', axis=1)
-    y_train_mini = y_train['module_not_completed'].iloc[:20]
+    X_train_mini = X_train.iloc[:10].drop('id_student', axis=1)
+    y_train_mini = y_train['module_not_completed'].iloc[:10]
 
     numeric_cols = ['num_of_prev_attempts', 'studied_credits',
     'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
@@ -108,11 +108,11 @@ if __name__ == '__main__':
     # estimators
     lr = LogisticRegression()
     rf = RandomForestClassifier()
-    # dt = DecisionTreeClassifier()
-    # gb = GradientBoostingClassifier()
-    # ada = AdaBoostClassifier()
-    # nb = GaussianNB()
-    # svc = SVC()
+    dt = DecisionTreeClassifier()
+    gb = GradientBoostingClassifier()
+    ada = AdaBoostClassifier()
+    nb = GaussianNB()
+    svc = SVC()
     
     # GridSearch parameters
     lr_params = {
@@ -132,37 +132,37 @@ if __name__ == '__main__':
             'min_impurity_decrease': [0, 1, 5],
     }
     
-    # dt_params = {
-    #         'max_depth': [3, 5, 10, 50],
-    #         'min_samples_split': [2, 5, 10],
-    #         'min_samples_leaf': [1, 3, 5],
-    #         'max_features': ['auto', 'sqrt', 'log2'],
-    #         'min_impurity_decrease': [0, 1, 5],
-    # }
+    dt_params = {
+            'max_depth': [3, 5, 10, 50],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 3, 5],
+            'max_features': ['auto', 'sqrt', 'log2'],
+            'min_impurity_decrease': [0, 1, 5],
+    }
     
-    # gb_params = {
-    #         'max_depth': [2, 3, 5],
-    #         'learing_rate': [0.001, 0.01, 0.1, 1]
-    #         'n_estimators': [10, 100, 500, 1000, 5000],
-    #         'subsample': [1, 0.5, 0.3, 0.1]
-    #         'min_samples_split': [2, 5, 10],
-    #         'min_samples_leaf': [1, 3, 5],
-    #         'max_features': ['auto', 'sqrt', 'log2'],
-    #         'min_impurity_decrease': [0, 1, 5],
-    # }
+    gb_params = {
+            'max_depth': [2, 3, 5],
+            'learning_rate': [0.001, 0.01, 0.1, 1],
+            'n_estimators': [10, 100, 500, 1000, 5000],
+            'subsample': [1, 0.5, 0.3, 0.1],
+            'min_samples_split': [2, 5, 10],
+            'min_samples_leaf': [1, 3, 5],
+            'max_features': ['auto', 'sqrt', 'log2'],
+            'min_impurity_decrease': [0, 1, 5],
+    }
 
-    # ada_params = {
-    #         'learing_rate': [0.001, 0.01, 0.1, 1]
-    #         'n_estimators': [10, 100, 500, 1000, 5000],
-    # }
+    ada_params = {
+            'learning_rate': [0.001, 0.01, 0.1, 1],
+            'n_estimators': [10, 100, 500, 1000, 5000],
+    }
 
-    # svc_params = {
-    #         'C': [0.001, 0.01, 0.1, 1, 10, 100],
-    #         'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
-    #         'degree': [1,3,5,7],
-    #         'gamma': [0.001, 0.01, 0.1],
-    #         'probability': ['True'],
-    # }
+    svc_params = {
+            'C': [0.001, 0.01, 0.1, 1, 10, 100],
+            'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
+            'degree': [1,3,5,7],
+            'gamma': [0.001, 0.01, 0.1],
+            'probability': ['True'],
+    }
 
     lr_clf = GridSearchCV(lr, param_grid=lr_params,
                         scoring='recall',
@@ -174,39 +174,39 @@ if __name__ == '__main__':
                         n_jobs=-1,
                         cv=5)
 
-    # dt_clf = GridSearchCV(dt, param_grid=dt_params,
-    #                     scoring='recall',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    dt_clf = GridSearchCV(dt, param_grid=dt_params,
+                        scoring='recall',
+                        n_jobs=-1,
+                        cv=5)
 
-    # gb_clf = GridSearchCV(gb, param_grid=gb_params,
-    #                     scoring='recall',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    gb_clf = GridSearchCV(gb, param_grid=gb_params,
+                        scoring='recall',
+                        n_jobs=-1,
+                        cv=5)
 
-    # ada_clf = GridSearchCV(ada, param_grid=ada_params,
-    #                     scoring='recall',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    ada_clf = GridSearchCV(ada, param_grid=ada_params,
+                        scoring='recall',
+                        n_jobs=-1,
+                        cv=5)
 
-    # svc_clf = GridSearchCV(svc, param_grid=svc_params,
-    #                     scoring='recall',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    svc_clf = GridSearchCV(svc, param_grid=svc_params,
+                        scoring='recall',
+                        n_jobs=-1,
+                        cv=5)
 
     lr_clf.fit(X_train_mini, y_train_mini)
     rf_clf.fit(X_train_mini, y_train_mini)
-    # dt_clf.fit(X_train_mini, y_train_mini)
-    # gb_clf.fit(X_train_mini, y_train_mini)
-    # ada_clf.fit(X_train_mini, y_train_mini)
-    # svc_clf.fit(X_train_mini, y_train_mini)
+    dt_clf.fit(X_train_mini, y_train_mini)
+    gb_clf.fit(X_train_mini, y_train_mini)
+    ada_clf.fit(X_train_mini, y_train_mini)
+    svc_clf.fit(X_train_mini, y_train_mini)
 
     # print('Best LR parameters: {}'.format(lr_clf.best_params_))
     # print('Best LR Recall: {}'.format(lr_clf.best_score_))
 
     model_dict = {}
-    # models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
-    models = [lr_clf, rf_clf]
+    models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
+    # models = [lr_clf, rf_clf]
     for model in models:
         model_dict[model] = [model.best_score_]
     best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
