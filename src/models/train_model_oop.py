@@ -3,23 +3,22 @@
     You can find documentation on using this class here:
     http://scikit-learn.org/stable/modules/pipeline.html
 """
-from sklearn.preprocessing import StandardScaler, FunctionTransformer
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.metrics import make_scorer, confusion_matrix, recall_score
-from sklearn.model_selection import GridSearchCV
-from sklearn.pipeline import Pipeline, FeatureUnion
 import numpy as np
 import pandas as pd
+import pickle
+
+from sklearn.preprocessing import StandardScaler, FunctionTransformer
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline, FeatureUnion
 
 # from sklearn.neural_network import MLPClassifier
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.svm import SVC
-# from sklearn.gaussian_process import GaussianProcessClassifier
-# from sklearn.gaussian_process.kernels import RBF
-# from sklearn.tree import DecisionTreeClassifier
-# from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
-# from sklearn.naive_bayes import GaussianNB
-# from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 
 
@@ -56,6 +55,23 @@ class CustomScalar(BaseEstimator, TransformerMixin):
         X_scaled.rename(columns = dict(zip(X_scaled.columns, self.numeric_cols)), inplace = True)
         return pd.concat([X_scaled, self.categorical], axis = 1)
 
+def scale_subset(df, columns):
+    '''
+    Use sklearn StandardScalar to scale only numeric columns.
+
+    Parameters:
+    ----------
+    input {dataframe, list}: dataframe containing mixed feature variable types, list of names of numeric feature columns
+    output: {dataframe}: dataframe with numeric features scaled and categorical features unchanged
+
+    '''
+    scalar = StandardScaler()
+    numeric = df[columns]
+    categorical = df.drop(columns, axis = 1)
+    scalar.fit(numeric)
+    num_scaled = pd.DataFrame(scalar.transform(numeric))
+    num_scaled.rename(columns = dict(zip(num_scaled.columns, numeric_cols)), inplace = True)
+    return pd.concat([num_scaled, categorical], axis = 1)
 
 def standard_confusion_matrix(y_true, y_pred):
     """Make confusion matrix with format:
@@ -83,17 +99,23 @@ if __name__ == '__main__':
     # grid search cv
     # make base estimator a parameter
 
+    numeric_cols = ['num_of_prev_attempts', 'studied_credits',
+    'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
+    'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',  'days_early_first_assessment',
+    'score_first_assessment']
+
     X_train = pd.read_csv('data/processed/X_train.csv')
     y_train = pd.read_csv('data/processed/y_train.csv')
     # X_test = pd.read_csv('data/processed/X_test.csv')
     # y_test = pd.read_csv('data/processed/y_test.csv')
     X_train_mini = X_train.iloc[:100].drop('id_student', axis=1)
     y_train_mini = y_train['module_not_completed'].iloc[:100]
+    X_train_mini = scale_subset(X_train_mini, numeric_cols)
 
 
     p = Pipeline(steps = [
         ('fill_nan', FillNaN()),
-        ('scaling', CustomScalar()),
+        # ('scaling', CustomScalar()),
         ('lr', LogisticRegression())
     ])
 
@@ -102,7 +124,7 @@ if __name__ == '__main__':
             'lr__C': [0.001, 0.01, 0.1, 1, 10, 100],
             'lr__penalty': ['l2'],
             'lr__solver': ['newton-cg','lbfgs', 'liblinear'],
-            'lr__max_iter': [25, 50, 100, 200],
+            'lr__max_iter': [25, 50, 100, 200, 500, 1000],
             'lr__warm_start': ['False', 'True'],
     }
 
@@ -112,22 +134,18 @@ if __name__ == '__main__':
 
     clf.fit(X_train_mini, y_train_mini)
 
-    model_dict = {}
-    # models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
-    models = [lr_clf, rf_clf]
-    for model in models:
-        model_dict[model] = [model.best_score_]
-    best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
+    # model_dict = {}
+    # # models = [lr_clf, rf_clf, dt_clf, gb_clf, ada_clf, svc_clf]
+    # models = [lr_clf, rf_clf]
+    # for model in models:
+    #     model_dict[model] = [model.best_score_]
+    # best_model, best_model_recall = max(model_dict.items(), key = lambda x: x[1])
 
-    # test line
-    # best_model = rf_clf
-
-    print('Best Model: {}'.format(best_model))
-    print('Best Model parameters: {}'.format(best_model.best_params_))
-    print('Best Model Recall: {}'.format(best_model.best_score_))
+    print('Best Model parameters: {}'.format(clf.best_params_))
+    print('Best Model Recall: {}'.format(clf.best_score_))
 
     # save model
-    pickle.dump(best_model, open('src/models/completion_classifier.p', 'wb')) 
+    pickle.dump(clf, open('src/models/completion_classifier.p', 'wb')) 
 
 
     # test = pd.read_csv('data/test.csv')
