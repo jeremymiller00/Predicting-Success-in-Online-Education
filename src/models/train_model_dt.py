@@ -61,7 +61,7 @@ if __name__ == '__main__':
         'max_depth': [10, 50, 100], 
         'min_samples_split': [2, 5, 10], 
         'min_samples_leaf': [1, 3, 10],
-        'min_weight_fraction': [0.01, 0.001, 0.0001, 0.00001] 
+        'min_weight_fraction_leaf': [0.01, 0.001, 0.0001, 0.00001], 
         'max_features': ['auto', 'sqrt', 'log2']
         }
     
