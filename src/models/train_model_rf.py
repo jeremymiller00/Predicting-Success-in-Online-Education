@@ -65,8 +65,8 @@ if __name__ == '__main__':
     #     }
     
     rf_params = {
-        'n_estimators': [50, 100, 1000], 
-        'max_depth': [5, 10, 20], 
+        'n_estimators': [50, 100], 
+        'max_depth': [5, 10, 20, 50, 100], 
         'max_features': ['auto', 'sqrt', 'log2']
         }
     
