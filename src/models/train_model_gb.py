@@ -10,7 +10,7 @@ import pickle
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
 from sklearn.model_selection import GridSearchCV
-from sklearn.ensemble import GradientBoostingClassifier()
+from sklearn.ensemble import GradientBoostingClassifier
 
 
 def standard_confusion_matrix(y_true, y_pred):
