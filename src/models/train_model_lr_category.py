@@ -7,7 +7,7 @@ import pandas as pd
 import pickle
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
+from sklearn.metrics import confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 
@@ -65,6 +65,7 @@ if __name__ == '__main__':
     'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
     'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',   'days_early_first_assessment',
     'score_first_assessment']
+
     # fill and scale
     X_train.fillna(value = 0, inplace = True)
     X_train = scale_subset(X_train, numeric_cols)
@@ -94,7 +95,7 @@ if __name__ == '__main__':
     predictions = log_reg_model.predict(X_train)
 
     # save model
-    pickle.dump(log_reg_model, open('models/logistic_regression_completion.p', 'wb'))
+    pickle.dump(log_reg_model, open('models/logistic_regression_category.p', 'wb'))
 
     # evaluation
     predictions = log_reg_model.predict(X_test)
@@ -110,13 +111,3 @@ if __name__ == '__main__':
     print('Roc Auc: {}'.format(roc_auc))
     print('Recall Score: {}'.format(recall))
 
-    # plt.figure(figsize=(12,10))
-    # plt.plot(fprs, tprs, 
-    #      label='Logistic Regression', 
-    #      color='red')
-    # plt.plot([0,1],[0,1], 'k:')
-    # plt.legend()
-    # plt.xlabel("FPR")
-    # plt.ylabel("TPR")
-    # plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
-    # plt.show()
