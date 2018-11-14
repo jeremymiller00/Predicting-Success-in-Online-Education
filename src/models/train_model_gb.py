@@ -77,7 +77,7 @@ if __name__ == '__main__':
     gb_model = gb_clf.best_estimator_
 
     # save model
-    pickle.dump(rf_model, open('src/models/completion_classifier_gb.p', 'wb')) 
+    pickle.dump(gb_model, open('src/models/completion_classifier_gb.p', 'wb')) 
 
 
     # evaluation
