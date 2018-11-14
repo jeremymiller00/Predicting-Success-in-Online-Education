@@ -56,7 +56,13 @@ if __name__ == '__main__':
     rf = RandomForestClassifier()
     
     # GridSearch parameters
-    rf_params = {'n_estimators': [50, 100, 1000], 'max_depth': [3, 5, 10], 'min_samples_split': [2, 5, 10], 'min_samples_leaf': [1, 3, 5], 'max_features': ['auto', 'sqrt', 'log2'], 'min_impurity_decrease': [0, 1, 5]}
+    rf_params = {
+        'n_estimators': [50, 100, 1000], 
+        'max_depth': [3, 5, 10], 
+        'min_samples_split': [2, 5, 10], 
+        'min_samples_leaf': [1, 3, 5], 
+        'max_features': ['auto', 'sqrt', 'log2']
+        }
     
     rf_clf = GridSearchCV(rf, param_grid=rf_params,
                         scoring='recall',
