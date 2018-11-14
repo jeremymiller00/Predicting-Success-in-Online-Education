@@ -67,15 +67,15 @@ if __name__ == '__main__':
     # }
 
     gb_params = {
-            'max_depth': [2, 3, 5],
-            'learning_rate': [0.001, 0.01, 0.1],
-            'n_estimators': [100, 1000],
-            'subsample': [0.5, 0.3, 0.1],
-            'max_features': ['auto'],
+            'max_depth': [3, 5, 10],
+            'learning_rate': [0.0001, 0.001, 0.01],
+            'n_estimators': [50, 100, 1000],
+            'subsample': [0.3, 0.1, 0.05, 0.01],
+            'max_features': ['auto', 'sqrt'],
     }
 
     gb_clf = GridSearchCV(gb, param_grid=gb_params,
-                        scoring='recall',
+                        scoring='roc_auc',
                         n_jobs=-1,
                         cv=5)
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     gb_model = gb_clf.best_estimator_
 
     # save model
-    pickle.dump(gb_model, open('src/models/completion_classifier_gb.p', 'wb')) 
+    # pickle.dump(gb_model, open('src/models/completion_classifier_gb.p', 'wb')) 
 
 
     # evaluation
