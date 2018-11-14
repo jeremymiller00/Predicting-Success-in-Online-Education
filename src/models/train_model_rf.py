@@ -65,7 +65,7 @@ if __name__ == '__main__':
     #     }
     
     rf_params = {
-        'n_estimators': [50, 100], 
+        'n_estimators': [50, 100, 1000], 
         'max_depth': [5, 10, 20, 50, 100], 
         'max_features': ['auto', 'sqrt', 'log2']
         }
@@ -81,7 +81,7 @@ if __name__ == '__main__':
     rf_model = rf_clf.best_estimator_
 
     # save model
-    pickle.dump(rf_model, open('models/completion_classifier_rf.p', 'wb')) 
+    pickle.dump(rf_model, open('models/random_forest_completion.p', 'wb')) 
 
 
     # evaluation
