@@ -52,10 +52,7 @@ if __name__ == '__main__':
 
     X_test.fillna(value = 0, inplace = True)
 
-
-    # y_test.shape
-
-    # estimators
+    # estimator
     rf = RandomForestClassifier()
     
     # GridSearch parameters

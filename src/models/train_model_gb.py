@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     X_test.fillna(value = 0, inplace = True)
 
-    # estimators
+    # estimator
     gb = GradientBoostingClassifier()
     
     # GridSearch parameters
@@ -91,7 +91,6 @@ if __name__ == '__main__':
     print('Best Model parameters: {}'.format(rf_clf.best_params_))
     print('Best Model Log Recall: {}'.format(recall))
     print('Best Model Roc Auc: {}'.format(roc_auc))
-    print('Feature Importances: {}'.format(feat_imp))
 
     # plt.figure(figsize=(12,10))
     # plt.plot(fprs, tprs, 

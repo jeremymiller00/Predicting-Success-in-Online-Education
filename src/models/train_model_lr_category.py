@@ -93,10 +93,6 @@ if __name__ == '__main__':
     log_reg_model = lr_clf.best_estimator_
     predictions = log_reg_model.predict(X_train)
 
-    print('Best Model: {}'.format(log_reg_model))
-    print('Best Model parameters: {}'.format(lr_clf.best_params_))
-    print('Best Model Log Loss: {}'.format(lr_clf.best_score_))
-
     # save model
     pickle.dump(log_reg_model, open('models/logistic_regression_completion.p', 'wb'))
 
@@ -107,9 +103,12 @@ if __name__ == '__main__':
     tprs, fprs, thresh = roc_curve(y_test, probas)
     recall = recall_score(y_test, predictions)
 
+
+    print('Best Model: {}'.format(log_reg_model))
+    print('Best Model parameters: {}'.format(lr_clf.best_params_))
+    print('Best Model Log Loss: {}'.format(lr_clf.best_score_))
     print('Roc Auc: {}'.format(roc_auc))
     print('Recall Score: {}'.format(recall))
-    print('Best Model Log Loss: {}'.format(lr_clf.best_score_))
 
     # plt.figure(figsize=(12,10))
     # plt.plot(fprs, tprs, 
