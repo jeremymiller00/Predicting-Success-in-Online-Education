@@ -69,9 +69,9 @@ if __name__ == '__main__':
     gb_params = {
             'max_depth': [2, 3, 5],
             'learning_rate': [0.001, 0.01, 0.1],
-            'n_estimators': [100, 500, 1000],
+            'n_estimators': [100, 1000],
             'subsample': [0.5, 0.3, 0.1],
-            'max_features': ['auto', 'sqrt', 'log2'],
+            'max_features': ['auto'],
     }
 
     gb_clf = GridSearchCV(gb, param_grid=gb_params,
