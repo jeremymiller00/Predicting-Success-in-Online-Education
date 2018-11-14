@@ -56,17 +56,24 @@ if __name__ == '__main__':
     gb = GradientBoostingClassifier()
     
     # GridSearch parameters
+    # gb_params = {
+    #         'max_depth': [2, 3, 5],
+    #         'learning_rate': [0.001, 0.01, 0.1],
+    #         'n_estimators': [100, 500, 1000],
+    #         'subsample': [0.5, 0.3, 0.1],
+    #         'min_samples_split': [2, 5, 10],
+    #         'min_samples_leaf': [1, 3, 5],
+    #         'max_features': ['auto', 'sqrt', 'log2'],
+    # }
+
     gb_params = {
             'max_depth': [2, 3, 5],
-            'learning_rate': [0.001, 0.01, 0.1, 1],
-            'n_estimators': [50, 100, 500, 1000, 5000],
-            'subsample': [1, 0.5, 0.3, 0.1],
-            'min_samples_split': [2, 5, 10],
-            'min_samples_leaf': [1, 3, 5],
+            'learning_rate': [0.001, 0.01, 0.1],
+            'n_estimators': [100, 500, 1000],
+            'subsample': [0.5, 0.3, 0.1],
             'max_features': ['auto', 'sqrt', 'log2'],
-            'min_impurity_decrease': [0, 1, 5],
     }
-    
+
     gb_clf = GridSearchCV(gb, param_grid=gb_params,
                         scoring='recall',
                         n_jobs=-1,
@@ -87,8 +94,8 @@ if __name__ == '__main__':
     tprs, frps, thresh = roc_curve(y_test, probas)
     recall = recall_score(y_test, predictions)
 
-    print('Best Model: {}'.format(rf_model))
-    print('Best Model parameters: {}'.format(rf_clf.best_params_))
+    print('Best Model: {}'.format(gb_model))
+    print('Best Model parameters: {}'.format(gb_clf.best_params_))
     print('Best Model Log Recall: {}'.format(recall))
     print('Best Model Roc Auc: {}'.format(roc_auc))
 
