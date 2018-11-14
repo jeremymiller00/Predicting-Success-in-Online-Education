@@ -59,7 +59,7 @@ if __name__ == '__main__':
     rf_params = {
         'n_estimators': [50, 100, 1000], 
         'max_depth': [5, 10, 50], 
-        'min_samples_split': [1, 2, 5], 
+        'min_samples_split': [1.0, 2, 5], 
         'min_samples_leaf': [1, 3], 
         'max_features': ['auto', 'sqrt', 'log2']
         }
