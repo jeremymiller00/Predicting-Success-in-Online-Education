@@ -75,7 +75,7 @@ if __name__ == '__main__':
     rf_model = rf_clf.best_estimator_
 
     # save model
-    pickle.dump(rf_model, open('src/models/completion_classifier_rf.p', 'wb')) 
+    pickle.dump(rf_model, open('models/completion_classifier_rf.p', 'wb')) 
 
 
     # evaluation
