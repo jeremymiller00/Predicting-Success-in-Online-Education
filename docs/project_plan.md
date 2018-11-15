@@ -12,6 +12,16 @@ B and J presentations should be analyzed separately as they may be different in 
 
 Nevertheless, for some presentations the corresponding previous B/J presentation do not exist and therefore the J presentation must be used to inform the B presentation or vice versa. In the dataset this is the case of CCC, EEE and GGG modules.
 
+Some of the estimated final scores are above 100 with many nearing 200, indicating that some of the modules are 'double-modules'. I was able to determine which model/presentation combinations were double modules with the following method:
+
+* Determine that all students with estimated final scores above 100 were in a presentation of module DDD. Among students with estimated final scores above 100, DDD was the only module present.
+
+* Create a dataframe with this subset (student with a score over 100 in module DDD) with a columns for each presentation. Analyze the value counts of each presentation to see that the only presentations with values greater than zero are 2013J and 2014B.
+
+* Conclude that module DDD presentation 2013J and module DDD presentation 2014B were double modules. Go back and moltiply the estimated final scores for those modules by 0.5
+
+
+
 ### Questions about data set
 Are the courses undergraduate or postgraduate?
 
