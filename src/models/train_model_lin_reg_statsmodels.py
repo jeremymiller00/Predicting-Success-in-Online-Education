@@ -7,8 +7,8 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
-from sklearn.model_selection import GridSearchCV
-from sklearn.linear_model import LinearRegression
+# from sklearn.model_selection import GridSearchCV
+# from sklearn.linear_model import LogisticRegression
 import statsmodels.api as sm
 # import scipy.stats as scs
 import matplotlib.pyplot as plt
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
     # estimator
-    lin_reg = LinearRegression()
+    lin_reg = sm.OLS(y_train, X_train)
 
     lin_reg = lin_reg.fit()
 

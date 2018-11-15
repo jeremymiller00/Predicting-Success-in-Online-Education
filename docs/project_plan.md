@@ -20,6 +20,13 @@ Some of the estimated final scores are above 100 with many nearing 200, indicati
 
 * Conclude that module DDD presentation 2013J, module DDD presentation 2013B, and module DDD presentation 2014B were double modules. Go back and moltiply the estimated final scores for those modules by 0.5
 
+Regression of Estimated Final Score
+Adjusted r2
+0.60, 0.71, 0.83
+RMSE: 20.1, 18.9, 10.8
+First fixed double module problem
+Then removed those who didn't complete the module
+
 
 
 ### Questions about data set
