@@ -9,29 +9,8 @@ import collections as c
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
 from sklearn.model_selection import GridSearchCV
-from sklearn.linear_model import LinearRegression
-import statsmodels.api as sm
-# import scipy.stats as scs
+from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
-
-def scale_subset(df, columns):
-    '''
-    Use sklearn StandardScalar to scale only numeric columns.
-
-    Parameters:
-    ----------
-    input {dataframe, list}: dataframe containing mixed feature variable types, list of names of numeric feature columns
-    output: {dataframe}: dataframe with numeric features scaled and categorical features unchanged
-
-    '''
-    scalar = StandardScaler()
-    numeric = df[columns]
-    categorical = df.drop(columns, axis = 1)
-    scalar.fit(numeric)
-    num_scaled = pd.DataFrame(scalar.transform(numeric))
-    num_scaled.rename(columns = dict(zip(num_scaled.columns, numeric_cols)), inplace = True)
-    return pd.concat([num_scaled, categorical], axis = 1)
-
 
 def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp):
     '''
@@ -66,30 +45,44 @@ if __name__ == '__main__':
 
     numeric_cols = ['num_of_prev_attempts', 'studied_credits', 'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day','first_date_vle_accessed', 'avg_score', 'avg_days_sub_early','days_early_first_assessment', 'score_first_assessment']
 
-    # fill and scale
+    # fill
     X_train.fillna(value = 0, inplace = True)
     y_train.fillna(value = 0, inplace = True)
-    X_train = scale_subset(X_train, numeric_cols)
-    # X_train = sm.add_constant(X_train)
     X_test.fillna(value = 0, inplace = True)
     y_test.fillna(value = 0, inplace = True)
-    X_test = scale_subset(X_test, numeric_cols)
-    # X_test = sm.add_constant(X_test)
 
     # only students who completed the course
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
     # estimator
+    rf = RandomForestRegressor()
 
-    lr = LinearRegression(n_jobs=-1)
+    # rf_params = {
+    #     'n_estimators': [50, 100, 1000, 5000], 
+    #     'max_depth': [5, 10, 20, 50, 100], 
+    #     'max_features': ['auto', 'sqrt', 'log2']
+    
+    # }
+    
+    rf_params = {
+        'n_estimators': [50, 100, 1000, 5000], 
+        'max_depth': [5, 10, 50, 100], 
+        'min_samples_split': [1.0, 2, 5], 
+        'min_samples_leaf': [1, 3], 
+        'max_features': ['auto', 'sqrt', 'log2']
+        }
+    
+    rf_clf = GridSearchCV(rf, param_grid=rf_params,
+                        scoring='neg_mean_squared_error',
+                        n_jobs=-1,
+                        cv=5)
 
-    lr.fit(X_train, y_train)
+    rf_clf.fit(X_train, y_train)
 
-    # save model
-    pickle.dump(lr, open('models/linear_regression_completion.p', 'wb'))
+    rf_model = rf_clf.best_estimator_
 
     # evaluation
-    predictions = lr.predict(X_test)
+    predictions = rf_model.predict(X_test)
     rmse = np.sqrt(mean_squared_error(y_test, predictions))
     print(rmse)
     evs = explained_variance_score(y_test, predictions)
@@ -114,10 +107,10 @@ if __name__ == '__main__':
 
     np.std(y_test)
 
-    abs_coef = list(np.abs(lr.coef_.ravel()))
+    feat_imp = rf_model.feature_importances_
     features = list(X_test.columns)
     coef_dict = c.OrderedDict((zip(abs_coef, features)))
     sorted(coef_dict.items(), reverse=True)
 
     # save model
-    pickle.dump(lr, open('models/linear_regression_score.p', 'wb'))
+    pickle.dump(rf_model, open('models/random_forest_score.p', 'wb'))

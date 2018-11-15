@@ -91,7 +91,6 @@ if __name__ == '__main__':
     lr_clf.fit(X_train, y_train)
 
     log_reg_model = lr_clf.best_estimator_
-    predictions = log_reg_model.predict(X_train)
 
     # save model
     pickle.dump(log_reg_model, open('models/logistic_regression_completion.p', 'wb'))
