@@ -70,11 +70,9 @@ if __name__ == '__main__':
     X_train.fillna(value = 0, inplace = True)
     y_train.fillna(value = 0, inplace = True)
     X_train = scale_subset(X_train, numeric_cols)
-    # X_train = sm.add_constant(X_train)
     X_test.fillna(value = 0, inplace = True)
     y_test.fillna(value = 0, inplace = True)
     X_test = scale_subset(X_test, numeric_cols)
-    # X_test = sm.add_constant(X_test)
 
     # only students who completed the course
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
@@ -84,9 +82,6 @@ if __name__ == '__main__':
     lr = LinearRegression(n_jobs=-1)
 
     lr.fit(X_train, y_train)
-
-    # save model
-    pickle.dump(lr, open('models/linear_regression_completion.p', 'wb'))
 
     # evaluation
     predictions = lr.predict(X_test)
@@ -111,8 +106,6 @@ if __name__ == '__main__':
     plt.figure(figsize=(12,10))
     plt.hist(y_train, bins=100)
     plt.show()
-
-    np.std(y_test)
 
     abs_coef = list(np.abs(lr.coef_.ravel()))
     features = list(X_test.columns)
