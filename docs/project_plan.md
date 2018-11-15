@@ -16,9 +16,9 @@ Some of the estimated final scores are above 100 with many nearing 200, indicati
 
 * Determine that all students with estimated final scores above 100 were in a presentation of module DDD. Among students with estimated final scores above 100, DDD was the only module present.
 
-* Create a dataframe with this subset (student with a score over 100 in module DDD) with a columns for each presentation. Analyze the value counts of each presentation to see that the only presentations with values greater than zero are 2013J and 2014B.
+* Create a dataframe with this subset (student with a score over 100 in module DDD) with a columns for each presentation. Analyze the value counts of each presentation to see that the only presentations with values greater than zero are 2013J and 2014B, and 2013B.
 
-* Conclude that module DDD presentation 2013J and module DDD presentation 2014B were double modules. Go back and moltiply the estimated final scores for those modules by 0.5
+* Conclude that module DDD presentation 2013J, module DDD presentation 2013B, and module DDD presentation 2014B were double modules. Go back and moltiply the estimated final scores for those modules by 0.5
 
 
 
