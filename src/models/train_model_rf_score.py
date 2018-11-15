@@ -57,20 +57,20 @@ if __name__ == '__main__':
     # estimator
     rf = RandomForestRegressor()
 
-    # rf_params = {
-    #     'n_estimators': [50, 100, 1000, 5000], 
-    #     'max_depth': [5, 10, 20, 50, 100], 
-    #     'max_features': ['auto', 'sqrt', 'log2']
-    
-    # }
-    
     rf_params = {
         'n_estimators': [50, 100, 1000, 5000], 
-        'max_depth': [5, 10, 50, 100], 
-        'min_samples_split': [1.0, 2, 5], 
-        'min_samples_leaf': [1, 3], 
+        'max_depth': [5, 10, 20, 50, 100], 
         'max_features': ['auto', 'sqrt', 'log2']
-        }
+    
+    }
+    
+    # rf_params = {
+    #     'n_estimators': [50, 100, 1000, 5000], 
+    #     'max_depth': [5, 10, 50, 100], 
+    #     'min_samples_split': [1.0, 2, 5], 
+    #     'min_samples_leaf': [1, 3], 
+    #     'max_features': ['auto', 'sqrt', 'log2']
+    #     }
     
     rf_clf = GridSearchCV(rf, param_grid=rf_params,
                         scoring='neg_mean_squared_error',
