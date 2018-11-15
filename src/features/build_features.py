@@ -4,6 +4,7 @@ Transformations, feature engineering and extraction
 Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transformation (typically a join with a relevant table). Second level transformations and beyond are speficied with generic keyword arguements.
 '''
 
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -133,10 +134,21 @@ def _features_from_assessments(df):
     av_df.reset_index(inplace=True)
     av_df.rename({'score':'avg_score', 'days_submitted_early':'avg_days_sub_early'}, axis = 'columns',inplace=True)
 
-    # calculate estimated final score
+    # calculate estimated final score; module DDD, presentations 2013J, 2013B, and 2014B are double modules, estimated final score should be cut in half
     f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
     f_df.reset_index(inplace=True)
     f_df.rename({'weighted_score':'estimated_final_score'}, axis = 'columns',inplace=True)
+    #halving
+    indices = []
+    double = f_df[(f_df['code_module'] == 'DDD') & ((f_df   ['code_presentation'] == '2013J') | (f_df['code_presentation'] ==  '2014B') | (f_df['code_presentation'] == '2013B'))]
+
+    for index, row in double.iterrows():
+        indices.append(index)
+
+    double['estimated_final_score'] = double['estimated_final_score'].apply(lambda x: x/2)
+
+    f_df.drop(indices, axis = 0, inplace = True)
+    f_df = pd.concat([f_df, double])
 
     # first assessment date and score
     early_first_assessment = df.groupby(by=['code_module', 'code_presentation', 'id_student']).max()[['days_submitted_early']]
