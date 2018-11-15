@@ -70,11 +70,6 @@ if __name__ == '__main__':
     y_test = pd.read_csv('data/processed/y_test.csv')
     y_test = y_test['module_not_completed']
 
-    numeric_cols = ['num_of_prev_attempts', 'studied_credits',
-    'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
-    'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',  'days_early_first_assessment',
-    'score_first_assessment']
-
     X_train.fillna(value = 0, inplace = True)
 
     X_test.fillna(value = 0, inplace = True)
