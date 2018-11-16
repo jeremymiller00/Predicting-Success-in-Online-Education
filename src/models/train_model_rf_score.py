@@ -105,7 +105,7 @@ if __name__ == '__main__':
     rf_params = {
         'n_estimators': [50, 100, 1000, 5000], 
         'max_depth': [5, 10, 20, 50, 100], 
-        'oob_score': ['True']
+        'oob_score': ['True'],
         'max_features': ['auto']    
     }
 
