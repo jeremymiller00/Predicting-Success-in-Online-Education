@@ -138,3 +138,4 @@ if __name__ == '__main__':
     coef_dict = c.OrderedDict((zip(abs_coef, features)))
     ordered_feature_importances = sorted(coef_dict.items(), reverse=True)
     print('The top ten features affecting completion are: {}'.format( ordered_feature_importances[:10])
+    

@@ -118,7 +118,7 @@ if __name__ == '__main__':
     #     }
     
     rf = RandomForestRegressor()
-    
+
     rf_clf = GridSearchCV(rf, param_grid=rf_params,
                         scoring='neg_mean_squared_error',
                         n_jobs=-1,
@@ -134,36 +134,41 @@ if __name__ == '__main__':
 
     # rf_model.fit(X_train, y_train)
 
+
+
     # evaluation
     feat_imp = dropcol_importances(rf_model, X_train, y_train)
 
     predictions = rf_model.predict(X_test)
+    residuals = y_test - predictions
     rmse = np.sqrt(mean_squared_error(y_test, predictions))
     evs = explained_variance_score(y_test, predictions)
     r2 = r2_score(y_test, predictions)
 
     print('RMSE: {}'.format(rmse))
+    print('Explained Variance Score: {}'.format(evs))
+    print('Model Improvement Over Baseline: {}'.format(rmse - np.std(y_test)))
     print('R-squared: {}'.format(r2))
 
-    residuals = y_test - predictions
 
-    # plt.figure(figsize=(12,10))
-    # plt.scatter(x=residuals, y=y_test, alpha = 0.1, c='green')
-    # plt.show()
+    plt.figure(figsize=(12,10))
+    plt.scatter(x=residuals, y=y_test, alpha = 0.1, c='green')
+    plt.show()
 
-    # plt.figure(figsize=(12,10))
-    # plt.hist(residuals, bins=100)
-    # plt.show()
+    plt.figure(figsize=(12,10))
+    plt.hist(residuals, bins=100)
+    plt.show()
 
-    # plt.figure(figsize=(12,10))
-    # plt.hist(y_train, bins=100)
-    # plt.show()
+    plt.figure(figsize=(12,10))
+    plt.hist(y_train, bins=100)
+    plt.show()
 
-    # feat_imp = rf_model.feature_importances_
-    # features = list(X_test.columns)
-    # coef_dict = c.OrderedDict((zip(feat_imp, features)))
-    # sorted(coef_dict.items(), reverse=True)
-
+    feat_imp = rf_model.feature_importances_
+    features = list(X_test.columns)
+    coef_dict = c.OrderedDict((zip(feat_imp, features)))
+    ordered_feature_importances = sorted(coef_dict.items(), reverse=True)
+    print('The top ten features affecting final grades are: {}'.format(ordered_feature_importances[:10])
+    
     # save model
     pickle.dump(rf_model, open('models/random_forest_score.p', 'wb'),-1)
     pickle.dump(feat_imp, open('models/random_forest_feat_imp.p', 'wb'),-1)
