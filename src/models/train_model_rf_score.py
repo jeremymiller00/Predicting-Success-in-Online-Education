@@ -117,14 +117,14 @@ if __name__ == '__main__':
     #     'max_features': ['auto', 'sqrt', 'log2']
     #     }
     
-    # rf_clf = GridSearchCV(rf, param_grid=rf_params,
-    #                     scoring='neg_mean_squared_error',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    rf_clf = GridSearchCV(rf, param_grid=rf_params,
+                        scoring='neg_mean_squared_error',
+                        n_jobs=-1,
+                        cv=5)
 
-    # rf_clf.fit(X_train, y_train)
+    rf_clf.fit(X_train, y_train)
 
-    # rf_model = rf_clf.best_estimator_
+    rf_model = rf_clf.best_estimator_
 
 ############ end grid search code
 
