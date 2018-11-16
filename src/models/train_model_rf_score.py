@@ -54,32 +54,38 @@ if __name__ == '__main__':
     # only students who completed the course
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
-    # estimator
-    rf = RandomForestRegressor()
+    # # estimator
+    # rf = RandomForestRegressor()
 
-    rf_params = {
-        'n_estimators': [50, 100, 1000, 5000], 
-        'max_depth': [5, 10, 20, 50, 100], 
-        'max_features': ['auto']    
-    }
-    
     # rf_params = {
     #     'n_estimators': [50, 100, 1000, 5000], 
-    #     'max_depth': [5, 10, 50, 100], 
-    #     'min_samples_split': [1.0, 2, 5], 
-    #     'min_samples_leaf': [1, 3], 
-    #     'max_features': ['auto', 'sqrt', 'log2']
-    #     }
+    #     'max_depth': [5, 10, 20, 50, 100], 
+    #     'max_features': ['auto']    
+    # }
     
-    rf_clf = GridSearchCV(rf, param_grid=rf_params,
-                        scoring='neg_mean_squared_error',
-                        n_jobs=-1,
-                        cv=5)
+    # # rf_params = {
+    # #     'n_estimators': [50, 100, 1000, 5000], 
+    # #     'max_depth': [5, 10, 50, 100], 
+    # #     'min_samples_split': [1.0, 2, 5], 
+    # #     'min_samples_leaf': [1, 3], 
+    # #     'max_features': ['auto', 'sqrt', 'log2']
+    # #     }
+    
+    # rf_clf = GridSearchCV(rf, param_grid=rf_params,
+    #                     scoring='neg_mean_squared_error',
+    #                     n_jobs=-1,
+    #                     cv=5)
 
-    rf_clf.fit(X_train, y_train)
 
-    rf_model = rf_clf.best_estimator_
+    # rf_clf.fit(X_train, y_train)
 
+    # rf_model = rf_clf.best_estimator_
+
+    rf_model = RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=50, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.0, min_impurity_split=None,min_samples_leaf=1, min_samples_split=2,min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=None,oob_score=False, random_state=None, verbose=0, warm_start=False)
+
+    rf_model.fit(X_train, y_train)
+
+    
     # evaluation
     predictions = rf_model.predict(X_test)
     rmse = np.sqrt(mean_squared_error(y_test, predictions))
@@ -108,7 +114,7 @@ if __name__ == '__main__':
 
     feat_imp = rf_model.feature_importances_
     features = list(X_test.columns)
-    coef_dict = c.OrderedDict((zip(abs_coef, features)))
+    coef_dict = c.OrderedDict((zip(feat_imp, features)))
     sorted(coef_dict.items(), reverse=True)
 
     # save model
