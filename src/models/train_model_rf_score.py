@@ -117,6 +117,8 @@ if __name__ == '__main__':
     #     'max_features': ['auto', 'sqrt', 'log2']
     #     }
     
+    rf = RandomForestRegressor()
+    
     rf_clf = GridSearchCV(rf, param_grid=rf_params,
                         scoring='neg_mean_squared_error',
                         n_jobs=-1,
