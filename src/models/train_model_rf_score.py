@@ -118,4 +118,4 @@ if __name__ == '__main__':
     sorted(coef_dict.items(), reverse=True)
 
     # save model
-    pickle.dump(rf_model, open('models/random_forest_score.p', 'wb'))
+    pickle.dump(rf_model, open('models/random_forest_score.p', 'wb'),-1)
