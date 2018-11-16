@@ -105,13 +105,11 @@ Final result
 Estimated final grade
 
 
-## Split data
+## Notes on Models
+For task one (predicting complettion), logistic regression and random forest performed equally well. Feature importances can be compared. Gradient boosting perfomred slightly better but at the cost of interpretability.
 
-## Develop pipeline
+For task two (predicitng final grades), linear regression perfomed ok, a random forest regressor performed quite well (RMSE 7.34, r2 0.92).
 
-
-
-## Minumum Viable Product Due Nov 16
 
 
 ## Code Freeze Nov 26
