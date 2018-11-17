@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import collections as c
+from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
@@ -56,19 +57,19 @@ def dropcol_importances(rf, X_train, y_train):
     I = I.sort_values('Importance', ascending=True)
     return I
 
-def permutation_importances(rf, X_train, y_train, metric):
-    '''
-    Less biased than default feature importances in sklearn Random Forest models. Still has a potential for bias towards correlated predictive variables. A validation set or out_of_bag sample must be used.
-    '''
-    baseline = metric(rf, X_train, y_train)
-    imp = []
-    for col in X_train.columns:
-        save = X_train[col].copy()
-        X_train[col] = np.random.permutation(X_train[col])
-        m = metric(rf, X_train, y_train)
-        X_train[col] = save
-        imp.append(baseline - m)
-    return np.array(imp)
+# def permutation_importances(rf, X_train, y_train, metric):
+#     '''
+#     Less biased than default feature importances in sklearn Random Forest models. Still has a potential for bias towards correlated predictive variables. A validation set or out_of_bag sample must be used.
+#     '''
+#     baseline = mean_squared_error(y_train, rf.predict(X_train))
+#     imp = []
+#     for col in X_train.columns:
+#         save = X_train[col].copy().values()
+#         X_train[col] = np.random.permutation(X_train[col])
+#         m = mean_squared_error(y_train, rf.predict(X_train)
+#         X_train[col] = save
+#         imp.append(baseline - m)
+#     return np.array(imp)
 
 
 ######################################################################
@@ -97,14 +98,14 @@ if __name__ == '__main__':
 
 
     # small samples for testing
-    # X_train = X_train[:100]
-    # y_train = y_train[:100]
+    X_train = X_train[:100]
+    y_train = y_train[:100]
 
 
 ########## Grid Search Code
     rf_params = {
-        'n_estimators': [50, 100, 1000, 5000], 
-        'max_depth': [5, 10, 20, 50, 100], 
+        'n_estimators': [50, 100], 
+        'max_depth': [20, 50, 100], 
         'oob_score': ['True'],
         'max_features': ['auto']    
     }
@@ -137,6 +138,9 @@ if __name__ == '__main__':
 
 
     # evaluation
+    imp = importances(rf_model, X_test, y_test)
+
+    imp
     feat_imp = dropcol_importances(rf_model, X_train, y_train)
 
     predictions = rf_model.predict(X_test)
