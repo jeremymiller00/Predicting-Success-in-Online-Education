@@ -8,9 +8,11 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.linear_model import LogisticRegression
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
+import collections as c
 
 
 def scale_subset(df, columns):
@@ -71,11 +73,11 @@ def print_roc_curve(y_test, probabilities):
 
 if __name__ == '__main__':
 
-    X_train = pd.read_csv('data/processed/X_train.csv')
-    y_train = pd.read_csv('data/processed/y_train.csv')
+    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train = y_train['module_not_completed']
-    X_test = pd.read_csv('data/processed/X_test.csv')
-    y_test = pd.read_csv('data/processed/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
     y_test = y_test['module_not_completed']
     
     numeric_cols = ['num_of_prev_attempts', 'studied_credits',
@@ -93,10 +95,11 @@ if __name__ == '__main__':
     
     # GridSearch parameters
     lr_params = {
-            'C': [0.001, 0.01, 0.1, 1, 10, 100],
+            'C': [0.01, 0.1, 1, 10, 100],
             'penalty': ['l2'],
+            'tol': [0.00001, 0.0001, 0.001],
             'solver': ['newton-cg','lbfgs', 'liblinear'],
-            'max_iter': [25, 50, 100, 200, 500, 1000],
+            'max_iter': [25, 50, 100, 200, 500],
             'warm_start': ['False', 'True'],
     }
 
@@ -113,7 +116,7 @@ if __name__ == '__main__':
     # model = LogisticRegression(C=1, class_weight=None, dual=False,    fit_intercept=True, intercept_scaling=1, max_iter=200,            multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=0.0001, verbose=0, warm_start='False')
 
     # save model
-    pickle.dump(log_reg_model, open('models/logistic_regression_completion.p', 'wb'))
+    pickle.dump(log_reg_model, open('models/logistic_regression_completion_first_half.p', 'wb'))
 
     # evaluation
     predictions = log_reg_model.predict(X_test)
@@ -138,5 +141,4 @@ if __name__ == '__main__':
     features = list(X_test.columns)
     coef_dict = c.OrderedDict((zip(abs_coef, features)))
     ordered_feature_importances = sorted(coef_dict.items(), reverse=True)
-    print('The top ten features affecting completion are: {}'.format( ordered_feature_importances[:10])
-    
+    print('The top ten features affecting completion are: {}'.format( ordered_feature_importances[:10]))
