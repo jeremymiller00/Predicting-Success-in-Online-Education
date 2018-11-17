@@ -2,6 +2,10 @@
 Transformations, feature engineering and extraction
 
 Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transformation (typically a join with a relevant table). Second level transformations and beyond are speficied with generic keyword arguements.
+
+to do:
+only use vle and assessment stuff from first half
+eliminate anyone who has dropped the course at that point
 '''
 
 
@@ -24,7 +28,7 @@ def to_string(X, cols):
     return X
 
 # join student registration to student info
-def _join_reg(main_df, reg_df):
+def join_reg_courses(main_df, reg_df, courses_df):
     '''
     Joins the student registrations table to the student info (master)table on three columns: code_module, code_presentation, id_student. Records without a value for 'date unregistration' are set to zero
 
@@ -34,10 +38,12 @@ def _join_reg(main_df, reg_df):
     output {dataframe}: joined dataframe
     '''
     df = pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student'])
+    df = pd.merge(df, courses_df, how='outer', on=['code_module', 'code_presentation'])
+    df['halfway_days'] = df['module_presentation_length'] / 2
     return df
 
 # join vle to student vle
-def _join_vle(st_vle_df, vle_df):
+def join_vle(st_vle_df, vle_df):
     '''
     Joins vle table to studentVle table. Drops columns which are mostly null values.
 
@@ -53,7 +59,7 @@ def _join_vle(st_vle_df, vle_df):
     return pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
 
 # create features from vle
-def _features_from_vle(df):
+def features_from_vle(df):
     '''
     Create model feaures from virtual learning environment data
 
@@ -100,7 +106,7 @@ def _features_from_vle(df):
     return merged2
 
 # join assessments to student assessments
-def _join_asssessments(st_asmt_df, asmt_df):
+def join_asssessments(st_asmt_df, asmt_df):
     '''
     Joins the assessments table to the student assessment table on id_assessment; drop rows with null values (about 1.5%); relabel 'date' as 'due_date'.
 
@@ -116,7 +122,7 @@ def _join_asssessments(st_asmt_df, asmt_df):
     return merged
 
 # create features from assessments
-def _features_from_assessments(df):
+def features_from_assessments(df):
     '''
     Returns per student/module/presentation averages of assessment score, days submitted early, and estimated final score
 
@@ -189,7 +195,7 @@ def one_hot(dataframe, columns):
 
 # encode target: pass/fail
 # three potential targets: pass/fail, type of result, esi final score
-def _encode_target(dataframe):
+def encode_target(dataframe):
     '''
     Encodes target column 'final_result' into two categories from four.
     Retains original target column
@@ -213,7 +219,13 @@ def _encode_target(dataframe):
 
     return dataframe
 
+# test lines - delete!
+main_df.columns
+main_df[['module_presentation_length', 'halfway_days']]
+whos
+%reset
 ####################################################################
+
 if __name__ == "__main__":
 
     _cols_to_onehot = ['code_module', 'code_presentation', 'gender',    'region', 'highest_education', 'imd_band', 'age_band', 'disability', 'date_registration', ]
@@ -228,12 +240,12 @@ if __name__ == "__main__":
     vle_df = pd.read_csv('data/raw/vle.csv')
 
     # perfom transformations / feature engineering
-    main_df = _join_reg(main_df, reg_df)
-    main_df = _encode_target(main_df)
-    joined_vle_df = _join_vle(st_vle_df, vle_df)
-    features_vle = _features_from_vle(joined_vle_df)
-    joined_assessments = _join_asssessments(st_asmt_df, asmt_df)
-    features_assessments = _features_from_assessments(joined_assessments)
+    main_df = join_reg_courses(main_df, reg_df, courses_df)
+    main_df = encode_target(main_df)
+    joined_vle_df = join_vle(st_vle_df, vle_df)
+    features_vle = features_from_vle(joined_vle_df)
+    joined_assessments = join_asssessments(st_asmt_df, asmt_df)
+    features_assessments = features_from_assessments(joined_assessments)
 
     # join dataframes to main_df    
     main_df = pd.merge(main_df, features_vle, how='outer', on=['code_module', 'code_presentation', 'id_student'])  
