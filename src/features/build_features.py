@@ -39,11 +39,11 @@ def join_reg_courses(main_df, reg_df, courses_df):
     '''
     df = pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student'])
     df = pd.merge(df, courses_df, how='outer', on=['code_module', 'code_presentation'])
-    df['halfway_days'] = df['module_presentation_length'] / 2
+    df['halfway_date'] = df['module_presentation_length'] / 2
     return df
 
 # join vle to student vle
-def join_vle(st_vle_df, vle_df):
+def join_vle(st_vle_df, vle_df, courses_df):
     '''
     Joins vle table to studentVle table. Drops columns which are mostly null values.
 
@@ -56,7 +56,11 @@ def join_vle(st_vle_df, vle_df):
     # vle_df.drop(['week_from', 'week_to'], axis = 1, inplace = True)
 
     # merge together
-    return pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
+    df =  pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
+    df =  pd.merge(df, courses_df, how='outer', on = ['code_module', 'code_presentation'])
+    # remove anything past halfway point
+    df = df[df['date'] <= df['module_presentation_length'] / 2]
+    return df
 
 # create features from vle
 def features_from_vle(df):
@@ -106,7 +110,7 @@ def features_from_vle(df):
     return merged2
 
 # join assessments to student assessments
-def join_asssessments(st_asmt_df, asmt_df):
+def join_asssessments(st_asmt_df, asmt_df, courses_df):
     '''
     Joins the assessments table to the student assessment table on id_assessment; drop rows with null values (about 1.5%); relabel 'date' as 'due_date'.
 
@@ -115,11 +119,14 @@ def join_asssessments(st_asmt_df, asmt_df):
     input {dataframes}: studentAssessment, assessments
     output {dataframe}: joined dataframe with new feature 'days_submited_early'.
     '''
-    merged = pd.merge(st_asmt_df, asmt_df, how='outer', on=['id_assessment']).dropna()
-    merged['id_student'] = merged['id_student'].astype('int64')
+    df = pd.merge(st_asmt_df, asmt_df, how='outer', on=['id_assessment']).dropna()
+    df['id_student'] = df['id_student'].astype('int64')
+    df =  pd.merge(df, courses_df, how='outer', on = ['code_module', 'code_presentation'])
+    # remove anything past halfway point
+    df = df[df['date'] <= df['module_presentation_length'] / 2]
     # this should be in the next function for best practice
-    merged['days_submitted_early'] = merged['date'] - merged['date_submitted']
-    return merged
+    df['days_submitted_early'] = df['date'] - df['date_submitted']
+    return df
 
 # create features from assessments
 def features_from_assessments(df):
@@ -135,10 +142,10 @@ def features_from_assessments(df):
     # add weighted score for each assessment
     df['weighted_score'] = df['score'] * df['weight'] / 100
 
-    # caluculate mean scores, mean days submitted early
+    # caluculate avg days submitted early, score
     av_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).mean()[['score', 'days_submitted_early']]
     av_df.reset_index(inplace=True)
-    av_df.rename({'score':'avg_score', 'days_submitted_early':'avg_days_sub_early'}, axis = 'columns',inplace=True)
+    av_df.rename({'score': 'avg_score', 'days_submitted_early':'avg_days_sub_early'}, axis = 'columns',inplace=True)
 
     # calculate estimated final score; module DDD, presentations 2013J, 2013B, and 2014B are double modules, estimated final score should be cut in half
     f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
@@ -156,7 +163,7 @@ def features_from_assessments(df):
     f_df.drop(indices, axis = 0, inplace = True)
     f_df = pd.concat([f_df, double])
 
-    # first assessment date and score
+    # first assessment days early and score
     early_first_assessment = df.groupby(by=['code_module', 'code_presentation', 'id_student']).max()[['days_submitted_early']]
     early_first_assessment.reset_index(inplace=True)
     early_first_assessment.rename({'days_submitted_early':'days_early_first_assessment'}, axis = 'columns',inplace=True)
@@ -207,23 +214,20 @@ def encode_target(dataframe):
     final_result_num = []
     for idx, row in dataframe.iterrows():
         if row['final_result'] == 'Withdrawn':
-            final_result_num.append(0)
+            final_result_num.append('0_Withdrawn')
         elif row['final_result'] == 'Fail':
-            final_result_num.append(1)
+            final_result_num.append('1_Fail')
         elif row['final_result'] == 'Pass':
-            final_result_num.append(2)
+            final_result_num.append('2_Pass')
         else:
-            final_result_num.append(3)
+            final_result_num.append('3_Distinction')
 
-    dataframe['final_result_num'] = np.array(final_result_num)
+    dataframe['final_result_num'] = final_result_num
 
     return dataframe
 
 # test lines - delete!
-main_df.columns
-main_df[['module_presentation_length', 'halfway_days']]
-whos
-%reset
+
 ####################################################################
 
 if __name__ == "__main__":
@@ -234,17 +238,17 @@ if __name__ == "__main__":
     main_df = pd.read_csv('data/raw/studentInfo.csv')
     courses_df = pd.read_csv('data/raw/courses.csv')
     reg_df = pd.read_csv('data/raw/studentRegistrations.csv')
-    st_asmt_df = pd.read_csv('data/raw/studentAssessment.csv')
-    asmt_df = pd.read_csv('data/raw/assessments.csv')
     st_vle_df = pd.read_csv('data/raw/studentVle.csv')
     vle_df = pd.read_csv('data/raw/vle.csv')
+    st_asmt_df = pd.read_csv('data/raw/studentAssessment.csv')
+    asmt_df = pd.read_csv('data/raw/assessments.csv')
 
     # perfom transformations / feature engineering
     main_df = join_reg_courses(main_df, reg_df, courses_df)
     main_df = encode_target(main_df)
-    joined_vle_df = join_vle(st_vle_df, vle_df)
+    joined_vle_df = join_vle(st_vle_df, vle_df, courses_df)
     features_vle = features_from_vle(joined_vle_df)
-    joined_assessments = join_asssessments(st_asmt_df, asmt_df)
+    joined_assessments = join_asssessments(st_asmt_df, asmt_df, courses_df)
     features_assessments = features_from_assessments(joined_assessments)
 
     # join dataframes to main_df    
@@ -258,8 +262,8 @@ if __name__ == "__main__":
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
 
-    # filter out students who dropped before the first day of the course
-    main_df = main_df[(main_df['date_unregistration'] > 0) | (main_df['date_unregistration'].isnull())]
+    # filter out students who dropped before the halfway point
+    main_df = main_df[(main_df['date_unregistration'] > main_df['halfway_date']) | (main_df['date_unregistration'].isnull())]
 
     # split the data: three possible targets
     X = main_df_final.drop(['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score', 'date_unregistration', 'id_student'], axis = 1)
@@ -269,9 +273,9 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     # write out to csv
-    main_df_final.to_csv('data/processed/transformed_data_with_features.csv', index=False)
-    X_train.to_csv('data/processed/X_train.csv', index=False)
-    X_test.to_csv('data/processed/X_test.csv', index=False)
-    y_train.to_csv('data/processed/y_train.csv', index=False)
-    y_test.to_csv('data/processed/y_test.csv', index=False)
+    main_df_final.to_csv('data/processed/first_half/transformed_data_with_features.csv', index=False)
+    X_train.to_csv('data/processed/first_half/X_train.csv', index=False)
+    X_test.to_csv('data/processed/first_half/X_test.csv', index=False)
+    y_train.to_csv('data/processed/first_half/y_train.csv', index=False)
+    y_test.to_csv('data/processed/first_half/y_test.csv', index=False)
 
