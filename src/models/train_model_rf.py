@@ -10,7 +10,7 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 
 
@@ -78,20 +78,19 @@ if __name__ == '__main__':
     rf = RandomForestClassifier()
     
     # GridSearch parameters
-    rf_params = {
-        'n_estimators': [50, 100, 1000], 
-        'max_depth': [5, 10, 50], 
-        'min_samples_split': [1.0, 10, 100], 
-        'min_samples_leaf': [1, 10, 100], 
-        'max_features': ['auto', 'sqrt', 'log2']
-        }
-    
     # rf_params = {
     #     'n_estimators': [50, 100, 1000], 
-    #     'max_depth': [5, 10, 20, 50, 100], 
+    #     'max_depth': [5, 10, 50], 
+    #     'min_samples_split': [1.0, 10, 100], 
+    #     'min_samples_leaf': [1, 10, 100], 
     #     'max_features': ['auto', 'sqrt', 'log2']
     #     }
     
+    rf_params = {
+        'n_estimators': [50, 100, 1000], 
+        'max_depth': [5, 10, 20, 50, 100], 
+        'max_features': ['auto', 'sqrt', 'log2']
+        }
     
     rf_clf = GridSearchCV(rf, param_grid=rf_params,
                         scoring='recall',
@@ -102,12 +101,17 @@ if __name__ == '__main__':
 
     rf_model = rf_clf.best_estimator_
 
+    cross_val_score(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5)
+    cross_val_score(rf_model, X_train, y_train, scoring = 'recall', cv=5)
+    cross_val_score(rf_model, X_train, y_train, scoring = 'precision', cv=5)
+    cross_val_score(rf_model, X_train, y_train, scoring = 'accuracy', cv=5)
+
     # save model
     pickle.dump(rf_model, open('models/random_forest_completion.p', 'wb')) 
 
-
+'''
     # evaluation
-    imp = importances(rf_model, X_test, y_test)
+    # imp = importances(rf_model, X_test, y_test)
     predictions = rf_model.predict(X_test)
     roc_auc = roc_auc_score(y_test, predictions)
     probas = rf_model.predict_proba(X_test)[:, 1:]
@@ -131,3 +135,4 @@ if __name__ == '__main__':
     # plt.ylabel("TPR")
     # plt.title("ROC Curve AUC: {}".format(roc_auc))
     # plt.show()
+'''
