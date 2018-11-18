@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.linear_model import LogisticRegression
-import statsmodels.api as sm
+# import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import collections as c
 
