@@ -156,7 +156,7 @@ if __name__ == '__main__':
     print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
 
     # feature importances
-    importances(rf_model, X_test, y_test)
-
-
-'''
+    feat_imp = importances(rf_model, X_test, y_test)
+    feat_imp.sort_values(by='Importance', ascending=False)[0:10]
+    pd.DataFrame(data={'fprs': fprs, 'tprs': tprs, 'Thresholds': thresh}).loc[300:1000:25]
+    '''
