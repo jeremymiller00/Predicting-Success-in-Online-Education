@@ -72,7 +72,6 @@ if __name__ == '__main__':
     y_test = y_test['module_not_completed']
 
     X_train.fillna(value = 0, inplace = True)
-
     X_test.fillna(value = 0, inplace = True)
 
     # estimator
