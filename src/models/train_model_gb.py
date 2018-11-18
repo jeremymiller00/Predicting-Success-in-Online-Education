@@ -9,7 +9,7 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.ensemble import GradientBoostingClassifier
 
 
@@ -78,9 +78,9 @@ if __name__ == '__main__':
 
     gb_params = {
             'max_depth': [3, 5, 10],
-            'learning_rate': [0.0001, 0.001, 0.01],
-            'n_estimators': [50, 100, 1000],
-            'subsample': [0.3, 0.1, 0.05, 0.01],
+            'learning_rate': [0.001, 0.01, 0.1, 1],
+            'n_estimators': [100, 1000],
+            'subsample': [0.5, 0.3, 0.1],
             'max_features': ['auto', 'sqrt'],
     }
 
@@ -93,17 +93,23 @@ if __name__ == '__main__':
 
     gb_model = gb_clf.best_estimator_
 
+    # best parameters determined by grid search
+    GradientBoostingClassifier(criterion='friedman_mse', init=None,
+              learning_rate=0.01, loss='deviance', max_depth=10,
+              max_features='auto', max_leaf_nodes=None,
+              min_impurity_decrease=0.0, min_impurity_split=None,
+              min_samples_leaf=1, min_samples_split=2,
+              min_weight_fraction_leaf=0.0, n_estimators=1000,
+              n_iter_no_change=None, presort='auto', random_state=None,
+              subsample=0.3, tol=0.0001, validation_fraction=0.1,
+              verbose=0, warm_start=False)
+
+
     # save model
     # pickle.dump(gb_model, open('models/completion_classifier_gb.p', 'wb')) 
 
 
     # evaluation
-    predictions = gb_model.predict(X_test)
-    roc_auc = roc_auc_score(y_test, predictions)
-    probas = gb_model.predict_proba(X_test)[:, 1:]
-    tprs, frps, thresh = roc_curve(y_test, probas)
-    recall = recall_score(y_test, predictions)
-
     cross_val_score(gb_model, X_train, y_train, scoring = 'roc_auc', cv=5)
     cross_val_score(gb_model, X_train, y_train, scoring = 'recall', cv=5)
     cross_val_score(gb_model, X_train, y_train, scoring = 'precision', cv=5)
