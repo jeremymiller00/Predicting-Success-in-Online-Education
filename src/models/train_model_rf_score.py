@@ -57,31 +57,17 @@ def dropcol_importances(rf, X_train, y_train):
     I = I.sort_values('Importance', ascending=True)
     return I
 
-# def permutation_importances(rf, X_train, y_train, metric):
-#     '''
-#     Less biased than default feature importances in sklearn Random Forest models. Still has a potential for bias towards correlated predictive variables. A validation set or out_of_bag sample must be used.
-#     '''
-#     baseline = mean_squared_error(y_train, rf.predict(X_train))
-#     imp = []
-#     for col in X_train.columns:
-#         save = X_train[col].copy().values()
-#         X_train[col] = np.random.permutation(X_train[col])
-#         m = mean_squared_error(y_train, rf.predict(X_train)
-#         X_train[col] = save
-#         imp.append(baseline - m)
-#     return np.array(imp)
-
 
 ######################################################################
 
 if __name__ == '__main__':
 
-    X_train = pd.read_csv('data/processed/X_train.csv')
-    y_train = pd.read_csv('data/processed/y_train.csv')
+    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
     y_train = y_train['estimated_final_score']
-    X_test = pd.read_csv('data/processed/X_test.csv')
-    y_test = pd.read_csv('data/processed/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 

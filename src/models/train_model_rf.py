@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
+from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
@@ -63,11 +64,11 @@ def dropcol_importances(rf, X_train, y_train):
 
 if __name__ == '__main__':
 
-    X_train = pd.read_csv('data/processed/X_train.csv')
-    y_train = pd.read_csv('data/processed/y_train.csv')
+    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train = y_train['module_not_completed']
-    X_test = pd.read_csv('data/processed/X_test.csv')
-    y_test = pd.read_csv('data/processed/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
     y_test = y_test['module_not_completed']
 
     X_train.fillna(value = 0, inplace = True)
@@ -81,8 +82,8 @@ if __name__ == '__main__':
     rf_params = {
         'n_estimators': [50, 100, 1000], 
         'max_depth': [5, 10, 50], 
-        'min_samples_split': [1.0, 2, 5], 
-        'min_samples_leaf': [1, 3], 
+        'min_samples_split': [1.0, 10, 100], 
+        'min_samples_leaf': [1, 10, 100], 
         'max_features': ['auto', 'sqrt', 'log2']
         }
     
@@ -107,6 +108,7 @@ if __name__ == '__main__':
 
 
     # evaluation
+    imp = importances(rf_model, X_test, y_test)
     predictions = rf_model.predict(X_test)
     roc_auc = roc_auc_score(y_test, predictions)
     probas = rf_model.predict_proba(X_test)[:, 1:]

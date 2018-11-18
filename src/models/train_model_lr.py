@@ -88,51 +88,54 @@ if __name__ == '__main__':
     X_test.fillna(value = 0, inplace = True)
     X_test = scale_subset(X_test, numeric_cols)
 
-    # estimators
-    lr = LogisticRegression()
+    # remove features with VIF > 10
+    '''
+    [(34.82408402588052, 'code_presentation_2014J'),
+    (27.902556097941535, 'module_presentation_length'),
+    (17.71032093366156, 'sum_days_vle_accessed'),
+    (12.29325003243407, 'avg_score'),
+    (12.129102421725705, 'code_module_BBB'),
+    (11.26607390128323, 'score_first_assessment'),
+    (10.74221505000013, 'code_module_DDD'),
+    (10.185010067236496, 'code_module_FFF') '''
+
+    high_vif = ['code_presentation_2014J', 'module_presentation_length', 'sum_days_vle_accessed', 'avg_score', 'code_module_BBB', 'score_first_assessment', 'code_module_DDD', 'code_module_FFF']
+    X_train.drop(high_vif, axis = 1, inplace = True)
+    X_test.drop(high_vif, axis = 1, inplace = True)
     
-    # GridSearch parameters
+    # # estimators
+    # lr = LogisticRegression()
+    
+    # # GridSearch parameters
     # lr_params = {
     #         'C': [0.01, 0.1, 1, 10, 100],
     #         'penalty': ['l2'],
-    #         'tol': [0.0000001, 0.000001, 0.00001, 0.0001],
+    #         'tol': [0.000000001, 0.00000001, 0.0000001, 0.000001, 0.00001],
     #         'solver': ['newton-cg','lbfgs', 'liblinear'],
-    #         'max_iter': [25, 50, 100, 200, 500],
+    #         'max_iter': [10, 25, 50, 100, 200, 500],
     #         'warm_start': ['False', 'True'],
     # }
 
+    # lr_clf = GridSearchCV(lr, param_grid=lr_params,
+    #                     scoring='neg_log_loss',
+    #                     n_jobs=-1,
+    #                     cv=5)
 
-    lr_params = {
-            'C': [1],
-            'penalty': ['l2'],
-            'tol': [0.000000001, 0.00000001, .0000001],
-            'solver': ['newton-cg'],
-            'max_iter': [10, 25, 50, 100, 200, 500],
-            'warm_start': ['False']
-    }
+    # lr_clf.fit(X_train, y_train)
+    # log_reg_model = lr_clf.best_estimator_
 
-    lr_clf = GridSearchCV(lr, param_grid=lr_params,
-                        scoring='neg_log_loss',
-                        n_jobs=-1,
-                        cv=5)
+    # best model as determined by grid search:
+    log_reg_model = LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1, max_iter=10, multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=1e-09, verbose=0, warm_start='False')
 
-    lr_clf.fit(X_train, y_train)
-
-    log_reg_model = lr_clf.best_estimator_
-
-    '''
-    best model as determined by grid search
-    model = LogisticRegression(C=1, class_weight=None, dual=False,    fit_intercept=True, intercept_scaling=1, max_iter=200,            multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=0.0001, verbose=0, warm_start='False')
-
-    LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True,
-          intercept_scaling=1, max_iter=25, multi_class='warn',
-          n_jobs=None, penalty='l2', random_state=None, solver='newton-cg',
-          tol=1e-05, verbose=0, warm_start='False')
-    '''
+    cross_val_score(log_reg_model, X_train, y_train, scoring = 'roc_auc', cv=5)
+    cross_val_score(log_reg_model, X_train, y_train, scoring = 'recall', cv=5)
+    cross_val_score(log_reg_model, X_train, y_train, scoring = 'precision', cv=5)
+    cross_val_score(log_reg_model, X_train, y_train, scoring = 'accuracy', cv=5)
 
     # save model
     pickle.dump(log_reg_model, open('models/logistic_regression_completion_first_half.p', 'wb'))
 
+'''
     # evaluation
     predictions = log_reg_model.predict(X_test)
     roc_auc = roc_auc_score(y_test, predictions)
@@ -157,3 +160,4 @@ if __name__ == '__main__':
     coef_dict = c.OrderedDict((zip(abs_coef, features)))
     ordered_feature_importances = sorted(coef_dict.items(), reverse=True)
     print('The top ten features affecting completion are: {}'.format( ordered_feature_importances[:10]))
+'''
