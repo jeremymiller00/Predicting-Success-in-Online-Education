@@ -3,9 +3,13 @@ Transformations, feature engineering and extraction
 
 Inital dataframes imported in the if __name__ == '__main__' block are specified as keyword arguements for initial transformation (typically a join with a relevant table). Second level transformations and beyond are speficied with generic keyword arguements.
 
-to do:
-only use vle and assessment stuff from first half
-eliminate anyone who has dropped the course at that point
+For changning cutoff date:
+The factor needs to changed in three places:
+
+join_vle: line 62
+join_assessments: line 130
+filter out: line 269
+CHECK OUTPUT PATHS
 '''
 
 
@@ -274,7 +278,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     # write out to csv
-    main_df_final.to_csv('data/processed/first_half/transformed_data_with_features.csv', index=False)
+    main_df_final.to_csv('data/processed/transformed_data_with_features.csv', index=False)
     X_train.to_csv('data/processed/first_half/X_train.csv', index=False)
     X_test.to_csv('data/processed/first_half/X_test.csv', index=False)
     y_train.to_csv('data/processed/first_half/y_train.csv', index=False)
