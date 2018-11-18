@@ -59,7 +59,7 @@ def join_vle(st_vle_df, vle_df, courses_df):
     df =  pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
     df =  pd.merge(df, courses_df, how='outer', on = ['code_module', 'code_presentation'])
     # remove anything past halfway point
-    df = df[df['date'] <= df['module_presentation_length'] / 2]
+    df = df[df['date'] <= df['module_presentation_length'] * 0.5]
     return df
 
 # create features from vle
@@ -73,21 +73,23 @@ def features_from_vle(df):
     output {dataframe}: dataframe for be joined to main df
     '''
     
-    # caluculate clicks/day (total clicks / course length)
-    total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['sum_click']]
-    total_clicks.reset_index(inplace=True)
-    total_clicks.rename({'sum_click':'total_clicks_in_course'}, axis = 'columns',inplace=True)
-    total_clicks = pd.merge(total_clicks, courses_df, how="outer", on = ['code_module', 'code_presentation'])
-    total_clicks['clicks_per_day'] = total_clicks['total_clicks_in_course'] / total_clicks['module_presentation_length']
-    total_clicks.drop(['total_clicks_in_course', 'module_presentation_length'], axis = 1, inplace = True)
+    # caluculate sum clicks for each category
+    total_clicks = df.groupby(by=['id_student', 'code_module', 'code_presentation', 'activity_type']).sum()[['sum_click']]
+    cat_clicks = total_clicks.unstack(level=3, fill_value=0)
+    cat_clicks.columns = cat_clicks.columns.get_level_values(1)
+    new_cols = []
+    for col in cat_clicks.columns:
+        new_cols.append('sum_click_' + col)
+    cat_clicks.columns = new_cols
+    cat_clicks.reset_index(inplace=True)
 
-    # calculate percentage of days vle accesses (sum_days_accessed / course length)***
+    # calculate sum of days vle accesses
     days_accessed = df.groupby(by=['id_student', 'code_module', 'code_presentation']).count()[['date']]
     days_accessed.reset_index(inplace=True)
     days_accessed.rename({'date':'sum_days_vle_accessed'}, axis = 'columns',inplace=True)
-    days_accessed = pd.merge(days_accessed, courses_df, how="outer", on = ['code_module', 'code_presentation'])
-    days_accessed['pct_days_vle_accessed'] = days_accessed['sum_days_vle_accessed'] / days_accessed['module_presentation_length']
-    days_accessed.drop(['sum_days_vle_accessed', 'module_presentation_length'], axis = 1, inplace = True)
+    # days_accessed = pd.merge(days_accessed, courses_df, how="outer", on = ['code_module', 'code_presentation'])
+    # days_accessed['pct_days_vle_accessed'] = days_accessed['sum_days_vle_accessed'] / days_accessed['module_presentation_length']
+    # days_accessed.drop(['sum_days_vle_accessed', 'module_presentation_length'], axis = 1, inplace = True)
 
     # calculate max clicks in one day
     max_clicks = df.groupby(by=['id_student',
@@ -101,7 +103,7 @@ def features_from_vle(df):
     first_accessed.rename({'date':'first_date_vle_accessed'}, axis = 'columns',inplace=True)
 
     # merge and rename columns
-    merged = pd.merge(total_clicks, days_accessed, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+    merged = pd.merge(cat_clicks, days_accessed, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     merged1 = pd.merge(merged, max_clicks, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
     
@@ -123,7 +125,7 @@ def join_asssessments(st_asmt_df, asmt_df, courses_df):
     df['id_student'] = df['id_student'].astype('int64')
     df =  pd.merge(df, courses_df, how='outer', on = ['code_module', 'code_presentation'])
     # remove anything past halfway point
-    df = df[df['date'] <= df['module_presentation_length'] / 2]
+    df = df[df['date'] <= df['module_presentation_length'] * 0.5]
     # this should be in the next function for best practice
     df['days_submitted_early'] = df['date'] - df['date_submitted']
     return df

@@ -97,7 +97,7 @@ if __name__ == '__main__':
     lr_params = {
             'C': [0.01, 0.1, 1, 10, 100],
             'penalty': ['l2'],
-            'tol': [0.00001, 0.0001, 0.001],
+            'tol': [0.00001, 0.0001, 0.001, 0.01],
             'solver': ['newton-cg','lbfgs', 'liblinear'],
             'max_iter': [25, 50, 100, 200, 500],
             'warm_start': ['False', 'True'],
