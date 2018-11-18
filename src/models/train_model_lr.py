@@ -92,13 +92,23 @@ if __name__ == '__main__':
     lr = LogisticRegression()
     
     # GridSearch parameters
+    # lr_params = {
+    #         'C': [0.01, 0.1, 1, 10, 100],
+    #         'penalty': ['l2'],
+    #         'tol': [0.0000001, 0.000001, 0.00001, 0.0001],
+    #         'solver': ['newton-cg','lbfgs', 'liblinear'],
+    #         'max_iter': [25, 50, 100, 200, 500],
+    #         'warm_start': ['False', 'True'],
+    # }
+
+
     lr_params = {
-            'C': [0.01, 0.1, 1, 10, 100],
+            'C': [1],
             'penalty': ['l2'],
-            'tol': [0.00001, 0.0001, 0.001, 0.01],
-            'solver': ['newton-cg','lbfgs', 'liblinear'],
-            'max_iter': [25, 50, 100, 200, 500],
-            'warm_start': ['False', 'True'],
+            'tol': [0.0000001, 0.000001, 0.00001, 0.0001],
+            'solver': ['newton-cg'],
+            'max_iter': [10, 25, 50, 100, 200, 500],
+            'warm_start': ['False']
     }
 
     lr_clf = GridSearchCV(lr, param_grid=lr_params,
@@ -110,8 +120,15 @@ if __name__ == '__main__':
 
     log_reg_model = lr_clf.best_estimator_
 
-    # best model as determined by grid search
-    # model = LogisticRegression(C=1, class_weight=None, dual=False,    fit_intercept=True, intercept_scaling=1, max_iter=200,            multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=0.0001, verbose=0, warm_start='False')
+    '''
+    best model as determined by grid search
+    model = LogisticRegression(C=1, class_weight=None, dual=False,    fit_intercept=True, intercept_scaling=1, max_iter=200,            multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=0.0001, verbose=0, warm_start='False')
+
+    LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True,
+          intercept_scaling=1, max_iter=25, multi_class='warn',
+          n_jobs=None, penalty='l2', random_state=None, solver='newton-cg',
+          tol=1e-05, verbose=0, warm_start='False')
+    '''
 
     # save model
     pickle.dump(log_reg_model, open('models/logistic_regression_completion_first_half.p', 'wb'))
