@@ -10,7 +10,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
 from sklearn.model_selection import GridSearchCV, cross_val_score
 from sklearn.linear_model import LogisticRegression
-# import statsmodels.api as sm
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 import matplotlib.pyplot as plt
 import collections as c
 
@@ -126,20 +127,45 @@ if __name__ == '__main__':
 
     # best model as determined by grid search:
     log_reg_model = LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1, max_iter=10, multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=1e-09, verbose=0, warm_start='False')
+    log_reg_model.fit(X_train, y_train)
 
-    cross_val_score(log_reg_model, X_train, y_train, scoring = 'roc_auc', cv=5)
-    cross_val_score(log_reg_model, X_train, y_train, scoring = 'recall', cv=5)
-    cross_val_score(log_reg_model, X_train, y_train, scoring = 'precision', cv=5)
-    cross_val_score(log_reg_model, X_train, y_train, scoring = 'accuracy', cv=5)
+    roc_auc_cv = (cross_val_score(log_reg_model, X_train, y_train, scoring = 'roc_auc', cv=5))
+    recall_cv = cross_val_score(log_reg_model, X_train, y_train, scoring = 'recall', cv=5)
+    precision_cv = cross_val_score(log_reg_model, X_train, y_train, scoring = 'precision', cv=5)
+    accuracy_cv = cross_val_score(log_reg_model, X_train, y_train, scoring = 'accuracy', cv=5)
+    f1_cv = cross_val_score(log_reg_model, X_train, y_train, scoring = 'f1_micro', cv=5)
+
+    print('Best Model: {}'.format(log_reg_model))
+    # print('Best Model parameters: {}'.format(log_reg_model.best_params_))
+    print('Roc Auc: {}'.format(roc_auc_cv))
+    print('Recall Score: {}'.format(recall_cv))
+    print('Precision Score: {}'.format(precision_cv))
+    print('Accuracy Score: {}'.format(accuracy_cv))
+    print('F1 Micro: {}'.format(f1_cv))
+    # print('Best Model Log Loss: {}'.format(log_reg_model.best_score_))
 
     # save model
     pickle.dump(log_reg_model, open('models/logistic_regression_completion_first_half.p', 'wb'))
 
+    # assessing variance inflation
+    vif = []
+    for v in range(len(X_train.columns)):
+        vif.append(variance_inflation_factor(X_train.values, v))
+    features = list(X_test.columns)
+    vif_dict = c.OrderedDict((zip(vif, features)))
+    sorted(vif_dict.items(), reverse=True)
+
+    # feature correlation
+    cor = X_train.corr().abs()
+    s = cor.unstack()
+    so = s.sort_values(kind="quicksort", ascending=False)
+    so[58::2]
+
 '''
-    # evaluation
+    # final model evaluation (see jupyter notebook)
     predictions = log_reg_model.predict(X_test)
     roc_auc = roc_auc_score(y_test, predictions)
-    probas = log_reg_model.predict_proba(X_test)[:, 1:]
+    probas = log_reg_model.predict_proba(X_test)[:, :1]
     tprs, fprs, thresh = roc_curve(y_test, probas)
     recall = recall_score(y_test, predictions)
     conf_mat = standard_confusion_matrix(y_test, predictions)
@@ -147,17 +173,16 @@ if __name__ == '__main__':
 
     print_roc_curve(y_test, probas)
     print('Best Model: {}'.format(log_reg_model))
-    print('Best Model parameters: {}'.format(lr_clf.best_params_))
-    print('Best Model Log Loss: {}'.format(lr_clf.best_score_))
-    print('Roc Auc: {}'.format(roc_auc))
-    print('Recall Score: {}'.format(recall))
-    print('Confusion Matrix: {}'.format(conf_mat))
-    print('Classification Report: {}'.format(class_report))
+    print('\nRoc Auc: {}'.format(roc_auc))
+    print('\nRecall Score: {}'.format(recall))
+    print('\nClassification Report:\n {}'.format(class_report))
+    print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
 
     # Feature Importances
     abs_coef = list(np.abs(log_reg_model.coef_.ravel()))
     features = list(X_test.columns)
     coef_dict = c.OrderedDict((zip(abs_coef, features)))
-    ordered_feature_importances = sorted(coef_dict.items(), reverse=True)
-    print('The top ten features affecting completion are: {}'.format( ordered_feature_importances[:10]))
+    print('The top ten features affecting completion are:\n')
+    sorted(coef_dict.items(), reverse=True)[:10]
+
 '''

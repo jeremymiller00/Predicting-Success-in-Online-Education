@@ -88,7 +88,7 @@ if __name__ == '__main__':
     
     rf_params = {
         'n_estimators': [50, 100, 1000], 
-        'max_depth': [5, 10, 20, 50, 100], 
+        'max_depth': [5, 10, 20, 50, 100, 500], 
         'max_features': ['auto', 'sqrt', 'log2']
         }
     
@@ -98,8 +98,11 @@ if __name__ == '__main__':
                         cv=5)
 
     rf_clf.fit(X_train, y_train)
-
     rf_model = rf_clf.best_estimator_
+
+    # best model as determined by grid search
+    rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=100, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=None, oob_score=False, random_state=None, verbose=0, warm_start=False)
+    rf_model.fit(X_train, y_train)
 
     cross_val_score(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5)
     cross_val_score(rf_model, X_train, y_train, scoring = 'recall', cv=5)
