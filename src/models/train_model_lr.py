@@ -129,6 +129,7 @@ if __name__ == '__main__':
     log_reg_model = LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1, max_iter=10, multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=1e-09, verbose=0, warm_start='False')
     log_reg_model.fit(X_train, y_train)
 
+    # evaluation
     roc_auc_cv = (cross_val_score(log_reg_model, X_train, y_train, scoring = 'roc_auc', cv=5))
     recall_cv = cross_val_score(log_reg_model, X_train, y_train, scoring = 'recall', cv=5)
     precision_cv = cross_val_score(log_reg_model, X_train, y_train, scoring = 'precision', cv=5)
@@ -142,7 +143,6 @@ if __name__ == '__main__':
     print('Precision Score: {}'.format(precision_cv))
     print('Accuracy Score: {}'.format(accuracy_cv))
     print('F1 Micro: {}'.format(f1_cv))
-    # print('Best Model Log Loss: {}'.format(log_reg_model.best_score_))
 
     # save model
     pickle.dump(log_reg_model, open('models/logistic_regression_completion_first_half.p', 'wb'))

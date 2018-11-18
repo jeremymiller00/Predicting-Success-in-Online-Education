@@ -60,6 +60,22 @@ def dropcol_importances(rf, X_train, y_train):
     I = I.sort_values('Importance', ascending=True)
     return I
 
+def print_roc_curve(y_test, probabilities):
+    '''
+    Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
+    '''
+    tprs, fprs, thresh = roc_curve(y_test, probabilities)
+    plt.figure(figsize=(12,10))
+    plt.plot(fprs, tprs, 
+         label='Logistic Regression', 
+         color='red')
+    plt.plot([0,1],[0,1], 'k:')
+    plt.legend()
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
+    plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
+    plt.show()
+
 ######################################################################
 
 if __name__ == '__main__':
@@ -86,56 +102,61 @@ if __name__ == '__main__':
     #     'max_features': ['auto', 'sqrt', 'log2']
     #     }
     
-    rf_params = {
-        'n_estimators': [50, 100, 1000], 
-        'max_depth': [5, 10, 20, 50, 100, 500], 
-        'max_features': ['auto', 'sqrt', 'log2']
-        }
+    # rf_params = {
+    #     'n_estimators': [50, 100, 1000], 
+    #     'max_depth': [5, 10, 20, 50, 100, 500], 
+    #     'max_features': ['auto', 'sqrt', 'log2']
+    #     }
     
-    rf_clf = GridSearchCV(rf, param_grid=rf_params,
-                        scoring='recall',
-                        n_jobs=-1,
-                        cv=5)
+    # rf_clf = GridSearchCV(rf, param_grid=rf_params,
+    #                     scoring='recall',
+    #                     n_jobs=-1,
+    #                     cv=5)
 
-    rf_clf.fit(X_train, y_train)
-    rf_model = rf_clf.best_estimator_
+    # rf_clf.fit(X_train, y_train)
+    # rf_model = rf_clf.best_estimator_
 
     # best model as determined by grid search
     rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=100, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=None, oob_score=False, random_state=None, verbose=0, warm_start=False)
     rf_model.fit(X_train, y_train)
 
-    cross_val_score(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5)
-    cross_val_score(rf_model, X_train, y_train, scoring = 'recall', cv=5)
-    cross_val_score(rf_model, X_train, y_train, scoring = 'precision', cv=5)
-    cross_val_score(rf_model, X_train, y_train, scoring = 'accuracy', cv=5)
-
-    # save model
-    pickle.dump(rf_model, open('models/random_forest_completion.p', 'wb')) 
-
-'''
     # evaluation
-    # imp = importances(rf_model, X_test, y_test)
-    predictions = rf_model.predict(X_test)
-    roc_auc = roc_auc_score(y_test, predictions)
-    probas = rf_model.predict_proba(X_test)[:, 1:]
-    tprs, frps, thresh = roc_curve(y_test, probas)
-    recall = recall_score(y_test, predictions)
-    feat_imp = rf_model.feature_importances_
+    roc_auc_cv = (cross_val_score(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5))
+    recall_cv = cross_val_score(rf_model, X_train, y_train, scoring = 'recall', cv=5)
+    precision_cv = cross_val_score(rf_model, X_train, y_train, scoring = 'precision', cv=5)
+    accuracy_cv = cross_val_score(rf_model, X_train, y_train, scoring = 'accuracy', cv=5)
+    f1_cv = cross_val_score(rf_model, X_train, y_train, scoring = 'f1_micro', cv=5)
 
     print('Best Model: {}'.format(rf_model))
-    print('Best Model parameters: {}'.format(rf_clf.best_params_))
-    print('Best Model Log Recall: {}'.format(recall))
-    print('Best Model Roc Auc: {}'.format(roc_auc))
-    print('Feature Importances: {}'.format(feat_imp))
+    # print('Best Model parameters: {}'.format(rf_model.best_params_))
+    print('Roc Auc: {}'.format(roc_auc_cv))
+    print('Recall Score: {}'.format(recall_cv))
+    print('Precision Score: {}'.format(precision_cv))
+    print('Accuracy Score: {}'.format(accuracy_cv))
+    print('F1 Micro: {}'.format(f1_cv))
 
-    # plt.figure(figsize=(12,10))
-    # plt.plot(fprs, tprs, 
-    #      label='Random Forest', 
-    #      color='red')
-    # plt.plot([0,1],[0,1], 'k:')
-    # plt.legend()
-    # plt.xlabel("FPR")
-    # plt.ylabel("TPR")
-    # plt.title("ROC Curve AUC: {}".format(roc_auc))
-    # plt.show()
+    # save model
+    pickle.dump(rf_model, open('models/random_forest_completion_first_half.p', 'wb')) 
+
+'''
+    # final model evaluation (see jupyter notebook)
+    predictions = rf_model.predict(X_test)
+    roc_auc = roc_auc_score(y_test, predictions)
+    probas = rf_model.predict_proba(X_test)[:, :1]
+    tprs, fprs, thresh = roc_curve(y_test, probas)
+    recall = recall_score(y_test, predictions)
+    conf_mat = standard_confusion_matrix(y_test, predictions)
+    class_report = classification_report(y_test, predictions)
+
+    print_roc_curve(y_test, probas)
+    print('Best Model: {}'.format(rf_model))
+    print('\nRoc Auc: {}'.format(roc_auc))
+    print('\nRecall Score: {}'.format(recall))
+    print('\nClassification Report:\n {}'.format(class_report))
+    print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
+
+    # feature importances
+    importances(rf_model, X_test, y_test)
+
+
 '''

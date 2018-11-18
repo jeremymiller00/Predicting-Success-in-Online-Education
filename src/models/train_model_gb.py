@@ -32,6 +32,22 @@ def standard_confusion_matrix(y_true, y_pred):
     [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
     return np.array([[tp, fp], [fn, tn]])
 
+def print_roc_curve(y_test, probabilities):
+    '''
+    Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
+    '''
+    tprs, fprs, thresh = roc_curve(y_test, probabilities)
+    plt.figure(figsize=(12,10))
+    plt.plot(fprs, tprs, 
+         label='Logistic Regression', 
+         color='red')
+    plt.plot([0,1],[0,1], 'k:')
+    plt.legend()
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
+    plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
+    plt.show()
+
 ######################################################################
 
 if __name__ == '__main__':
@@ -43,13 +59,7 @@ if __name__ == '__main__':
     y_test = pd.read_csv('data/processed/y_test.csv')
     y_test = y_test['module_not_completed']
 
-    numeric_cols = ['num_of_prev_attempts', 'studied_credits',
-    'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day',
-    'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early',  'days_early_first_assessment',
-    'score_first_assessment']
-
     X_train.fillna(value = 0, inplace = True)
-
     X_test.fillna(value = 0, inplace = True)
 
     # estimator
@@ -94,18 +104,26 @@ if __name__ == '__main__':
     tprs, frps, thresh = roc_curve(y_test, probas)
     recall = recall_score(y_test, predictions)
 
-    print('Best Model: {}'.format(gb_model))
-    print('Best Model parameters: {}'.format(gb_clf.best_params_))
-    print('Best Model Log Recall: {}'.format(recall))
-    print('Best Model Roc Auc: {}'.format(roc_auc))
+    cross_val_score(gb_model, X_train, y_train, scoring = 'roc_auc', cv=5)
+    cross_val_score(gb_model, X_train, y_train, scoring = 'recall', cv=5)
+    cross_val_score(gb_model, X_train, y_train, scoring = 'precision', cv=5)
+    cross_val_score(gb_model, X_train, y_train, scoring = 'accuracy', cv=5)
 
-    # plt.figure(figsize=(12,10))
-    # plt.plot(fprs, tprs, 
-    #      label='Random Forest', 
-    #      color='red')
-    # plt.plot([0,1],[0,1], 'k:')
-    # plt.legend()
-    # plt.xlabel("FPR")
-    # plt.ylabel("TPR")
-    # plt.title("ROC Curve AUC: {}".format(roc_auc))
-    # plt.show()
+
+'''
+    # final model evaluation (see jupyter notebook)
+    predictions = gb_model.predict(X_test)
+    roc_auc = roc_auc_score(y_test, predictions)
+    probas = gb_model.predict_proba(X_test)[:, :1]
+    tprs, fprs, thresh = roc_curve(y_test, probas)
+    recall = recall_score(y_test, predictions)
+    conf_mat = standard_confusion_matrix(y_test, predictions)
+    class_report = classification_report(y_test, predictions)
+
+    print_roc_curve(y_test, probas)
+    print('Best Model: {}'.format(gb_model))
+    print('\nRoc Auc: {}'.format(roc_auc))
+    print('\nRecall Score: {}'.format(recall))
+    print('\nClassification Report:\n {}'.format(class_report))
+    print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
+'''
