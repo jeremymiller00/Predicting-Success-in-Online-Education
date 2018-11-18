@@ -263,8 +263,8 @@ if __name__ == "__main__":
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
 
-    # filter out students who dropped before the halfway point
-    main_df = main_df[(main_df['date_unregistration'] > main_df['halfway_date']) | (main_df['date_unregistration'].isnull())]
+    # filter out students who dropped before the cutoff point
+    main_df = main_df[(main_df['date_unregistration'] > main_df['module_presentation_length'] * 0.5) | (main_df['date_unregistration'].isnull())]
 
     # split the data: three possible targets
     X = main_df_final.drop(['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score', 'date_unregistration', 'id_student'], axis = 1)
