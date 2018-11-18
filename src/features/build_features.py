@@ -39,7 +39,6 @@ def join_reg_courses(main_df, reg_df, courses_df):
     '''
     df = pd.merge(main_df, reg_df, how='outer', on=['code_module', 'code_presentation', 'id_student'])
     df = pd.merge(df, courses_df, how='outer', on=['code_module', 'code_presentation'])
-    df['halfway_date'] = df['module_presentation_length'] / 2
     return df
 
 # join vle to student vle
