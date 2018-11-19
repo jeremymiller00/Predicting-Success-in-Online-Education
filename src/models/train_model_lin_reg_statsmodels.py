@@ -155,7 +155,7 @@ if __name__ == '__main__':
     lin_reg_model.fit(X_train, y_train)
     lin_reg_model.summary()
 
-    # corss-validation
+    # cross-validation
     cv = cross_validate(lin_reg_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
     print(cv)
 

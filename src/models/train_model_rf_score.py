@@ -5,11 +5,11 @@ import numpy as np
 import pandas as pd
 import pickle
 import collections as c
-# from rfpimp import *
+from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, cross_validate
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.base import clone
 import matplotlib.pyplot as plt
@@ -77,7 +77,7 @@ def print_roc_curve(y_test, probabilities):
 ######################################################################
 
 if __name__ == '__main__':
-
+    # make sure you have the correct data for time frame
     X_train = pd.read_csv('data/processed/first_half/X_train.csv')
     y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
@@ -101,27 +101,31 @@ if __name__ == '__main__':
     # y_train = y_train[:100]
 
     # estimator
-    rf = RandomForestRegressor()
+    # rf = RandomForestRegressor()
 
-    rf_params = {
-        'n_estimators': [50, 100, 1000], 
-        'max_depth': [5, 10, 50, 100], 
-        'oob_score': ['True'],
-        'max_features': ['auto', 'sqrt', 'log2']
-        }
+    # rf_params = {
+    #     'n_estimators': [50, 100, 1000], 
+    #     'max_depth': [5, 10, 50, 100], 
+    #     'oob_score': ['True'],
+    #     'max_features': ['auto', 'sqrt', 'log2']
+    #     }
 
-    rf_reg = GridSearchCV(rf, param_grid=rf_params,
-                        scoring='neg_mean_squared_error',
-                        n_jobs=-1,
-                        cv=5)
+    # rf_reg = GridSearchCV(rf, param_grid=rf_params,
+    #                     scoring='neg_mean_squared_error',
+    #                     n_jobs=-1,
+    #                     cv=5)
 
-    rf_reg.fit(X_train, y_train)
+    # rf_reg.fit(X_train, y_train)
 
-    rf_model = rf_reg.best_estimator_
+    # rf_model = rf_reg.best_estimator_
 
     # best model as determined by grid search
-    # rf_model = RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=50, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.0, min_impurity_split=None,min_samples_leaf=1, min_samples_split=2,min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=None,oob_score=True, random_state=None, verbose=0, warm_start=False)
-    # rf_model.fit(X_train, y_train)
+    rf_model = RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=50, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.1, min_impurity_split=None,min_samples_leaf=3, min_samples_split=2,min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=-1,oob_score=True, random_state=None, verbose=0, warm_start=False)
+    rf_model.fit(X_train, y_train)
+
+    # cross validation
+    cv = cross_validate(rf_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
+    print(cv)
 
     # evaluation
     mse_cv = (cross_val_score(rf_model, X_train, y_train, scoring = 'neg_mean_squared_error', cv=5))
@@ -137,19 +141,13 @@ if __name__ == '__main__':
 '''
     # final model evaluation (see jupyter notebook)
     predictions = rf_model.predict(X_test)
-    roc_auc = roc_auc_score(y_test, predictions)
-    probas = rf_model.predict_proba(X_test)[:, :1]
-    tprs, fprs, thresh = roc_curve(y_test, probas)
-    recall = recall_score(y_test, predictions)
-    conf_mat = standard_confusion_matrix(y_test, predictions)
-    class_report = classification_report(y_test, predictions)
+    rmse = np.sqrt(mean_squared_error(y_test, predictions))
+    evs = explained_variance_score(y_test, predictions)
+    r2 = r2_score(y_test, predictions)
 
-    print_roc_curve(y_test, probas)
-    print('Best Model: {}'.format(rf_model))
-    print('\nRoc Auc: {}'.format(roc_auc))
-    print('\nRecall Score: {}'.format(recall))
-    print('\nClassification Report:\n {}'.format(class_report))
-    print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
+    print('Root Mean Squared Error: {}'.format(rmse))
+    print('R-Squared: {}'.format(r2))
+    print('Explained Variance Score: {}'.format(evs))
 
     # feature importances
     feat_imp = importances(rf_model, X_test, y_test)
