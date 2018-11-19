@@ -9,7 +9,7 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, RandomizedSearchCV
 from sklearn.ensemble import GradientBoostingClassifier
 
 
@@ -84,7 +84,9 @@ if __name__ == '__main__':
             'max_features': ['auto', 'sqrt'],
     }
 
-    gb_clf = GridSearchCV(gb, param_grid=gb_params,
+    gb_clf = RandomizedSearchCV(gb, 
+                        param_distributions=gb_params,
+                        n_iter = 10
                         scoring='roc_auc',
                         n_jobs=-1,
                         cv=5)
