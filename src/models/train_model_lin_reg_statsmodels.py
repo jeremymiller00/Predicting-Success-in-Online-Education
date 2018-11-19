@@ -75,7 +75,7 @@ def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_no
 
     return X_train.drop(train_indices), y_train.drop(train_indices), X_test.drop(test_indices), y_test.drop(test_indices)
 
-def plot_residuals(residuals, target, features, data):
+def plot_residuals(stud_resid, target, features, data):
     '''
     Creates scatterplots of residuals against target and specified features
     Parameters:
@@ -84,23 +84,27 @@ def plot_residuals(residuals, target, features, data):
     output {plots}: some plots
     '''
     plt.figure(figsize=(12,10))
-    plt.scatter(x=y_test, y=residuals, alpha = 0.1, c='red')
-    plt.xlabel("Residuals")
-    plt.ylabel("Target")
+    plt.scatter(x=target, y=stud_resid, alpha = 0.1, c='red')
+    plt.hlines(0, target.min(), target.max(), 'k', linestyle='dashed')
+    plt.ylabel("Residuals")
+    plt.xlabel("Target")
     plt.title("Residuals vs. Target")
     plt.show()
 
     for f in features:
         plt.figure(figsize=(12,10))
-        plt.scatter(x=data[f], y=residuals, alpha=0.1, c='blue')
-        plt.xlabel("Residuals")
-        plt.ylabel(f)
+        plt.scatter(x=data[f], y=stud_resid, alpha=0.1, c='blue')
+        plt.hlines(0,
+              data[f].min(), 
+              data[f].max(), 
+              'k', linestyle='dashed')
+        plt.ylabel("Residuals")
+        plt.xlabel(f)
         plt.title("Residuals vs {}".format(f))
         plt.show()
 
 ### test lines DELETE!
-cd Galvanize/dsi-capstone
-ls
+len(X_test.columns)
 %reset
 whos
 ######################################################################
@@ -162,9 +166,8 @@ if __name__ == '__main__':
     f_statistic, p_value, _ = sm.stats.diagnostic.het_goldfeldquandt(y_train, X_train, idx=1, alternative='two-sided')
     print(p_value)
 
-
     # save model
-    pickle.dump(lin_reg_model_model, open('models/linear_regression_first_half.p', 'wb'))
+    pickle.dump(lin_reg_model, open('models/linear_regression_score_first_half.p', 'wb'))
 
     # assessing variance inflation
     vif = []
@@ -184,6 +187,9 @@ if __name__ == '__main__':
     stud_resid = lin_reg_model.residuals_
     plot_residuals(stud_resid, y_train, X_train.columns, X_train)
 
+    stud_resid.shape
+    y_train.shape
+
     # QQ-plot
     ax = sm.graphics.qqplot(stud_resid, line='45')
 
@@ -200,7 +206,6 @@ if __name__ == '__main__':
     print('Explained Variance Score: {}'.format(evs))
 
     plot_residuals(residuals, y_test, X_test.columns, X_test)
-    ax = sm.graphics.qqplot(residuals, line='45')
 
     plt.hist(residuals, bins=100)
     plt.show()
