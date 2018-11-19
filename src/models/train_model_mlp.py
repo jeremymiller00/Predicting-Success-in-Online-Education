@@ -85,7 +85,7 @@ if __name__ == '__main__':
         }
     
     mlp_clf = RandomizedSearchCV(mlp, 
-                        param_distributions=rf_params,
+                        param_distributions=mlp_params,
                         n_iter=10,
                         scoring='roc_auc',
                         n_jobs=-1,
