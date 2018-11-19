@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
 
     # save model
-    # pickle.dump(gb_model, open('models/completion_classifier_gb.p', 'wb')) 
+    # pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 
 
 
     # evaluation

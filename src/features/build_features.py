@@ -278,7 +278,7 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     # write out to csv
-    main_df_final.to_csv('data/processed/transformed_data_with_features.csv', index=False)
+    main_df_final.to_csv('data/processed/first_half/transformed_data_with_features.csv', index=False)
     X_train.to_csv('data/processed/first_half/X_train.csv', index=False)
     X_test.to_csv('data/processed/first_half/X_test.csv', index=False)
     y_train.to_csv('data/processed/first_half/y_train.csv', index=False)
