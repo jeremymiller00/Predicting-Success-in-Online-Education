@@ -3,13 +3,16 @@ Linear Regression Model for Predicting Final Score
 """
 import numpy as np
 import pandas as pd
+import collections as c
 import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
+from sklearn.model_selection import cross_val_score
 from sklearn.base import BaseEstimator, RegressorMixin
 # from sklearn.model_selection import GridSearchCV
 import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 # import scipy.stats as scs
 import matplotlib.pyplot as plt
 
@@ -23,10 +26,17 @@ class SMWrapper(BaseEstimator, RegressorMixin):
             X = sm.add_constant(X)
         self.model_ = self.model_class(y, X)
         self.results_ = self.model_.fit()
+    def fit_regularized(self, X, y, a, l1):
+        if self.fit_intercept:
+            X = sm.add_constant(X)
+        self.model_ = self.model_class(y, X)
+        self.results_ = self.model_.fit_regularized(alpha=a, L1_wt=l1)
     def predict(self, X):
         if self.fit_intercept:
             X = sm.add_constant(X)
         return self.results_.predict(X)
+    def summary(self):
+        return self.results_.summary()
 
 def scale_subset(df, columns):
     '''
@@ -64,6 +74,8 @@ def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_no
 
     return X_train.drop(train_indices), y_train.drop(train_indices), X_test.drop(test_indices), y_test.drop(test_indices)
 
+cd Galvanize/dsi-capstone
+ls
 %reset
 ######################################################################
 
@@ -93,19 +105,51 @@ if __name__ == '__main__':
     # only students who completed the course
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
+    # resolve multicolinearity
+    '''
+    [(34.82408402588052, 'code_presentation_2014J'),
+    (27.902556097941535, 'module_presentation_length'),
+    (17.71032093366156, 'sum_days_vle_accessed'),
+    (12.29325003243407, 'avg_score'),
+    (12.129102421725705, 'code_module_BBB'),
+    (11.26607390128323, 'score_first_assessment'),
+    (10.74221505000013, 'code_module_DDD'),
+    (10.185010067236496, 'code_module_FFF')'''
+
+    high_vif = ['sum_click_repeat_activity', 'sum_days_vle_accessed','score_first_assessment', 'days_early_first_assessment']
+    X_train.drop(high_vif, axis = 1, inplace = True)
+    X_test.drop(high_vif, axis = 1, inplace = True)
+    
     # estimator
     lin_reg = SMWrapper(sm.OLS)
 
     lin_reg.fit(X_train, y_train)
 
+    cross_val_score(lin_reg, X_train, y_train, scoring='neg_mean_squared_error', cv=5)
+
     lin_reg.summary()
 
+    # evaluation
     predictions = lin_reg.predict(X_test)
-
     rmse = np.sqrt(mean_squared_error(y_test, predictions))
     print(rmse)
     evs = explained_variance_score(y_test, predictions)
     r2_score(y_test, predictions)
+
+    # assessing variance inflation
+    vif = []
+    for v in range(len(X_train.columns)):
+        vif.append(variance_inflation_factor(X_train.values, v))
+    features = list(X_test.columns)
+    vif_dict = c.OrderedDict((zip(vif, features)))
+    sorted(vif_dict.items(), reverse=True)[:10]
+
+    # feature correlation
+    cor = X_train.corr().abs()
+    s = cor.unstack()
+    so = s.sort_values(kind="quicksort", ascending=False)
+    so[58:150:2]
+
 
     residuals = y_test - predictions
 

@@ -89,7 +89,7 @@ if __name__ == '__main__':
     X_test.fillna(value = 0, inplace = True)
     X_test = scale_subset(X_test, numeric_cols)
 
-    # remove features with VIF > 10
+    # resolve multicolinearity
     '''
     [(34.82408402588052, 'code_presentation_2014J'),
     (27.902556097941535, 'module_presentation_length'),
