@@ -54,10 +54,10 @@ if __name__ == '__main__':
     # change path to get appropriate cutoff (first_quarter, first_half, third_quarter; CHANGE PATH IN WRITE OUT!)
     X_train = pd.read_csv('data/processed/first_half/X_train.csv')
     y_train = pd.read_csv('data/processed/first_half/y_train.csv')
-    y_train = y_train['module_not_completed']
+    y_train = y_train['final_result_num']
     X_test = pd.read_csv('data/processed/first_half/X_test.csv')
     y_test = pd.read_csv('data/processed/first_half/y_test.csv')
-    y_test = y_test['module_not_completed']
+    y_test = y_test['final_result_num']
 
     X_train.fillna(value = 0, inplace = True)
     y_train.fillna(value = 0, inplace = True)
@@ -69,17 +69,17 @@ if __name__ == '__main__':
     
     # GridSearch parameters
     mlp_params = {
-        'hidden_layer_sizes': [(100,50,10), (100,200,50,10), (100,200,100,50,10)], 
+        'hidden_layer_sizes': [(100,200,50), (100,200,50,10), (100,200,400,50,10)], 
         'activation': ['relu'], 
         'solver': ['adam'], 
-        'alpha': [0.0001, 0.001], 
+        'alpha': [0.0001, 0.001, 0.01, 0.1], 
         'learning_rate': ['constant'],
-        'power_t': [0.7, 0.5, 0.3],
+        'power_t': [0.9, 0.7, 0.5],
         'max_iter': [100,200,300],
-        'tol': [0.0001],
+        'tol': [0.0001, 0.00001],
         'verbose': [1],
         'beta_1': [0.9, 0.8, 0.7],
-        'beta_2': [0.999, 0.9],
+        'beta_2': [0.999, 0.9999],
         'epsilon': [0.000000001, 0.00000001, 0.0000001],
         }
     
