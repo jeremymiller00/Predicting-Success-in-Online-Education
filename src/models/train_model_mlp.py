@@ -89,7 +89,7 @@ if __name__ == '__main__':
                         n_iter=10,
                         scoring='roc_auc',
                         n_jobs=-1,
-                        verbose=2
+                        verbose=2,
                         cv=5)
 
     mlp_clf.fit(X_train, y_train)
