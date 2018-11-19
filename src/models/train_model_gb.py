@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     gb_clf = RandomizedSearchCV(gb, 
                         param_distributions=gb_params,
-                        n_iter = 10
+                        n_iter = 10,
                         scoring='roc_auc',
                         n_jobs=-1,
                         cv=5)
