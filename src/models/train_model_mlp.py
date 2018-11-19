@@ -72,7 +72,7 @@ if __name__ == '__main__':
         'hidden_layer_sizes': [(100, 20), (100,50,10)], 
         'activation': ['relu'], 
         'solver': ['adam'], 
-        'alpha': [0.0001], 
+        'alpha': [0.0001, 0.001], 
         'learning_rate': ['constant'],
         'power_t': [0.5],
         'max_iter': [100,200,300],
