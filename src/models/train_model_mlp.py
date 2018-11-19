@@ -69,23 +69,23 @@ if __name__ == '__main__':
     
     # GridSearch parameters
     mlp_params = {
-        'hidden_layer_sizes': [(100,200,50), (100,200,50,10), (100,200,400,50,10)], 
-        'activation': ['relu'], 
+        'hidden_layer_sizes': [(100,200,50,10), (100,200,400,50,10), (100,400,1000,400,50,10), (200, 1000, 600, 300, 100, 10)], 
+        'activation': ['relu', 'logistic'], 
         'solver': ['adam'], 
-        'alpha': [0.0001, 0.001, 0.01, 0.1], 
+        'alpha': [0.01, 0.1, 1, 10], 
         'learning_rate': ['constant'],
-        'power_t': [0.9, 0.7, 0.5],
-        'max_iter': [100,200,300],
+        'power_t': [0.9, 0.7],
+        'max_iter': [200, 300, 500, 1000],
         'tol': [0.0001, 0.00001],
         'verbose': [1],
         'beta_1': [0.9, 0.8, 0.7],
         'beta_2': [0.999, 0.9999],
-        'epsilon': [0.000000001, 0.00000001, 0.0000001],
+        'epsilon': [0.00000000001, 0.0000000001, 0.000000001, 0.00000001],
         }
     
     mlp_clf = RandomizedSearchCV(mlp, 
                         param_distributions=mlp_params,
-                        n_iter=10,
+                        n_iter=15,
                         scoring='recall',
                         n_jobs=-1,
                         verbose=1,
