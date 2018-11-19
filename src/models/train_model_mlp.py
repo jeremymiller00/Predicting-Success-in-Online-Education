@@ -86,7 +86,7 @@ if __name__ == '__main__':
     mlp_clf = RandomizedSearchCV(mlp, 
                         param_distributions=mlp_params,
                         n_iter=10,
-                        scoring='roc_auc',
+                        scoring='recall',
                         n_jobs=-1,
                         verbose=1,
                         cv=5)
@@ -99,19 +99,19 @@ if __name__ == '__main__':
     # mlp_model.fit(X_train, y_train)
 
     # evaluation
-    roc_auc_cv = (cross_val_score(mlp_model, X_train, y_train, scoring = 'roc_auc', cv=5))
-    recall_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'recall', cv=5)
-    precision_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'precision', cv=5)
-    accuracy_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'accuracy', cv=5)
-    f1_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'f1_micro', cv=5)
+    # roc_auc_cv = (cross_val_score(mlp_model, X_train, y_train, scoring = 'roc_auc', cv=5))
+    # recall_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'recall', cv=5)
+    # precision_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'precision', cv=5)
+    # accuracy_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'accuracy', cv=5)
+    # f1_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'f1_micro', cv=5)
 
-    print('Best Model: {}'.format(mlp_model))
-    # print('Best Model parameters: {}'.format(mlp_model.best_params_))
-    print('Roc Auc: {}'.format(roc_auc_cv))
-    print('Recall Score: {}'.format(recall_cv))
-    print('Precision Score: {}'.format(precision_cv))
-    print('Accuracy Score: {}'.format(accuracy_cv))
-    print('F1 Micro: {}'.format(f1_cv))
+    # print('Best Model: {}'.format(mlp_model))
+    # # print('Best Model parameters: {}'.format(mlp_model.best_params_))
+    # print('Roc Auc: {}'.format(roc_auc_cv))
+    # print('Recall Score: {}'.format(recall_cv))
+    # print('Precision Score: {}'.format(precision_cv))
+    # print('Accuracy Score: {}'.format(accuracy_cv))
+    # print('F1 Micro: {}'.format(f1_cv))
 
     # save model
     # pickle.dump(mlp_model, open('models/mlp_completion_first_half.p', 'wb')) 
