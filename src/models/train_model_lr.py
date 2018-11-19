@@ -8,7 +8,7 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, cross_validate
 from sklearn.linear_model import LogisticRegression
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
@@ -128,6 +128,10 @@ if __name__ == '__main__':
     # best model as determined by grid search:
     log_reg_model = LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1, max_iter=10, multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='newton-cg', tol=1e-09, verbose=0, warm_start='False')
     log_reg_model.fit(X_train, y_train)
+
+    # cross validation
+    cv = cross_validate(log_reg_model,X_train,y_train,scoring='neg_log_loss',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
+    print(cv)
 
     # evaluation
     roc_auc_cv = (cross_val_score(log_reg_model, X_train, y_train, scoring = 'roc_auc', cv=5))

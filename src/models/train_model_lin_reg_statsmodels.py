@@ -8,7 +8,7 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, cross_validate
 from sklearn.base import BaseEstimator, RegressorMixin
 # from sklearn.model_selection import GridSearchCV
 import statsmodels.api as sm
@@ -154,6 +154,10 @@ if __name__ == '__main__':
     lin_reg_model = SMWrapper(sm.OLS)
     lin_reg_model.fit(X_train, y_train)
     lin_reg_model.summary()
+
+    # corss-validation
+    cv = cross_validate(lin_reg_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
+    print(cv)
 
     # evaluation
     rmse_cv = np.sqrt((cross_val_score(lin_reg_model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)))

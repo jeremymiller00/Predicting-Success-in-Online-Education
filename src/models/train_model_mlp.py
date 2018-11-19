@@ -9,7 +9,7 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
-from sklearn.model_selection import GridSearchCV, cross_val_score, RandomizedSearchCV
+from sklearn.model_selection import cross_validate, cross_val_score, RandomizedSearchCV
 from sklearn.neural_network import MLPClassifier
 
 
@@ -65,38 +65,42 @@ if __name__ == '__main__':
     y_test.fillna(value = 0, inplace = True)
 
     # estimator
-    mlp = MLPClassifier()
+    # mlp = MLPClassifier()
     
     # GridSearch parameters
-    mlp_params = {
-        'hidden_layer_sizes': [(100,200,50,10), (100,200,400,50,10), (100,400,1000,400,50,10), (200, 1000, 600, 300, 100, 10)], 
-        'activation': ['relu', 'logistic'], 
-        'solver': ['adam'], 
-        'alpha': [0.01, 0.1, 1, 10], 
-        'learning_rate': ['constant'],
-        'power_t': [0.9, 0.7],
-        'max_iter': [200, 300, 500, 1000],
-        'tol': [0.0001, 0.00001],
-        'verbose': [1],
-        'beta_1': [0.9, 0.8, 0.7],
-        'beta_2': [0.999, 0.9999],
-        'epsilon': [0.00000000001, 0.0000000001, 0.000000001, 0.00000001],
-        }
+    # mlp_params = {
+    #     'hidden_layer_sizes': [(100,200,50,10), (100,200,400,50,10), (100,400,1000,400,50,10), (200, 1000, 600, 300, 100, 10)], 
+    #     'activation': ['relu', 'logistic'], 
+    #     'solver': ['adam'], 
+    #     'alpha': [0.01, 0.1, 1, 10], 
+    #     'learning_rate': ['constant'],
+    #     'power_t': [0.9, 0.7],
+    #     'max_iter': [200, 300, 500, 1000],
+    #     'tol': [0.0001, 0.00001],
+    #     'verbose': [1],
+    #     'beta_1': [0.9, 0.8, 0.7],
+    #     'beta_2': [0.999, 0.9999],
+    #     'epsilon': [0.00000000001, 0.0000000001, 0.000000001, 0.00000001],
+    #     }
     
-    mlp_clf = RandomizedSearchCV(mlp, 
-                        param_distributions=mlp_params,
-                        n_iter=15,
-                        scoring='recall',
-                        n_jobs=-1,
-                        verbose=1,
-                        cv=5)
+    # mlp_clf = RandomizedSearchCV(mlp, 
+    #                     param_distributions=mlp_params,
+    #                     n_iter=15,
+    #                     scoring='recall',
+    #                     n_jobs=-1,
+    #                     verbose=1,
+    #                     cv=5)
 
-    mlp_clf.fit(X_train, y_train)
-    mlp_model = mlp_clf.best_estimator_
+    # mlp_clf.fit(X_train, y_train)
+    # mlp_model = mlp_clf.best_estimator_
 
     # best model as determined by grid search
-    # mlp_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=100, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=None, oob_score=False, random_state=None, verbose=0, warm_start=False)
-    # mlp_model.fit(X_train, y_train)
+    mlp_model = MLPClassifier(activation='logistic', alpha=0.1, batch_size='auto', beta_1=0.7,beta_2=0.9999, early_stopping=False, epsilon=1e-10,hidden_layer_sizes=(100, 400, 1000, 400, 50, 10),learning_rate='constant', learning_rate_init=0.001, max_iter=200,momentum=0.9, nesterovs_momentum=True, power_t=0.7,random_state=None,shuffle=True, solver='adam', tol=1e-05,validation_fraction=0.1, verbose=1, warm_start=False)
+    mlp_model.fit(X_train, y_train)
+
+    # cross validation
+    cv = cross_validate(mlp_model,X_train,y_train,scoring='roc_auc',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
+    print(cv)
 
     # evaluation
     roc_auc_cv = (cross_val_score(mlp_model, X_train, y_train, scoring = 'roc_auc', cv=5))
