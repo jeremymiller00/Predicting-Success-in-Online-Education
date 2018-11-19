@@ -69,18 +69,18 @@ if __name__ == '__main__':
     
     # GridSearch parameters
     mlp_params = {
-        'hidden_layer_sizes': [(100, 20), (100,50,10)], 
+        'hidden_layer_sizes': [(100,50,10), (100,200,50,10), (100,200,100,50,10)], 
         'activation': ['relu'], 
         'solver': ['adam'], 
         'alpha': [0.0001, 0.001], 
         'learning_rate': ['constant'],
-        'power_t': [0.5],
+        'power_t': [0.7, 0.5, 0.3],
         'max_iter': [100,200,300],
         'tol': [0.0001],
         'verbose': [1],
-        'beta_1': [0.9],
-        'beta_2': [0.999],
-        'epsilon': [0.00000001],
+        'beta_1': [0.9, 0.8, 0.7],
+        'beta_2': [0.999, 0.9],
+        'epsilon': [0.000000001, 0.00000001, 0.0000001],
         }
     
     mlp_clf = RandomizedSearchCV(mlp, 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                         n_iter=10,
                         scoring='roc_auc',
                         n_jobs=-1,
-                        verbose=2,
+                        verbose=1,
                         cv=5)
 
     mlp_clf.fit(X_train, y_train)
