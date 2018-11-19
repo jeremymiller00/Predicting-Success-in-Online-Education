@@ -69,13 +69,13 @@ if __name__ == '__main__':
     
     # GridSearch parameters
     mlp_params = {
-        'hidden_layer_sizes': [(100, 20)], 
+        'hidden_layer_sizes': [(100, 20), (100,50,10)], 
         'activation': ['relu'], 
         'solver': ['adam'], 
         'alpha': [0.0001], 
         'learning_rate': ['constant'],
         'power_t': [0.5],
-        'max_iter': [200],
+        'max_iter': [100,200,300],
         'tol': [0.0001],
         'verbose': [1],
         'beta_1': [0.9],
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     
     mlp_clf = RandomizedSearchCV(mlp, 
                         param_distributions=mlp_params,
-                        n_iter=9,
+                        n_iter=10,
                         scoring='roc_auc',
                         n_jobs=-1,
                         verbose=2,
