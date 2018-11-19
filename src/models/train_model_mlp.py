@@ -81,7 +81,6 @@ if __name__ == '__main__':
         'beta_1': [0.9],
         'beta_2': [0.999],
         'epsilon': [0.00000001],
-        'n_iter_no_change': [10]
         }
     
     mlp_clf = RandomizedSearchCV(mlp, 
