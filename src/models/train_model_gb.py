@@ -52,60 +52,51 @@ def print_roc_curve(y_test, probabilities):
 
 if __name__ == '__main__':
 
-    X_train = pd.read_csv('data/processed/X_train.csv')
-    y_train = pd.read_csv('data/processed/y_train.csv')
+    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train = y_train['module_not_completed']
-    X_test = pd.read_csv('data/processed/X_test.csv')
-    y_test = pd.read_csv('data/processed/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
     y_test = y_test['module_not_completed']
 
     X_train.fillna(value = 0, inplace = True)
     X_test.fillna(value = 0, inplace = True)
 
     # estimator
-    gb = GradientBoostingClassifier()
+    # gb = GradientBoostingClassifier()
     
-    # GridSearch parameters
+    # # GridSearch parameters
+
     # gb_params = {
-    #         'max_depth': [2, 3, 5],
-    #         'learning_rate': [0.001, 0.01, 0.1],
-    #         'n_estimators': [100, 500, 1000],
+    #         'max_depth': [3, 5, 10],
+    #         'learning_rate': [0.001, 0.01, 0.1, 1],
+    #         'n_estimators': [100, 1000],
     #         'subsample': [0.5, 0.3, 0.1],
-    #         'min_samples_split': [2, 5, 10],
-    #         'min_samples_leaf': [1, 3, 5],
-    #         'max_features': ['auto', 'sqrt', 'log2'],
+    #         'max_features': ['auto', 'sqrt'],
     # }
 
-    gb_params = {
-            'max_depth': [3, 5, 10],
-            'learning_rate': [0.001, 0.01, 0.1, 1],
-            'n_estimators': [100, 1000],
-            'subsample': [0.5, 0.3, 0.1],
-            'max_features': ['auto', 'sqrt'],
-    }
+    # gb_clf = RandomizedSearchCV(gb, 
+    #                     param_distributions=gb_params,
+    #                     n_iter = 10,
+    #                     scoring='roc_auc',
+    #                     n_jobs=-1,
+    #                     cv=5)
 
-    gb_clf = RandomizedSearchCV(gb, 
-                        param_distributions=gb_params,
-                        n_iter = 10,
-                        scoring='roc_auc',
-                        n_jobs=-1,
-                        cv=5)
+    # gb_clf.fit(X_train, y_train)
 
-    gb_clf.fit(X_train, y_train)
-
-    gb_model = gb_clf.best_estimator_
+    # gb_model = gb_clf.best_estimator_
 
     # best parameters determined by grid search
-    GradientBoostingClassifier(criterion='friedman_mse', init=None,
-              learning_rate=0.01, loss='deviance', max_depth=10,
+    gb_model = GradientBoostingClassifier(criterion='friedman_mse', init=None,
+              learning_rate=0.01, loss='deviance', max_depth=5,
               max_features='auto', max_leaf_nodes=None,
               min_impurity_decrease=0.0, min_impurity_split=None,
               min_samples_leaf=1, min_samples_split=2,
               min_weight_fraction_leaf=0.0, n_estimators=1000,
               n_iter_no_change=None, presort='auto', random_state=None,
-              subsample=0.3, tol=0.0001, validation_fraction=0.1,
+              subsample=0.1, tol=0.0001, validation_fraction=0.1,
               verbose=0, warm_start=False)
-
+    gb_model.fit(X_train, y_train)
 
     # save model
     # pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 

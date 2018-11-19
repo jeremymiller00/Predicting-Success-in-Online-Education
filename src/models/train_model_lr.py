@@ -73,12 +73,12 @@ def print_roc_curve(y_test, probabilities):
 ######################################################################
 
 if __name__ == '__main__':
-
-    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
-    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
+    # change path to get appropriate cutoff (first_quarter, first_half, third_quarter; CHANGE PATH IN WRITE OUT!)
+    X_train = pd.read_csv('data/processed/third_quarter/X_train.csv')
+    y_train = pd.read_csv('data/processed/third_quarter/y_train.csv')
     y_train = y_train['module_not_completed']
-    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
-    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
+    X_test = pd.read_csv('data/processed/third_quarter/X_test.csv')
+    y_test = pd.read_csv('data/processed/third_quarter/y_test.csv')
     y_test = y_test['module_not_completed']
     
     numeric_cols = ['num_of_prev_attempts', 'studied_credits', 'module_presentation_length', 'sum_click_dataplus', 'sum_click_dualpane', 'sum_click_externalquiz', 'sum_click_forumng','sum_click_glossary', 'sum_click_homepage', 'sum_click_htmlactivity', 'sum_click_oucollaborate', 'sum_click_oucontent', 'sum_click_ouelluminate', 'sum_click_ouwiki', 'sum_click_page', 'sum_click_questionnaire', 'sum_click_quiz', 'sum_click_repeatactivity', 'sum_click_resource', 'sum_click_sharedsubpage', 'sum_click_subpage', 'sum_click_url', 'sum_days_vle_accessed', 'max_clicks_one_day', 'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early', 'days_early_first_assessment', 'score_first_assessment']
@@ -101,8 +101,8 @@ if __name__ == '__main__':
     (10.185010067236496, 'code_module_FFF') '''
 
     high_vif = ['code_presentation_2014J', 'module_presentation_length', 'sum_days_vle_accessed', 'avg_score', 'code_module_BBB', 'score_first_assessment', 'code_module_DDD', 'code_module_FFF']
-    # X_train.drop(high_vif, axis = 1, inplace = True)
-    # X_test.drop(high_vif, axis = 1, inplace = True)
+    X_train.drop(high_vif, axis = 1, inplace = True)
+    X_test.drop(high_vif, axis = 1, inplace = True)
     
     # # estimators
     # lr = LogisticRegression()
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     print('F1 Micro: {}'.format(f1_cv))
 
     # save model
-    pickle.dump(log_reg_model, open('models/logistic_regression_completion_first_half.p', 'wb'))
+    pickle.dump(log_reg_model, open('models/logistic_regression_completion_third_quarter.p', 'wb'))
 
     # assessing variance inflation
     vif = []
