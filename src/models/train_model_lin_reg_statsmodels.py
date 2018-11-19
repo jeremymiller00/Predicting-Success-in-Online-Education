@@ -26,6 +26,7 @@ class SMWrapper(BaseEstimator, RegressorMixin):
             X = sm.add_constant(X)
         self.model_ = self.model_class(y, X)
         self.results_ = self.model_.fit()
+        self.residuals_ = self.results_.outlier_test()['student_resid']
     def fit_regularized(self, X, y, a, l1):
         if self.fit_intercept:
             X = sm.add_constant(X)
@@ -74,9 +75,34 @@ def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_no
 
     return X_train.drop(train_indices), y_train.drop(train_indices), X_test.drop(test_indices), y_test.drop(test_indices)
 
+def plot_residuals(residuals, target, features, data):
+    '''
+    Creates scatterplots of residuals against target and specified features
+    Parameters:
+    ----------
+    input {all array-like}: calculated residuals, target values from test data, list of features to plot against
+    output {plots}: some plots
+    '''
+    plt.figure(figsize=(12,10))
+    plt.scatter(x=y_test, y=residuals, alpha = 0.1, c='red')
+    plt.xlabel("Residuals")
+    plt.ylabel("Target")
+    plt.title("Residuals vs. Target")
+    plt.show()
+
+    for f in features:
+        plt.figure(figsize=(12,10))
+        plt.scatter(x=data[f], y=residuals, alpha=0.1, c='blue')
+        plt.xlabel("Residuals")
+        plt.ylabel(f)
+        plt.title("Residuals vs {}".format(f))
+        plt.show()
+
+### test lines DELETE!
 cd Galvanize/dsi-capstone
 ls
 %reset
+whos
 ######################################################################
 
 if __name__ == '__main__':
@@ -116,25 +142,29 @@ if __name__ == '__main__':
     (10.74221505000013, 'code_module_DDD'),
     (10.185010067236496, 'code_module_FFF')'''
 
-    high_vif = ['sum_click_repeat_activity', 'sum_days_vle_accessed','score_first_assessment', 'days_early_first_assessment']
+    high_vif = ['sum_click_repeatactivity', 'days_early_first_assessment', 'sum_days_vle_accessed', 'module_presentation_length', 'score_first_assessment']
     X_train.drop(high_vif, axis = 1, inplace = True)
     X_test.drop(high_vif, axis = 1, inplace = True)
     
     # estimator
-    lin_reg = SMWrapper(sm.OLS)
-
-    lin_reg.fit(X_train, y_train)
-
-    cross_val_score(lin_reg, X_train, y_train, scoring='neg_mean_squared_error', cv=5)
-
-    lin_reg.summary()
+    lin_reg_model = SMWrapper(sm.OLS)
+    lin_reg_model.fit(X_train, y_train)
+    lin_reg_model.summary()
 
     # evaluation
-    predictions = lin_reg.predict(X_test)
-    rmse = np.sqrt(mean_squared_error(y_test, predictions))
-    print(rmse)
-    evs = explained_variance_score(y_test, predictions)
-    r2_score(y_test, predictions)
+    rmse_cv = np.sqrt((cross_val_score(lin_reg_model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)))
+    r2_cv = cross_val_score(lin_reg_model, X_train, y_train, scoring='r2', cv=5)
+
+    print('CV Root Mean Squared Error: {}'.format(np.sqrt(mse_cv)))
+    print('CV R-Squared: {}'.format(r2_cv))
+
+    # check for homoscedasticity
+    f_statistic, p_value, _ = sm.stats.diagnostic.het_goldfeldquandt(y_train, X_train, idx=1, alternative='two-sided')
+    print(p_value)
+
+
+    # save model
+    pickle.dump(lin_reg_model_model, open('models/linear_regression_first_half.p', 'wb'))
 
     # assessing variance inflation
     vif = []
@@ -150,28 +180,28 @@ if __name__ == '__main__':
     so = s.sort_values(kind="quicksort", ascending=False)
     so[58:150:2]
 
+    # plot residuals
+    stud_resid = lin_reg_model.residuals_
+    plot_residuals(stud_resid, y_train, X_train.columns, X_train)
 
-    residuals = y_test - predictions
+    # QQ-plot
+    ax = sm.graphics.qqplot(stud_resid, line='45')
 
-    plt.figure(figsize=(12,10))
-    plt.scatter(x=residuals, y=y_test, alpha = 0.1, c='green')
+'''
+    # final model evaluation (see jupyter notebook)
+    predictions = lin_reg_model.predict(X_test)
+    residuals = predictions - y_test
+    rmse = np.sqrt(mean_squared_error(y_test, predictions))
+    evs = explained_variance_score(y_test, predictions)
+    r2 = r2_score(y_test, predictions)
+
+    print('Root Mean Squared Error: {}'.format(rmse))
+    print('R-Squared: {}'.format(r2))
+    print('Explained Variance Score: {}'.format(evs))
+
+    plot_residuals(residuals, y_test, X_test.columns, X_test)
+    ax = sm.graphics.qqplot(residuals, line='45')
 
     plt.hist(residuals, bins=100)
     plt.show()
-
-
-    # # save model
-    # pickle.dump(log_reg_model, open('models/linear_regression_first_half.p', 'wb'))
-
-    # # evaluation
-    # predictions = log_reg_model.predict(X_test)
-    # roc_auc = roc_auc_score(y_test, predictions)
-    # probas = log_reg_model.predict_proba(X_test)[:, 1:]
-    # tprs, fprs, thresh = roc_curve(y_test, probas)
-    # recall = recall_score(y_test, predictions)
-
-    # print('Best Model: {}'.format(log_reg_model))
-    # print('Best Model parameters: {}'.format(lr_clf.best_params_))
-    # print('Best Model Log Loss: {}'.format(lr_clf.best_score_))
-    # print('Roc Auc: {}'.format(roc_auc))
-    # print('Recall Score: {}'.format(recall))
+'''
