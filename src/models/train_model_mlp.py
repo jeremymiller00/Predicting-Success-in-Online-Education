@@ -54,10 +54,10 @@ if __name__ == '__main__':
     # change path to get appropriate cutoff (first_quarter, first_half, third_quarter; CHANGE PATH IN WRITE OUT!)
     X_train = pd.read_csv('data/processed/first_half/X_train.csv')
     y_train = pd.read_csv('data/processed/first_half/y_train.csv')
-    y_train = y_train['final_result_num']
+    y_train = y_train['module_not_completed']
     X_test = pd.read_csv('data/processed/first_half/X_test.csv')
     y_test = pd.read_csv('data/processed/first_half/y_test.csv')
-    y_test = y_test['final_result_num']
+    y_test = y_test['module_not_completed']
 
     X_train.fillna(value = 0, inplace = True)
     y_train.fillna(value = 0, inplace = True)
@@ -99,11 +99,11 @@ if __name__ == '__main__':
     # mlp_model.fit(X_train, y_train)
 
     # evaluation
-    # roc_auc_cv = (cross_val_score(mlp_model, X_train, y_train, scoring = 'roc_auc', cv=5))
-    # recall_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'recall', cv=5)
-    # precision_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'precision', cv=5)
-    # accuracy_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'accuracy', cv=5)
-    # f1_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'f1_micro', cv=5)
+    roc_auc_cv = (cross_val_score(mlp_model, X_train, y_train, scoring = 'roc_auc', cv=5))
+    recall_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'recall', cv=5)
+    precision_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'precision', cv=5)
+    accuracy_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'accuracy', cv=5)
+    f1_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'f1_micro', cv=5)
 
     # print('Best Model: {}'.format(mlp_model))
     # # print('Best Model parameters: {}'.format(mlp_model.best_params_))
