@@ -52,12 +52,12 @@ def print_roc_curve(y_test, probabilities, model_type):
 ######################################################################
 
 if __name__ == '__main__':
-
-    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
-    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
+    # change path to get appropriate cutoff (first_quarter, first_half, third_quarter; CHANGE PATH IN WRITE OUT!)
+    X_train = pd.read_csv('data/processed/third_quarter/X_train.csv')
+    y_train = pd.read_csv('data/processed/third_quarter/y_train.csv')
     y_train = y_train['module_not_completed']
-    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
-    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
+    X_test = pd.read_csv('data/processed/third_quarter/X_test.csv')
+    y_test = pd.read_csv('data/processed/third_quarter/y_test.csv')
     y_test = y_test['module_not_completed']
 
     X_train.fillna(value = 0, inplace = True)
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     print('F1 Micro: {}'.format(f1_cv))
 
     # save model
-    pickle.dump(rf_model, open('models/random_forest_completion_first_half.p', 'wb')) 
+    pickle.dump(rf_model, open('models/random_forest_completion_third_quarter.p', 'wb')) 
 
 '''
     # final model evaluation (see jupyter notebook)

@@ -52,7 +52,7 @@ def print_roc_curve(y_test, probabilities, model_type):
 ######################################################################
 
 if __name__ == '__main__':
-
+    # change path to get appropriate cutoff (first_quarter, first_half, third_quarter; CHANGE PATH IN WRITE OUT!)
     X_train = pd.read_csv('data/processed/first_half/X_train.csv')
     y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train = y_train['module_not_completed']
