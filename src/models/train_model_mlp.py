@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # estimator
     mlp = MLPClassifier()
     
-    GridSearch parameters
+    # GridSearch parameters
     mlp_params = {
         'hidden_layer_sizes': [(100, 20)], 
         'activation': ['relu'], 
