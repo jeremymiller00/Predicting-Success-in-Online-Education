@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 import pickle
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
+from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
 from sklearn.model_selection import GridSearchCV, cross_val_score, RandomizedSearchCV
 from sklearn.ensemble import GradientBoostingClassifier
+import matplotlib.pyplot as plt
 
 
 def standard_confusion_matrix(y_true, y_pred):
@@ -32,14 +33,14 @@ def standard_confusion_matrix(y_true, y_pred):
     [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
     return np.array([[tp, fp], [fn, tn]])
 
-def print_roc_curve(y_test, probabilities):
+def print_roc_curve(y_test, probabilities, model_type):
     '''
     Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
     '''
     tprs, fprs, thresh = roc_curve(y_test, probabilities)
     plt.figure(figsize=(12,10))
     plt.plot(fprs, tprs, 
-         label='Logistic Regression', 
+         label=model_type, 
          color='red')
     plt.plot([0,1],[0,1], 'k:')
     plt.legend()
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     gb_model.fit(X_train, y_train)
 
     # save model
-    # pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 
+    pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 
 
 
     # evaluation
@@ -119,10 +120,11 @@ if __name__ == '__main__':
     conf_mat = standard_confusion_matrix(y_test, predictions)
     class_report = classification_report(y_test, predictions)
 
-    print_roc_curve(y_test, probas)
+    print_roc_curve(y_test, probas, 'Gradient Boosting')
     print('Best Model: {}'.format(gb_model))
     print('\nRoc Auc: {}'.format(roc_auc))
     print('\nRecall Score: {}'.format(recall))
     print('\nClassification Report:\n {}'.format(class_report))
     print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
+
 '''
