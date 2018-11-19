@@ -33,14 +33,14 @@ def standard_confusion_matrix(y_true, y_pred):
     [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
     return np.array([[tp, fp], [fn, tn]])
 
-def print_roc_curve(y_test, probabilities):
+def print_roc_curve(y_test, probabilities, model_type):
     '''
     Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
     '''
     tprs, fprs, thresh = roc_curve(y_test, probabilities)
     plt.figure(figsize=(12,10))
     plt.plot(fprs, tprs, 
-         label='Logistic Regression', 
+         label=model_type, 
          color='red')
     plt.plot([0,1],[0,1], 'k:')
     plt.legend()
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     conf_mat = standard_confusion_matrix(y_test, predictions)
     class_report = classification_report(y_test, predictions)
 
-    print_roc_curve(y_test, probas)
+    print_roc_curve(y_test, probas, 'Random Forest')
     print('Best Model: {}'.format(rf_model))
     print('\nRoc Auc: {}'.format(roc_auc))
     print('\nRecall Score: {}'.format(recall))
