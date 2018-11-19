@@ -110,7 +110,8 @@ if __name__ == '__main__':
     svc_model = svc_clf.best_estimator_
 
     # best model as determined by grid search:
-    # svc_model = 
+    svc_model = SVC(C=0.01, cache_size=200, class_weight=None, coef0=0.0,decision_function_shape='ovr', degree=3, gamma='auto_deprecated',kernel='linear', max_iter=25, probability=1, random_state=None, shrinking=True, tol=1e-09, verbose=False)
+    svc_model.fit(X_train, y_train)
 
     # evaluation
     roc_auc_cv = (cross_val_score(svc_model, X_train, y_train, scoring = 'roc_auc', cv=5))

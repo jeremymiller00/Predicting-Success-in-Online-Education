@@ -1,12 +1,12 @@
 
 """ 
-Functions -based solution
+Random Forest Classifier to predict course completion
 """
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
-# from rfpimp import *
+from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score
@@ -32,33 +32,6 @@ def standard_confusion_matrix(y_true, y_pred):
     """
     [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
     return np.array([[tp, fp], [fn, tn]])
-
-def dropcol_importances(rf, X_train, y_train):
-    '''
-    Calculates the drop-column feature importances of a Random Forest model. Explanation here: https://explained.ai/rf-importance/index.html
-
-
-    '''
-
-    rf_ = clone(rf)
-    rf_.random_state = 999
-    rf_.fit(X_train, y_train)
-    baseline = rf_.oob_score_
-    imp = []
-    for col in X_train.columns:
-        X = X_train.drop(col, axis=1)
-        rf_ = clone(rf)
-        rf_.random_state = 999
-        rf_.fit(X, y_train)
-        o = rf_.oob_score_
-        imp.append(baseline - o)
-    imp = np.array(imp)
-    I = pd.DataFrame(
-            data={'Feature':X_train.columns,
-                  'Importance':imp})
-    I = I.set_index('Feature')
-    I = I.sort_values('Importance', ascending=True)
-    return I
 
 def print_roc_curve(y_test, probabilities):
     '''
@@ -88,7 +61,9 @@ if __name__ == '__main__':
     y_test = y_test['module_not_completed']
 
     X_train.fillna(value = 0, inplace = True)
+    y_train.fillna(value = 0, inplace = True)
     X_test.fillna(value = 0, inplace = True)
+    y_test.fillna(value = 0, inplace = True)
 
     # estimator
     rf = RandomForestClassifier()
@@ -96,15 +71,9 @@ if __name__ == '__main__':
     # GridSearch parameters
     # rf_params = {
     #     'n_estimators': [50, 100, 1000], 
-    #     'max_depth': [5, 10, 50], 
+    #     'max_depth': [5, 10, 50, 100], 
     #     'min_samples_split': [1.0, 10, 100], 
     #     'min_samples_leaf': [1, 10, 100], 
-    #     'max_features': ['auto', 'sqrt', 'log2']
-    #     }
-    
-    # rf_params = {
-    #     'n_estimators': [50, 100, 1000], 
-    #     'max_depth': [5, 10, 20, 50, 100, 500], 
     #     'max_features': ['auto', 'sqrt', 'log2']
     #     }
     

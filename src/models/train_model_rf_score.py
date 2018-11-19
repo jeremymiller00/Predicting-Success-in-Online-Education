@@ -1,15 +1,15 @@
 """
-Linear Regression Model for Predicting Final Score
+Random Forest Regressor for Predicting Final Score
 """
 import numpy as np
 import pandas as pd
 import pickle
 import collections as c
-from rfpimp import *
+# from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, cross_val_score
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.base import clone
 import matplotlib.pyplot as plt
@@ -57,6 +57,22 @@ def dropcol_importances(rf, X_train, y_train):
     I = I.sort_values('Importance', ascending=True)
     return I
 
+def print_roc_curve(y_test, probabilities):
+    '''
+    Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
+    '''
+    tprs, fprs, thresh = roc_curve(y_test, probabilities)
+    plt.figure(figsize=(12,10))
+    plt.plot(fprs, tprs, 
+         label='Logistic Regression', 
+         color='red')
+    plt.plot([0,1],[0,1], 'k:')
+    plt.legend()
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
+    plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
+    plt.show()
+
 
 ######################################################################
 
@@ -71,8 +87,6 @@ if __name__ == '__main__':
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 
-    numeric_cols = ['num_of_prev_attempts', 'studied_credits', 'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day','first_date_vle_accessed', 'avg_score', 'avg_days_sub_early','days_early_first_assessment', 'score_first_assessment']
-
     # fill
     X_train.fillna(value = 0, inplace = True)
     y_train.fillna(value = 0, inplace = True)
@@ -82,83 +96,63 @@ if __name__ == '__main__':
     # only students who completed the course
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
+    # # small samples for testing
+    # X_train = X_train[:100]
+    # y_train = y_train[:100]
 
-    # small samples for testing
-    X_train = X_train[:100]
-    y_train = y_train[:100]
-
-
-########## Grid Search Code
-    rf_params = {
-        'n_estimators': [50, 100], 
-        'max_depth': [20, 50, 100], 
-        'oob_score': ['True'],
-        'max_features': ['auto']    
-    }
-
-    # rf_params = {
-    #     'n_estimators': [50, 100, 1000, 5000], 
-    #     'max_depth': [5, 10, 50, 100], 
-    #     'min_samples_split': [1.0, 2, 5], 
-    #     'min_samples_leaf': [1, 3], 
-    #     'max_features': ['auto', 'sqrt', 'log2']
-    #     }
-    
+    # estimator
     rf = RandomForestRegressor()
 
-    rf_clf = GridSearchCV(rf, param_grid=rf_params,
+    rf_params = {
+        'n_estimators': [50, 100, 1000], 
+        'max_depth': [5, 10, 50, 100], 
+        'oob_score': ['True'],
+        'max_features': ['auto', 'sqrt', 'log2']
+        }
+
+    rf_reg = GridSearchCV(rf, param_grid=rf_params,
                         scoring='neg_mean_squared_error',
                         n_jobs=-1,
                         cv=5)
 
-    rf_clf.fit(X_train, y_train)
+    rf_reg.fit(X_train, y_train)
 
-    rf_model = rf_clf.best_estimator_
+    rf_model = rf_reg.best_estimator_
 
-############ end grid search code
-
+    # best model as determined by grid search
     # rf_model = RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=50, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.0, min_impurity_split=None,min_samples_leaf=1, min_samples_split=2,min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=None,oob_score=True, random_state=None, verbose=0, warm_start=False)
-
     # rf_model.fit(X_train, y_train)
 
-
-
     # evaluation
-    imp = importances(rf_model, X_test, y_test)
+    mse_cv = (cross_val_score(rf_model, X_train, y_train, scoring = 'neg_mean_squared_error', cv=5))
+    r2_cv = cross_val_score(rf_model, X_train, y_train, scoring = 'r2', cv=5)
 
-    imp
-    feat_imp = dropcol_importances(rf_model, X_train, y_train)
+    print('Best Model: {}'.format(rf_model))
+    print('RMSE: {}'.format(np.sqrt(mse_cv)))
+    print('r2 Score: {}'.format(r2_cv))
 
-    predictions = rf_model.predict(X_test)
-    residuals = y_test - predictions
-    rmse = np.sqrt(mean_squared_error(y_test, predictions))
-    evs = explained_variance_score(y_test, predictions)
-    r2 = r2_score(y_test, predictions)
-
-    print('RMSE: {}'.format(rmse))
-    print('Explained Variance Score: {}'.format(evs))
-    print('Model Improvement Over Baseline: {}'.format(rmse - np.std(y_test)))
-    print('R-squared: {}'.format(r2))
-
-
-    plt.figure(figsize=(12,10))
-    plt.scatter(x=residuals, y=y_test, alpha = 0.1, c='green')
-    plt.show()
-
-    plt.figure(figsize=(12,10))
-    plt.hist(residuals, bins=100)
-    plt.show()
-
-    plt.figure(figsize=(12,10))
-    plt.hist(y_train, bins=100)
-    plt.show()
-
-    feat_imp = rf_model.feature_importances_
-    features = list(X_test.columns)
-    coef_dict = c.OrderedDict((zip(feat_imp, features)))
-    ordered_feature_importances = sorted(coef_dict.items(), reverse=True)
-    print('The top ten features affecting final grades are: {}'.format(ordered_feature_importances[:10])
-    
     # save model
-    pickle.dump(rf_model, open('models/random_forest_score.p', 'wb'),-1)
-    pickle.dump(feat_imp, open('models/random_forest_feat_imp.p', 'wb'),-1)
+    pickle.dump(rf_model, open('models/random_forest_score_first_half.p', 'wb')) 
+
+'''
+    # final model evaluation (see jupyter notebook)
+    predictions = rf_model.predict(X_test)
+    roc_auc = roc_auc_score(y_test, predictions)
+    probas = rf_model.predict_proba(X_test)[:, :1]
+    tprs, fprs, thresh = roc_curve(y_test, probas)
+    recall = recall_score(y_test, predictions)
+    conf_mat = standard_confusion_matrix(y_test, predictions)
+    class_report = classification_report(y_test, predictions)
+
+    print_roc_curve(y_test, probas)
+    print('Best Model: {}'.format(rf_model))
+    print('\nRoc Auc: {}'.format(roc_auc))
+    print('\nRecall Score: {}'.format(recall))
+    print('\nClassification Report:\n {}'.format(class_report))
+    print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
+
+    # feature importances
+    feat_imp = importances(rf_model, X_test, y_test)
+    feat_imp.sort_values(by='Importance', ascending=False)[0:10]
+    pd.DataFrame(data={'fprs': fprs, 'tprs': tprs, 'Thresholds': thresh}).loc[300:1000:25]
+    '''

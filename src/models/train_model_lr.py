@@ -101,8 +101,8 @@ if __name__ == '__main__':
     (10.185010067236496, 'code_module_FFF') '''
 
     high_vif = ['code_presentation_2014J', 'module_presentation_length', 'sum_days_vle_accessed', 'avg_score', 'code_module_BBB', 'score_first_assessment', 'code_module_DDD', 'code_module_FFF']
-    X_train.drop(high_vif, axis = 1, inplace = True)
-    X_test.drop(high_vif, axis = 1, inplace = True)
+    # X_train.drop(high_vif, axis = 1, inplace = True)
+    # X_test.drop(high_vif, axis = 1, inplace = True)
     
     # # estimators
     # lr = LogisticRegression()
@@ -153,7 +153,7 @@ if __name__ == '__main__':
         vif.append(variance_inflation_factor(X_train.values, v))
     features = list(X_test.columns)
     vif_dict = c.OrderedDict((zip(vif, features)))
-    sorted(vif_dict.items(), reverse=True)
+    sorted(vif_dict.items(), reverse=True)[:10]
 
     # feature correlation
     cor = X_train.corr().abs()
@@ -184,5 +184,7 @@ if __name__ == '__main__':
     coef_dict = c.OrderedDict((zip(abs_coef, features)))
     print('The top ten features affecting completion are:\n')
     sorted(coef_dict.items(), reverse=True)[:10]
+
+    # choosing a threshold
     pd.DataFrame(data={'fprs': fprs, 'tprs': tprs, 'Thresholds': thresh}).loc[800:3487:100]
 '''
