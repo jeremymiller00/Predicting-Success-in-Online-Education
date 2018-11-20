@@ -9,7 +9,7 @@ from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
-from sklearn.model_selection import GridSearchCV, cross_val_score, cross_validate
+from sklearn.model_selection import RandomizedSearchCV, cross_val_score, cross_validate
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.base import clone
 import matplotlib.pyplot as plt
@@ -57,33 +57,17 @@ def dropcol_importances(rf, X_train, y_train):
     I = I.sort_values('Importance', ascending=True)
     return I
 
-def print_roc_curve(y_test, probabilities):
-    '''
-    Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
-    '''
-    tprs, fprs, thresh = roc_curve(y_test, probabilities)
-    plt.figure(figsize=(12,10))
-    plt.plot(fprs, tprs, 
-         label='Logistic Regression', 
-         color='red')
-    plt.plot([0,1],[0,1], 'k:')
-    plt.legend()
-    plt.xlabel("FPR")
-    plt.ylabel("TPR")
-    plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
-    plt.show()
-
 
 ######################################################################
 
 if __name__ == '__main__':
     # make sure you have the correct data for time frame
-    X_train = pd.read_csv('data/processed/third_quarter/X_train.csv')
-    y_train = pd.read_csv('data/processed/third_quarter/y_train.csv')
+    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
     y_train = y_train['estimated_final_score']
-    X_test = pd.read_csv('data/processed/third_quarter/X_test.csv')
-    y_test = pd.read_csv('data/processed/third_quarter/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 
@@ -101,23 +85,28 @@ if __name__ == '__main__':
     # y_train = y_train[:100]
 
     # estimator
-    # rf = RandomForestRegressor()
+    rf = RandomForestRegressor()
 
-    # rf_params = {
-    #     'n_estimators': [50, 100, 1000], 
-    #     'max_depth': [5, 10, 50, 100], 
-    #     'oob_score': ['True'],
-    #     'max_features': ['auto', 'sqrt', 'log2']
-    #     }
+    rf_params = {
+        'n_estimators': [50, 100, 1000], 
+        'max_depth': [5, 10, 50, 100],
+        'min_impurity_decrease': [0.01, 0.1, 0.5],
+        'min_samples_leaf': [2, 3, 5 ,10],
+        'min_samples_split': [2, 5, 10]
+        'oob_score': ['True'],
+        'max_features': ['auto', 'sqrt', 'log2']
+        }
 
-    # rf_reg = GridSearchCV(rf, param_grid=rf_params,
-    #                     scoring='neg_mean_squared_error',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    rf_reg = RandomizedSearchCV(rf, 
+                        param_distributions=rf_params,
+                        n_iter = 20,
+                        scoring='neg_mean_squared_error',
+                        n_jobs=-1,
+                        cv=5)
 
-    # rf_reg.fit(X_train, y_train)
+    rf_reg.fit(X_train, y_train)
 
-    # rf_model = rf_reg.best_estimator_
+    rf_model = rf_reg.best_estimator_
 
     # best model as determined by grid search
     rf_model = RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=50, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.1, min_impurity_split=None,min_samples_leaf=3, min_samples_split=2,min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=-1,oob_score=True, random_state=None, verbose=0, warm_start=False)
@@ -136,7 +125,7 @@ if __name__ == '__main__':
     print('r2 Score: {}'.format(r2_cv))
 
     # save model
-    pickle.dump(rf_model, open('models/random_forest_score_third_quarter.p', 'wb')) 
+    pickle.dump(rf_model, open('models/random_forest_score_first_half.p', 'wb')) 
 
 '''
     # final model evaluation (see jupyter notebook)
