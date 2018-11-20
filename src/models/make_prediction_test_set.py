@@ -1,5 +1,5 @@
 '''
-This scripts produces a set of 100 simulated observations which can be used to test the prediction scripts.
+This scripts produces a set of 30 simulated observations which can be used to test the prediction scripts.
 '''
 import random
 import pandas as pd
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     sim_obs = shuffle_col_values(sim_obs)
 
     # take a random sample of 100 observations
-    sim_obs = sim_obs.sample(100).fillna(value=0)
+    sim_obs = sim_obs.sample(30).fillna(value=0)
 
     # write out the data
     sim_obs.to_csv('data/processed/prediction_test_set.csv')

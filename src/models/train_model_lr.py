@@ -70,6 +70,7 @@ def print_roc_curve(y_test, probabilities):
     plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
     plt.show()
 
+
 ######################################################################
 
 if __name__ == '__main__':

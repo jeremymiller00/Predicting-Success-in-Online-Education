@@ -118,7 +118,7 @@ if __name__ == '__main__':
     # print('F1 Micro: {}'.format(f1_cv))
 
     # save model
-    # pickle.dump(mlp_model, open('models/mlp_completion_first_half.p', 'wb')) 
+    pickle.dump(mlp_model, open('models/mlp_completion_first_half.p', 'wb')) 
 
 '''
     # final model evaluation (see jupyter notebook)
