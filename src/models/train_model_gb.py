@@ -69,10 +69,12 @@ if __name__ == '__main__':
     # GridSearch parameters
 
     gb_params = {
-            'max_depth': [3, 5, 10],
+            'max_depth': [2, 3, 5],
             'learning_rate': [0.001, 0.01, 0.1, 1],
             'n_estimators': [100, 1000],
             'subsample': [0.5, 0.3, 0.1],
+            'min_samples_leaf': [1, 5, 10, 50],
+            'min_samples_split': [2, 10, 50, 100]
             'max_features': ['auto', 'sqrt'],
     }
 
@@ -88,22 +90,14 @@ if __name__ == '__main__':
     gb_model = gb_clf.best_estimator_
 
     # best parameters determined by grid search
-    # gb_model = GradientBoostingClassifier(criterion='friedman_mse', init=None,
-    #           learning_rate=0.01, loss='deviance', max_depth=5,
-    #           max_features='auto', max_leaf_nodes=None,
-    #           min_impurity_decrease=0.0, min_impurity_split=None,
-    #           min_samples_leaf=1, min_samples_split=2,
-    #           min_weight_fraction_leaf=0.0, n_estimators=1000,
-    #           n_iter_no_change=None, presort='auto', random_state=None,
-    #           subsample=0.1, tol=0.0001, validation_fraction=0.1,
-    #           verbose=0, warm_start=False)
+    # gb_model = GradientBoostingClassifier(criterion='friedman_mse', init=None,learning_rate=0.01, loss='deviance', max_depth=3, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None,min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, presort='auto', random_state=None, subsample=0.1, verbose=0, warm_start=False)
     # gb_model.fit(X_train, y_train)
 
     # save model
     # pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 
 
     # cross validate
-    cv = cross_validate(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5, return_train_score=1)
+    cv = cross_validate(gb_model, X_train, y_train, scoring = 'roc_auc', cv=5, return_train_score=1)
     print(cv)
 
     # evaluation
