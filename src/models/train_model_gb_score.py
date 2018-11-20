@@ -10,7 +10,7 @@ import pickle
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
 from sklearn.model_selection import GridSearchCV, cross_val_score, RandomizedSearchCV, cross_validate
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import GradientBoostingRegressor
 import matplotlib.pyplot as plt
 
 def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp):
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
     # estimator
-    gb = GradientBoostingClassifier()
+    gb = GradientBoostingRegressor
     
     # GridSearch parameters
 
