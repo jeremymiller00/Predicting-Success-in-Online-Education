@@ -13,41 +13,22 @@ from sklearn.model_selection import GridSearchCV, cross_val_score, RandomizedSea
 from sklearn.ensemble import GradientBoostingClassifier
 import matplotlib.pyplot as plt
 
-
-def standard_confusion_matrix(y_true, y_pred):
-    """Make confusion matrix with format:
-                  -----------
-                  | TP | FP |
-                  -----------
-                  | FN | TN |
-                  -----------
-    Parameters
-    ----------
-    y_true : ndarray - 1D
-    y_pred : ndarray - 1D
-
-    Returns
-    -------
-    ndarray - 2D
-    """
-    [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred)
-    return np.array([[tp, fp], [fn, tn]])
-
-def print_roc_curve(y_test, probabilities, model_type):
+def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp):
     '''
-    Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
+    Returns dataframes with only those students who completed the course for the purpose of regressing the final score.
     '''
-    tprs, fprs, thresh = roc_curve(y_test, probabilities)
-    plt.figure(figsize=(12,10))
-    plt.plot(fprs, tprs, 
-         label=model_type, 
-         color='red')
-    plt.plot([0,1],[0,1], 'k:')
-    plt.legend()
-    plt.xlabel("FPR")
-    plt.ylabel("TPR")
-    plt.title("ROC Curve AUC: {} Recall: {}".format(roc_auc, recall))
-    plt.show()
+    test_indices = []
+    train_indices = []
+
+    y_test_not_comp = y_test_not_comp[y_test_not_comp['module_not_completed'] == 1]
+    for index, row in y_test_not_comp.iterrows():
+        test_indices.append(index)
+
+    y_train_not_comp = y_train_not_comp[y_train_not_comp['module_not_completed'] == 1]
+    for index, row in y_train_not_comp.iterrows():
+        train_indices.append(index)
+
+    return X_train.drop(train_indices), y_train.drop(train_indices), X_test.drop(test_indices), y_test.drop(test_indices)
 
 ######################################################################
 
