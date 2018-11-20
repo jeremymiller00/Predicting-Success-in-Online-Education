@@ -86,7 +86,7 @@ if __name__ == '__main__':
     # rf_model = rf_clf.best_estimator_
 
     # best model as determined by grid search
-    rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=30, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=10, min_samples_split=10, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=-1, oob_score=False, random_state=None, verbose=0, warm_start=False)
+    rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=30, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=10, min_samples_split=10, min_weight_fraction_leaf=0.0, n_estimators=500, n_jobs=-1, oob_score=False, random_state=None, verbose=0, warm_start=False)
     rf_model.fit(X_train, y_train)
 
     # cross validate
