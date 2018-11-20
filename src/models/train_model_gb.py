@@ -64,50 +64,62 @@ if __name__ == '__main__':
     X_test.fillna(value = 0, inplace = True)
 
     # estimator
-    # gb = GradientBoostingClassifier()
+    gb = GradientBoostingClassifier()
     
-    # # GridSearch parameters
+    # GridSearch parameters
 
-    # gb_params = {
-    #         'max_depth': [3, 5, 10],
-    #         'learning_rate': [0.001, 0.01, 0.1, 1],
-    #         'n_estimators': [100, 1000],
-    #         'subsample': [0.5, 0.3, 0.1],
-    #         'max_features': ['auto', 'sqrt'],
-    # }
+    gb_params = {
+            'max_depth': [3, 5, 10],
+            'learning_rate': [0.001, 0.01, 0.1, 1],
+            'n_estimators': [100, 1000],
+            'subsample': [0.5, 0.3, 0.1],
+            'max_features': ['auto', 'sqrt'],
+    }
 
-    # gb_clf = RandomizedSearchCV(gb, 
-    #                     param_distributions=gb_params,
-    #                     n_iter = 10,
-    #                     scoring='roc_auc',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    gb_clf = RandomizedSearchCV(gb, 
+                        param_distributions=gb_params,
+                        n_iter = 10,
+                        scoring='roc_auc',
+                        n_jobs=-1,
+                        cv=5)
 
-    # gb_clf.fit(X_train, y_train)
+    gb_clf.fit(X_train, y_train)
 
-    # gb_model = gb_clf.best_estimator_
+    gb_model = gb_clf.best_estimator_
 
     # best parameters determined by grid search
-    gb_model = GradientBoostingClassifier(criterion='friedman_mse', init=None,
-              learning_rate=0.01, loss='deviance', max_depth=5,
-              max_features='auto', max_leaf_nodes=None,
-              min_impurity_decrease=0.0, min_impurity_split=None,
-              min_samples_leaf=1, min_samples_split=2,
-              min_weight_fraction_leaf=0.0, n_estimators=1000,
-              n_iter_no_change=None, presort='auto', random_state=None,
-              subsample=0.1, tol=0.0001, validation_fraction=0.1,
-              verbose=0, warm_start=False)
-    gb_model.fit(X_train, y_train)
+    # gb_model = GradientBoostingClassifier(criterion='friedman_mse', init=None,
+    #           learning_rate=0.01, loss='deviance', max_depth=5,
+    #           max_features='auto', max_leaf_nodes=None,
+    #           min_impurity_decrease=0.0, min_impurity_split=None,
+    #           min_samples_leaf=1, min_samples_split=2,
+    #           min_weight_fraction_leaf=0.0, n_estimators=1000,
+    #           n_iter_no_change=None, presort='auto', random_state=None,
+    #           subsample=0.1, tol=0.0001, validation_fraction=0.1,
+    #           verbose=0, warm_start=False)
+    # gb_model.fit(X_train, y_train)
 
     # save model
-    pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 
+    # pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 
 
+    # cross validate
+    cv = cross_validate(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5, return_train_score=1)
+    print(cv)
 
     # evaluation
-    cross_val_score(gb_model, X_train, y_train, scoring = 'roc_auc', cv=5)
-    cross_val_score(gb_model, X_train, y_train, scoring = 'recall', cv=5)
-    cross_val_score(gb_model, X_train, y_train, scoring = 'precision', cv=5)
-    cross_val_score(gb_model, X_train, y_train, scoring = 'accuracy', cv=5)
+    roc_auc_cv = cross_val_score(gb_model, X_train, y_train, scoring = 'roc_auc', cv=5)
+    recall_cv = cross_val_score(gb_model, X_train, y_train, scoring = 'recall', cv=5)
+    precision_cv = cross_val_score(gb_model, X_train, y_train, scoring = 'precision', cv=5)
+    accuracy_cv = cross_val_score(gb_model, X_train, y_train, scoring = 'accuracy', cv=5)
+    f1_cv = cross_val_score(gb_model, X_train, y_train, scoring = 'f1_micro', cv=5)
+
+    print('Best Model: {}'.format(gb_model))
+    # print('Best Model parameters: {}'.format(rf_model.best_params_))
+    print('Roc Auc: {}'.format(roc_auc_cv))
+    print('Recall Score: {}'.format(recall_cv))
+    print('Precision Score: {}'.format(precision_cv))
+    print('Accuracy Score: {}'.format(accuracy_cv))
+    print('F1 Micro: {}'.format(f1_cv))
 
 
 '''
