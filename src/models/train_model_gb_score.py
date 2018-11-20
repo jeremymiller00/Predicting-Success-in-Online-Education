@@ -53,7 +53,7 @@ if __name__ == '__main__':
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
     # estimator
-    gb = GradientBoostingRegressor
+    gb = GradientBoostingRegressor()
     
     # GridSearch parameters
 
@@ -67,12 +67,12 @@ if __name__ == '__main__':
             'max_features': ['auto', 'sqrt'],
     }
 
-    gb_clf = GridSearchCV(gb, 
-                        param_grid=gb_params,
+    gb_clf = RandomizedSearchCV(gb, 
+                        param_distributions=gb_params,
+                        n_iter = 10,
                         scoring='neg_mean_squared_error',
                         n_jobs=-1,
-                        cv=5,
-                        return_train_score=1)
+                        cv=5)
 
     gb_clf.fit(X_train, y_train)
 
