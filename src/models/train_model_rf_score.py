@@ -92,7 +92,7 @@ if __name__ == '__main__':
         'max_depth': [5, 10, 50, 100],
         'min_impurity_decrease': [0.01, 0.1, 0.5],
         'min_samples_leaf': [2, 3, 5 ,10],
-        'min_samples_split': [2, 5, 10]
+        'min_samples_split': [2, 5, 10],
         'oob_score': ['True'],
         'max_features': ['auto', 'sqrt', 'log2']
         }
