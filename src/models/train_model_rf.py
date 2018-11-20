@@ -69,25 +69,28 @@ if __name__ == '__main__':
     rf = RandomForestClassifier()
     
     # GridSearch parameters
-    # rf_params = {
-    #     'n_estimators': [50, 100, 1000], 
-    #     'max_depth': [5, 10, 50, 100], 
-    #     'min_samples_split': [1.0, 10, 100], 
-    #     'min_samples_leaf': [1, 10, 100], 
-    #     'max_features': ['auto', 'sqrt', 'log2']
-    #     }
+    rf_params = {
+        'n_estimators': [50, 100, 1000], 
+        'max_depth': [5, 10, 50, 100], 
+        'min_samples_split': [1.0, 10, 100], 
+        'min_samples_leaf': [1, 10, 100], 
+        'max_features': ['auto', 'sqrt', 'log2']
+        }
     
-    # rf_clf = GridSearchCV(rf, param_grid=rf_params,
-    #                     scoring='recall',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    rf_clf = GridSearchCV(rf, param_grid=rf_params,
+                        scoring='roc_auc',
+                        n_jobs=-1,
+                        cv=5)
 
-    # rf_clf.fit(X_train, y_train)
-    # rf_model = rf_clf.best_estimator_
+    rf_clf.fit(X_train, y_train)
+    rf_model = rf_clf.best_estimator_
 
     # best model as determined by grid search
-    rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=100, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=-1, oob_score=False, random_state=None, verbose=1, warm_start=False)
-    rf_model.fit(X_train, y_train)
+    # rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=100, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=-1, oob_score=False, random_state=None, verbose=1, warm_start=False)
+    # rf_model.fit(X_train, y_train)
+
+    # cross validate
+    cv = cross_validate(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5, return_train_score=1)
 
     # evaluation
     roc_auc_cv = (cross_val_score(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5))
@@ -105,7 +108,7 @@ if __name__ == '__main__':
     print('F1 Micro: {}'.format(f1_cv))
 
     # save model
-    pickle.dump(rf_model, open('models/random_forest_completion_first_half.p', 'wb')) 
+    # pickle.dump(rf_model, open('models/random_forest_completion_first_half.p', 'wb')) 
 
 '''
     # final model evaluation (see jupyter notebook)
