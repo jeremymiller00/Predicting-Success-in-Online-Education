@@ -106,29 +106,29 @@ if __name__ == '__main__':
     X_test.drop(high_vif, axis = 1, inplace = True)
     
     # # estimators
-    # lr = LogisticRegression()
+    lr = LogisticRegression()
     
-    # # GridSearch parameters
-    # lr_params = {
-    #         'C': [0.01, 0.1, 1, 10, 100],
-    #         'penalty': ['l2'],
-    #         'tol': [0.000001, 0.00001, 0.0001, 0.001],
-    #         'solver': ['newton-cg','lbfgs', 'liblinear'],
-    #         'max_iter': [5, 10, 25, 50],
-    #         'warm_start': ['False'],
-    # }
+    # GridSearch parameters
+    lr_params = {
+            'C': [0.01, 0.1, 1, 10, 100],
+            'penalty': ['l2'],
+            'tol': [0.000001, 0.00001, 0.0001, 0.001],
+            'solver': ['newton-cg','lbfgs', 'liblinear'],
+            'max_iter': [5, 10, 25, 50],
+            'warm_start': ['False'],
+    }
 
-    # lr_clf = GridSearchCV(lr, param_grid=lr_params,
-    #                     scoring='neg_log_loss',
-    #                     n_jobs=-1,
-    #                     cv=5)
+    lr_clf = GridSearchCV(lr, param_grid=lr_params,
+                        scoring='neg_log_loss',
+                        n_jobs=-1,
+                        cv=5)
 
-    # lr_clf.fit(X_train, y_train)
-    # log_reg_model = lr_clf.best_estimator_
+    lr_clf.fit(X_train, y_train)
+    log_reg_model = lr_clf.best_estimator_
 
     # # best model as determined by grid search:
-    log_reg_model = LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1, max_iter=10, multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='liblinear', tol=1e-05, verbose=0, warm_start='False')
-    log_reg_model.fit(X_train, y_train)
+    # log_reg_model = LogisticRegression(C=1, class_weight=None, dual=False, fit_intercept=True, intercept_scaling=1, max_iter=10, multi_class='warn', n_jobs=None, penalty='l2', random_state=None, solver='liblinear', tol=1e-05, verbose=0, warm_start='False')
+    # log_reg_model.fit(X_train, y_train)
 
     # cross validation
     cv = cross_validate(log_reg_model,X_train,y_train,scoring='neg_log_loss',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
