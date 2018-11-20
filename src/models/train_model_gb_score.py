@@ -68,7 +68,7 @@ if __name__ == '__main__':
     }
 
     gb_clf = GridSearchCV(gb, 
-                        param_grid=gb_params,,
+                        param_grid=gb_params,
                         scoring='neg_mean_squared_error',
                         n_jobs=-1,
                         cv=5,
