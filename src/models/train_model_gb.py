@@ -74,7 +74,7 @@ if __name__ == '__main__':
             'n_estimators': [100, 1000],
             'subsample': [0.5, 0.3, 0.1],
             'min_samples_leaf': [1, 5, 10, 50],
-            'min_samples_split': [2, 10, 50, 100]
+            'min_samples_split': [2, 10, 50, 100],
             'max_features': ['auto', 'sqrt'],
     }
 
