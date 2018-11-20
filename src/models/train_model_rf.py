@@ -10,7 +10,7 @@ from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
-from sklearn.model_selection import GridSearchCV, cross_val_score
+from sklearn.model_selection import GridSearchCV, cross_val_score, cross_validate
 from sklearn.ensemble import RandomForestClassifier
 
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     # rf_model = rf_clf.best_estimator_
 
     # best model as determined by grid search
-    rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=100, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=None, oob_score=False, random_state=None, verbose=0, warm_start=False)
+    rf_model = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini', max_depth=100, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None, min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=-1, oob_score=False, random_state=None, verbose=1, warm_start=False)
     rf_model.fit(X_train, y_train)
 
     # evaluation
