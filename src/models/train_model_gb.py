@@ -9,7 +9,7 @@ import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
-from sklearn.model_selection import GridSearchCV, cross_val_score, RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV, cross_val_score, RandomizedSearchCV, cross_validate
 from sklearn.ensemble import GradientBoostingClassifier
 import matplotlib.pyplot as plt
 
