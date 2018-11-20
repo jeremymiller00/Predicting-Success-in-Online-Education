@@ -6,9 +6,9 @@ Inital dataframes imported in the if __name__ == '__main__' block are specified 
 For changning cutoff date:
 The factor needs to changed in three places:
 
-join_vle: line 62
-join_assessments: line 130
-filter out: line 269
+join_vle: line 65
+join_assessments: line 148
+filter out: line 278
 CHECK OUTPUT PATHS
 '''
 
@@ -62,7 +62,7 @@ def join_vle(st_vle_df, vle_df, courses_df):
     df =  pd.merge(st_vle_df, vle_df, how='outer', on = ['code_module', 'code_presentation', 'id_site'])
     df =  pd.merge(df, courses_df, how='outer', on = ['code_module', 'code_presentation'])
     # remove anything past halfway point
-    df = df[df['date'] <= df['module_presentation_length'] * 0.5]
+    df = df[df['date'] <= df['module_presentation_length'] * 0.75]
     return df
 
 # create features from vle
@@ -145,7 +145,7 @@ def join_asssessments(st_asmt_df, asmt_df, courses_df):
 
     # remove anything past halfway point
     # must be done after final score calculated
-    df = df[df['date'] <= df['module_presentation_length'] * 0.5]
+    df = df[df['date'] <= df['module_presentation_length'] * 0.75]
 
     # this should be in the next function for best practice
     df['days_submitted_early'] = df['date'] - df['date_submitted']
@@ -244,13 +244,6 @@ def encode_target(dataframe):
 
     return dataframe
 
-# test lines - delete!
-%reset
-features_vle.shape
-features_assessments.shape
-joined_vle_df.info()
-main_df['module_presentation_length_x'].value_counts()
-joined_assessments.shape
 ####################################################################
 
 if __name__ == "__main__":
@@ -283,7 +276,7 @@ if __name__ == "__main__":
     main_df = to_string(main_df, ['id_student'])
 
     # filter out students who dropped before the cutoff point
-    main_df = main_df[(main_df['date_unregistration'] > main_df['module_presentation_length_x'] * 0.5) | (main_df['date_unregistration'].isnull())]
+    main_df = main_df[(main_df['date_unregistration'] > main_df['module_presentation_length'] * 0.75) | (main_df['date_unregistration'].isnull())]
 
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
@@ -296,15 +289,9 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
     # write out to csv
-    main_df_final.to_csv('data/processed/first_half/transformed_data_with_features.csv', index=False)
-    X_train.to_csv('data/processed/first_half/X_train.csv', index=False)
-    X_test.to_csv('data/processed/first_half/X_test.csv', index=False)
-    y_train.to_csv('data/processed/first_half/y_train.csv', index=False)
-    y_test.to_csv('data/processed/first_half/y_test.csv', index=False)
+    main_df_final.to_csv('data/processed/third_quarter/transformed_data_with_features.csv', index=False)
+    X_train.to_csv('data/processed/third_quarter/X_train.csv', index=False)
+    X_test.to_csv('data/processed/third_quarter/X_test.csv', index=False)
+    y_train.to_csv('data/processed/third_quarter/y_train.csv', index=False)
+    y_test.to_csv('data/processed/third_quarter/y_test.csv', index=False)
 
-    # TEST WRITE OUT
-    main_df_final.to_csv('~/Desktop/transformed_data_with_features.csv', index=False)
-    X_train.to_csv('~/Desktop/X_train.csv', index=False)
-    X_test.to_csv('~/Desktop/X_test.csv', index=False)
-    y_train.to_csv('~/Desktop/y_train.csv', index=False)
-    y_test.to_csv('~/Desktop/y_test.csv', index=False)
