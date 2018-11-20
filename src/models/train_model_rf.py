@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
-from rfpimp import *
+# from rfpimp import *
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, confusion_matrix, recall_score, roc_auc_score, roc_curve, recall_score, classification_report
