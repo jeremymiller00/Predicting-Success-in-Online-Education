@@ -1,6 +1,7 @@
 '''
 This scripts produces a set of 30 simulated observations which can be used to test the prediction scripts.
 '''
+import sys
 import random
 import pandas as pd
 
@@ -35,6 +36,7 @@ if __name__ == '__main__':
     # write out the data
     sim_obs.to_csv('data/processed/prediction_test_set.csv')
 
+    sys.exit()
 
 
 

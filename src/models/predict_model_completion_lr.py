@@ -2,6 +2,7 @@
 For when you get a new datapoint. Data must first be transformed by build_features.py
 '''
 
+import sys
 import pandas as pd
 import pickle
 from sklearn.preprocessing import StandardScaler
@@ -49,7 +50,9 @@ if __name__ == '__main__':
     pred = model.predict(data_filled_scaled)
     data['Will the Student Complete?'] = ~pred
     print('\n')
-    print(data[['Will the Student Complete?', 'num_of_prev_attempts', 'studied_credits', 'avg_score', 'avg_days_sub_early']])
+    print(data[['Will the Student Complete?', 'avg_score', 'avg_days_sub_early', 'studied_credits', 'num_of_prev_attempts']])
+
+    sys.exit()
 
 '''
     data[['Will the Student Complete?', 'num_of_prev_attempts', 'studied_credits', 'sum_days_vle_accessed', 'avg_score', 'avg_days_sub_early', 'code_module_BBB', 'code_module_CCC', 'code_module_DDD', 'code_module_EEE', 'code_module_FFF', 'code_module_GGG', 'code_module_nan', 'code_presentation_nan', 'gender_M', 'gender_nan', 'region_East Midlands Region', 'region_Ireland',

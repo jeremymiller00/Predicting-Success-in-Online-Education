@@ -78,12 +78,12 @@ def print_roc_curve(y_test, probabilities):
 
 if __name__ == '__main__':
     # make sure you have the correct data for time frame
-    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
-    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
+    X_train = pd.read_csv('data/processed/third_quarter/X_train.csv')
+    y_train = pd.read_csv('data/processed/third_quarter/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
     y_train = y_train['estimated_final_score']
-    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
-    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
+    X_test = pd.read_csv('data/processed/third_quarter/X_test.csv')
+    y_test = pd.read_csv('data/processed/third_quarter/y_test.csv')
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 
@@ -132,11 +132,11 @@ if __name__ == '__main__':
     r2_cv = cross_val_score(rf_model, X_train, y_train, scoring = 'r2', cv=5)
 
     print('Best Model: {}'.format(rf_model))
-    print('RMSE: {}'.format(np.sqrt(mse_cv)))
+    print('RMSE: {}'.format(np.sqrt(-1*mse_cv)))
     print('r2 Score: {}'.format(r2_cv))
 
     # save model
-    pickle.dump(rf_model, open('models/random_forest_score_first_half.p', 'wb')) 
+    pickle.dump(rf_model, open('models/random_forest_score_third_quarter.p', 'wb')) 
 
 '''
     # final model evaluation (see jupyter notebook)
@@ -152,5 +152,5 @@ if __name__ == '__main__':
     # feature importances
     feat_imp = importances(rf_model, X_test, y_test)
     feat_imp.sort_values(by='Importance', ascending=False)[0:10]
-    pd.DataFrame(data={'fprs': fprs, 'tprs': tprs, 'Thresholds': thresh}).loc[300:1000:25]
+
     '''

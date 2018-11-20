@@ -90,9 +90,6 @@ def features_from_vle(df):
     days_accessed = df.groupby(by=['id_student', 'code_module', 'code_presentation']).count()[['date']]
     days_accessed.reset_index(inplace=True)
     days_accessed.rename({'date':'sum_days_vle_accessed'}, axis = 'columns',inplace=True)
-    # days_accessed = pd.merge(days_accessed, courses_df, how="outer", on = ['code_module', 'code_presentation'])
-    # days_accessed['pct_days_vle_accessed'] = days_accessed['sum_days_vle_accessed'] / days_accessed['module_presentation_length']
-    # days_accessed.drop(['sum_days_vle_accessed', 'module_presentation_length'], axis = 1, inplace = True)
 
     # calculate max clicks in one day
     max_clicks = df.groupby(by=['id_student',
@@ -114,6 +111,7 @@ def features_from_vle(df):
 
     return merged2
 
+
 # join assessments to student assessments
 def join_asssessments(st_asmt_df, asmt_df, courses_df):
     '''
@@ -127,11 +125,32 @@ def join_asssessments(st_asmt_df, asmt_df, courses_df):
     df = pd.merge(st_asmt_df, asmt_df, how='outer', on=['id_assessment']).dropna()
     df['id_student'] = df['id_student'].astype('int64')
     df =  pd.merge(df, courses_df, how='outer', on = ['code_module', 'code_presentation'])
+    
+    # add weighted score for each assessment
+    df['weighted_score'] = df['score'] * df['weight'] / 100
+
+    # calculate estimated final score; module DDD, presentations 2013J, 2013B, and 2014B are double modules, estimated final score should be cut in half
+    f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
+    f_df.reset_index(inplace=True)
+    f_df.rename({'weighted_score':'estimated_final_score'}, axis = 'columns',inplace=True)
+
+    #halving estimates for double modules
+    indices = []
+    double = f_df[(f_df['code_module'] == 'DDD') & ((f_df   ['code_presentation'] == '2013J') | (f_df['code_presentation'] ==  '2014B') | (f_df['code_presentation'] == '2013B'))]
+    for index, row in double.iterrows():
+        indices.append(index)
+    double['estimated_final_score'] = double['estimated_final_score'].apply(lambda x: x/2)
+    f_df.drop(indices, axis = 0, inplace = True)
+    f_df = pd.concat([f_df, double])
+
     # remove anything past halfway point
+    # must be done after final score calculated
     df = df[df['date'] <= df['module_presentation_length'] * 0.5]
+
     # this should be in the next function for best practice
     df['days_submitted_early'] = df['date'] - df['date_submitted']
-    return df
+
+    return pd.merge(df, f_df, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'] )
 
 # create features from assessments
 def features_from_assessments(df):
@@ -144,46 +163,40 @@ def features_from_assessments(df):
     output {dataframe}: df['avg_score', 'avg_days_submitted_early', 'est_final_score']
     '''
 
-    # add weighted score for each assessment
-    df['weighted_score'] = df['score'] * df['weight'] / 100
-
     # caluculate avg days submitted early, score
     av_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).mean()[['score', 'days_submitted_early']]
     av_df.reset_index(inplace=True)
     av_df.rename({'score': 'avg_score', 'days_submitted_early':'avg_days_sub_early'}, axis = 'columns',inplace=True)
 
-    # calculate estimated final score; module DDD, presentations 2013J, 2013B, and 2014B are double modules, estimated final score should be cut in half
-    f_df = df.groupby(by=['id_student', 'code_module', 'code_presentation']).sum()[['weighted_score']]
-    f_df.reset_index(inplace=True)
-    f_df.rename({'weighted_score':'estimated_final_score'}, axis = 'columns',inplace=True)
-    #halving
-    indices = []
-    double = f_df[(f_df['code_module'] == 'DDD') & ((f_df   ['code_presentation'] == '2013J') | (f_df['code_presentation'] ==  '2014B') | (f_df['code_presentation'] == '2013B'))]
-
-    for index, row in double.iterrows():
-        indices.append(index)
-
-    double['estimated_final_score'] = double['estimated_final_score'].apply(lambda x: x/2)
-
-    f_df.drop(indices, axis = 0, inplace = True)
-    f_df = pd.concat([f_df, double])
+    #test
+    av_df.columns
 
     # first assessment days early and score
     early_first_assessment = df.groupby(by=['code_module', 'code_presentation', 'id_student']).max()[['days_submitted_early']]
     early_first_assessment.reset_index(inplace=True)
     early_first_assessment.rename({'days_submitted_early':'days_early_first_assessment'}, axis = 'columns',inplace=True)
 
+    # test
+    early_first_assessment.shape
+
     date_first_assessment = df.groupby(by=['code_module', 'code_presentation', 'id_student']).min()[['date']]
     date_first_assessment.reset_index(inplace=True)
     date_first_assessment.rename({'date':'date_first_assessment'}, axis = 'columns',inplace=True)
+
+    # test
+    date_first_assessment.shape
 
     temp_merged = pd.merge(df, date_first_assessment, how = 'outer', on = ['id_student', 'code_module', 'code_presentation'])
 
     score_first_assessment = temp_merged[temp_merged['date'] == temp_merged['date_first_assessment']][['code_module', 'code_presentation', 'id_student','score']]
     score_first_assessment.rename({'score':'score_first_assessment'}, axis = 'columns', inplace=True)
 
+    # groupby df for estimated final score
+    efs_df = df.groupby(by=['code_module', 'code_presentation', 'id_student']).last()[['estimated_final_score']]
+    efs_df.reset_index(inplace=True)
+
     # merge dataframes
-    merged = pd.merge(av_df, f_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
+    merged = pd.merge(efs_df, av_df, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
     merged1 = pd.merge(merged, early_first_assessment, how='outer', on = ['code_module', 'code_presentation', 'id_student'])
 
@@ -232,7 +245,12 @@ def encode_target(dataframe):
     return dataframe
 
 # test lines - delete!
-
+%reset
+features_vle.shape
+features_assessments.shape
+joined_vle_df.info()
+main_df['module_presentation_length_x'].value_counts()
+joined_assessments.shape
 ####################################################################
 
 if __name__ == "__main__":
@@ -264,11 +282,11 @@ if __name__ == "__main__":
     # cast id_student to type string
     main_df = to_string(main_df, ['id_student'])
 
+    # filter out students who dropped before the cutoff point
+    main_df = main_df[(main_df['date_unregistration'] > main_df['module_presentation_length_x'] * 0.5) | (main_df['date_unregistration'].isnull())]
+
     # one-hot encode categorical variables
     main_df_final = one_hot(main_df, _cols_to_onehot)
-
-    # filter out students who dropped before the cutoff point
-    main_df = main_df[(main_df['date_unregistration'] > main_df['module_presentation_length'] * 0.5) | (main_df['date_unregistration'].isnull())]
 
     # split the data: three possible targets
     X = main_df_final.drop(['final_result', 'module_not_completed', 'final_result_num', 'estimated_final_score', 'date_unregistration', 'id_student'], axis = 1)
@@ -284,3 +302,9 @@ if __name__ == "__main__":
     y_train.to_csv('data/processed/first_half/y_train.csv', index=False)
     y_test.to_csv('data/processed/first_half/y_test.csv', index=False)
 
+    # TEST WRITE OUT
+    main_df_final.to_csv('~/Desktop/transformed_data_with_features.csv', index=False)
+    X_train.to_csv('~/Desktop/X_train.csv', index=False)
+    X_test.to_csv('~/Desktop/X_test.csv', index=False)
+    y_train.to_csv('~/Desktop/y_train.csv', index=False)
+    y_test.to_csv('~/Desktop/y_test.csv', index=False)

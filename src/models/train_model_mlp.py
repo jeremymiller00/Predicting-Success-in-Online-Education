@@ -109,13 +109,13 @@ if __name__ == '__main__':
     accuracy_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'accuracy', cv=5)
     f1_cv = cross_val_score(mlp_model, X_train, y_train, scoring = 'f1_micro', cv=5)
 
-    # print('Best Model: {}'.format(mlp_model))
-    # # print('Best Model parameters: {}'.format(mlp_model.best_params_))
-    # print('Roc Auc: {}'.format(roc_auc_cv))
-    # print('Recall Score: {}'.format(recall_cv))
-    # print('Precision Score: {}'.format(precision_cv))
-    # print('Accuracy Score: {}'.format(accuracy_cv))
-    # print('F1 Micro: {}'.format(f1_cv))
+    print('Best Model: {}'.format(mlp_model))
+    # print('Best Model parameters: {}'.format(mlp_model.best_params_))
+    print('Roc Auc: {}'.format(roc_auc_cv))
+    print('Recall Score: {}'.format(recall_cv))
+    print('Precision Score: {}'.format(precision_cv))
+    print('Accuracy Score: {}'.format(accuracy_cv))
+    print('F1 Micro: {}'.format(f1_cv))
 
     # save model
     pickle.dump(mlp_model, open('models/mlp_completion_first_half.p', 'wb')) 
