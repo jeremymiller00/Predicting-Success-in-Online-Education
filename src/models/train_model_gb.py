@@ -90,7 +90,14 @@ if __name__ == '__main__':
     gb_model = gb_clf.best_estimator_
 
     # best parameters determined by grid search
-    # gb_model = GradientBoostingClassifier(criterion='friedman_mse', init=None,learning_rate=0.01, loss='deviance', max_depth=3, max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, min_impurity_split=None,min_samples_leaf=1, min_samples_split=2, min_weight_fraction_leaf=0.0, n_estimators=1000, presort='auto', random_state=None, subsample=0.1, verbose=0, warm_start=False)
+    # gb_model = GradientBoostingClassifier(criterion='friedman_mse', init=None,
+    #           learning_rate=0.01, loss='deviance', max_depth=3,
+    #           max_features='sqrt', max_leaf_nodes=None,
+    #           min_impurity_decrease=0.0, min_impurity_split=None,
+    #           min_samples_leaf=5, min_samples_split=50,
+    #           min_weight_fraction_leaf=0.0, n_estimators=1000,
+    #           presort='auto', random_state=None, subsample=0.5, verbose=0,
+    #           warm_start=False)
     # gb_model.fit(X_train, y_train)
 
     # save model
