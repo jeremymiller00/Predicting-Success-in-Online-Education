@@ -62,12 +62,12 @@ def dropcol_importances(rf, X_train, y_train):
 
 if __name__ == '__main__':
     # make sure you have the correct data for time frame
-    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
-    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
+    X_train = pd.read_csv('data/processed/third_quarter/X_train.csv')
+    y_train = pd.read_csv('data/processed/third_quarter/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
     y_train = y_train['estimated_final_score']
-    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
-    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
+    X_test = pd.read_csv('data/processed/third_quarter/X_test.csv')
+    y_test = pd.read_csv('data/processed/third_quarter/y_test.csv')
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 
@@ -79,10 +79,6 @@ if __name__ == '__main__':
 
     # only students who completed the course
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
-
-    # # small samples for testing
-    # X_train = X_train[:100]
-    # y_train = y_train[:100]
 
     # estimator
     rf = RandomForestRegressor()
@@ -109,8 +105,14 @@ if __name__ == '__main__':
     rf_model = rf_reg.best_estimator_
 
     # best model as determined by grid search
-    rf_model = RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=50, max_features='auto', max_leaf_nodes=None,min_impurity_decrease=0.1, min_impurity_split=None,min_samples_leaf=3, min_samples_split=2,min_weight_fraction_leaf=0.0, n_estimators=1000, n_jobs=-1,oob_score=True, random_state=None, verbose=0, warm_start=False)
-    rf_model.fit(X_train, y_train)
+    # rf_model = RandomForestRegressor(bootstrap=True, criterion='mse',                    max_depth=50,
+    #        max_features='auto', max_leaf_nodes=None,
+    #        min_impurity_decrease=0.1, min_impurity_split=None,
+    #        min_samples_leaf=2, min_samples_split=10,
+    #        min_weight_fraction_leaf=0.0, n_estimators=100, n_jobs=-1,
+    #        oob_score='True', random_state=None, verbose=0,
+    #        warm_start=False)
+    # rf_model.fit(X_train, y_train)
 
     # cross validation
     cv = cross_validate(rf_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
@@ -125,7 +127,7 @@ if __name__ == '__main__':
     print('r2 Score: {}'.format(r2_cv))
 
     # save model
-    pickle.dump(rf_model, open('models/random_forest_score_first_half.p', 'wb')) 
+    pickle.dump(rf_model, open('models/random_forest_score_third_quarter.p', 'wb')) 
 
 '''
     # final model evaluation (see jupyter notebook)

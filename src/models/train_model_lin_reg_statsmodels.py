@@ -9,8 +9,8 @@ import pickle
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
 from sklearn.model_selection import cross_val_score, cross_validate
+from sklearn.linear_model import LinearRegression
 from sklearn.base import BaseEstimator, RegressorMixin
-# from sklearn.model_selection import GridSearchCV
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 # import scipy.stats as scs
