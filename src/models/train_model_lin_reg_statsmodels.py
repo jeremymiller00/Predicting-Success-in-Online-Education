@@ -104,9 +104,6 @@ def plot_residuals(stud_resid, target, features, data):
         plt.show()
 
 ### test lines DELETE!
-len(X_test.columns)
-%reset
-whos
 ######################################################################
 
 if __name__ == '__main__':
@@ -150,28 +147,33 @@ if __name__ == '__main__':
     X_train.drop(high_vif, axis = 1, inplace = True)
     X_test.drop(high_vif, axis = 1, inplace = True)
     
-    # estimator
+    # # estimator for cross validation
     lin_reg_model = SMWrapper(sm.OLS)
     lin_reg_model.fit(X_train, y_train)
     lin_reg_model.summary()
+
+    # lin_reg_model = LinearRegression()
+    # lin_reg_model.fit(X_train, y_train)
+
+    # # estimator
+    # lin_reg_model = sm.OLS(y_train, X_train)
+    # lin_reg_model = lin_reg_model.fit()
+    # lin_reg_model.summary()
 
     # cross-validation
     cv = cross_validate(lin_reg_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
     print(cv)
 
     # evaluation
-    rmse_cv = np.sqrt((cross_val_score(lin_reg_model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)))
+    mse_cv = np.sqrt((cross_val_score(lin_reg_model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)))
     r2_cv = cross_val_score(lin_reg_model, X_train, y_train, scoring='r2', cv=5)
 
-    print('CV Root Mean Squared Error: {}'.format(np.sqrt(mse_cv)))
+    print('CV Root Mean Squared Error: {}'.format(np.sqrt(-1*mse_cv)))
     print('CV R-Squared: {}'.format(r2_cv))
 
     # check for homoscedasticity
     f_statistic, p_value, _ = sm.stats.diagnostic.het_goldfeldquandt(y_train, X_train, idx=1, alternative='two-sided')
     print(p_value)
-
-    # save model
-    pickle.dump(lin_reg_model, open('models/linear_regression_score_first_half.p', 'wb'))
 
     # assessing variance inflation
     vif = []
@@ -191,11 +193,12 @@ if __name__ == '__main__':
     stud_resid = lin_reg_model.residuals_
     plot_residuals(stud_resid, y_train, X_train.columns, X_train)
 
-    stud_resid.shape
-    y_train.shape
-
     # QQ-plot
     ax = sm.graphics.qqplot(stud_resid, line='45')
+
+    # save model
+    pickle.dump(lin_reg_model, open('models/linear_regression_score_first_half.p', 'wb'))
+
 
 '''
     # final model evaluation (see jupyter notebook)
