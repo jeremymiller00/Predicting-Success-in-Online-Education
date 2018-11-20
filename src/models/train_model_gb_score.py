@@ -67,12 +67,12 @@ if __name__ == '__main__':
             'max_features': ['auto', 'sqrt'],
     }
 
-    gb_clf = RandomizedSearchCV(gb, 
-                        param_distributions=gb_params,
-                        n_iter = 10,
+    gb_clf = GridSearchCV(gb, 
+                        param_grid=gb_params,,
                         scoring='neg_mean_squared_error',
                         n_jobs=-1,
-                        cv=5)
+                        cv=5,
+                        return_train_score=1)
 
     gb_clf.fit(X_train, y_train)
 
