@@ -3,16 +3,41 @@ Linear Regression Model for Predicting Final Score
 """
 import numpy as np
 import pandas as pd
-import pickle
 import collections as c
+import pickle
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, explained_variance_score, r2_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score, cross_validate
 from sklearn.linear_model import LinearRegression
+from sklearn.base import BaseEstimator, RegressorMixin
 import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 # import scipy.stats as scs
 import matplotlib.pyplot as plt
+
+class SMWrapper(BaseEstimator, RegressorMixin):
+    """ A universal sklearn-style wrapper for statsmodels regressors """
+    def __init__(self, model_class, fit_intercept=True):
+        self.model_class = model_class
+        self.fit_intercept = fit_intercept
+    def fit(self, X, y):
+        if self.fit_intercept:
+            X = sm.add_constant(X)
+        self.model_ = self.model_class(y, X)
+        self.results_ = self.model_.fit()
+        self.residuals_ = self.results_.outlier_test()['student_resid']
+    def fit_regularized(self, X, y, a, l1):
+        if self.fit_intercept:
+            X = sm.add_constant(X)
+        self.model_ = self.model_class(y, X)
+        self.results_ = self.model_.fit_regularized(alpha=a, L1_wt=l1)
+    def predict(self, X):
+        if self.fit_intercept:
+            X = sm.add_constant(X)
+        return self.results_.predict(X)
+    def summary(self):
+        return self.results_.summary()
 
 def scale_subset(df, columns):
     '''
@@ -50,67 +75,145 @@ def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_no
 
     return X_train.drop(train_indices), y_train.drop(train_indices), X_test.drop(test_indices), y_test.drop(test_indices)
 
+def plot_residuals(stud_resid, target, features, data):
+    '''
+    Creates scatterplots of residuals against target and specified features
+    Parameters:
+    ----------
+    input {all array-like}: calculated residuals, target values from test data, list of features to plot against
+    output {plots}: some plots
+    '''
+    plt.figure(figsize=(12,10))
+    plt.scatter(x=target, y=stud_resid, alpha = 0.1, c='red')
+    plt.hlines(0, target.min(), target.max(), 'k', linestyle='dashed')
+    plt.ylabel("Residuals")
+    plt.xlabel("Target")
+    plt.title("Residuals vs. Target")
+    plt.show()
 
+    for f in features:
+        plt.figure(figsize=(12,10))
+        plt.scatter(x=data[f], y=stud_resid, alpha=0.1, c='blue')
+        plt.hlines(0,
+              data[f].min(), 
+              data[f].max(), 
+              'k', linestyle='dashed')
+        plt.ylabel("Residuals")
+        plt.xlabel(f)
+        plt.title("Residuals vs {}".format(f))
+        plt.show()
+
+### test lines DELETE!
 ######################################################################
 
 if __name__ == '__main__':
 
-    X_train = pd.read_csv('data/processed/X_train.csv')
-    y_train = pd.read_csv('data/processed/y_train.csv')
+    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
     y_train = y_train['estimated_final_score']
-    X_test = pd.read_csv('data/processed/X_test.csv')
-    y_test = pd.read_csv('data/processed/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 
-    numeric_cols = ['num_of_prev_attempts', 'studied_credits', 'clicks_per_day', 'pct_days_vle_accessed','max_clicks_one_day','first_date_vle_accessed', 'avg_score', 'avg_days_sub_early','days_early_first_assessment', 'score_first_assessment']
+    numeric_cols = ['num_of_prev_attempts', 'studied_credits', 'module_presentation_length', 'sum_click_dataplus', 'sum_click_dualpane', 'sum_click_externalquiz', 'sum_click_forumng','sum_click_glossary', 'sum_click_homepage', 'sum_click_htmlactivity', 'sum_click_oucollaborate', 'sum_click_oucontent', 'sum_click_ouelluminate', 'sum_click_ouwiki', 'sum_click_page', 'sum_click_questionnaire', 'sum_click_quiz', 'sum_click_repeatactivity', 'sum_click_resource', 'sum_click_sharedsubpage', 'sum_click_subpage', 'sum_click_url', 'sum_days_vle_accessed', 'max_clicks_one_day', 'first_date_vle_accessed', 'avg_score', 'avg_days_sub_early', 'days_early_first_assessment', 'score_first_assessment']
 
     # fill and scale
     X_train.fillna(value = 0, inplace = True)
     y_train.fillna(value = 0, inplace = True)
     X_train = scale_subset(X_train, numeric_cols)
+    # X_train = sm.add_constant(X_train)
     X_test.fillna(value = 0, inplace = True)
     y_test.fillna(value = 0, inplace = True)
     X_test = scale_subset(X_test, numeric_cols)
+    # X_test = sm.add_constant(X_test)
 
     # only students who completed the course
     X_train, y_train, X_test, y_test = only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_not_comp)
 
-    # estimator
+    # resolve multicolinearity
+    '''
+    [(34.82408402588052, 'code_presentation_2014J'),
+    (27.902556097941535, 'module_presentation_length'),
+    (17.71032093366156, 'sum_days_vle_accessed'),
+    (12.29325003243407, 'avg_score'),
+    (12.129102421725705, 'code_module_BBB'),
+    (11.26607390128323, 'score_first_assessment'),
+    (10.74221505000013, 'code_module_DDD'),
+    (10.185010067236496, 'code_module_FFF')'''
 
-    lr = LinearRegression(n_jobs=-1)
+    high_vif = ['sum_click_repeatactivity', 'days_early_first_assessment', 'sum_days_vle_accessed', 'module_presentation_length', 'score_first_assessment']
+    X_train.drop(high_vif, axis = 1, inplace = True)
+    X_test.drop(high_vif, axis = 1, inplace = True)
+    
+    # # estimator for cross validation
+    # lin_reg_model = SMWrapper(sm.OLS)
+    # lin_reg_model.fit(X_train, y_train)
+    # lin_reg_model.summary()
 
-    lr.fit(X_train, y_train)
+    lin_reg_model = LinearRegression()
+    lin_reg_model.fit(X_train, y_train)
+
+    # # estimator
+    # lin_reg_model = sm.OLS(y_train, X_train)
+    # lin_reg_model = lin_reg_model.fit()
+    # lin_reg_model.summary()
+
+    # cross-validation
+    cv = cross_validate(lin_reg_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
+    print(cv)
 
     # evaluation
-    predictions = lr.predict(X_test)
+    mse_cv = np.sqrt((cross_val_score(lin_reg_model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)))
+    r2_cv = cross_val_score(lin_reg_model, X_train, y_train, scoring='r2', cv=5)
+
+    print('CV Root Mean Squared Error: {}'.format(np.sqrt(-1*mse_cv)))
+    print('CV R-Squared: {}'.format(r2_cv))
+
+    # check for homoscedasticity
+    f_statistic, p_value, _ = sm.stats.diagnostic.het_goldfeldquandt(y_train, X_train, idx=1, alternative='two-sided')
+    print(p_value)
+
+    # assessing variance inflation
+    vif = []
+    for v in range(len(X_train.columns)):
+        vif.append(variance_inflation_factor(X_train.values, v))
+    features = list(X_test.columns)
+    vif_dict = c.OrderedDict((zip(vif, features)))
+    sorted(vif_dict.items(), reverse=True)[:10]
+
+    # feature correlation
+    cor = X_train.corr().abs()
+    s = cor.unstack()
+    so = s.sort_values(kind="quicksort", ascending=False)
+    so[58:150:2]
+
+    # plot residuals
+    stud_resid = lin_reg_model.residuals_
+    plot_residuals(stud_resid, y_train, X_train.columns, X_train)
+
+    # QQ-plot
+    ax = sm.graphics.qqplot(stud_resid, line='45')
+
+    # save model
+    pickle.dump(lin_reg_model, open('models/linear_regression_score_first_half.p', 'wb'))
+
+
+'''
+    # final model evaluation (see jupyter notebook)
+    predictions = lin_reg_model.predict(X_test)
+    residuals = predictions - y_test
     rmse = np.sqrt(mean_squared_error(y_test, predictions))
-    print(rmse)
     evs = explained_variance_score(y_test, predictions)
     r2 = r2_score(y_test, predictions)
 
-    print('RMSE: {}'.format(rmse))
-    print('R-squared: {}'.format(r2))
+    print('Root Mean Squared Error: {}'.format(rmse))
+    print('R-Squared: {}'.format(r2))
+    print('Explained Variance Score: {}'.format(evs))
 
-    residuals = y_test - predictions
+    plot_residuals(residuals, y_test, X_test.columns, X_test)
 
-    plt.figure(figsize=(12,10))
-    plt.scatter(x=residuals, y=y_test, alpha = 0.1, c='green')
-    plt.show()
-
-    plt.figure(figsize=(12,10))
     plt.hist(residuals, bins=100)
     plt.show()
-
-    plt.figure(figsize=(12,10))
-    plt.hist(y_train, bins=100)
-    plt.show()
-
-    abs_coef = list(np.abs(lr.coef_.ravel()))
-    features = list(X_test.columns)
-    coef_dict = c.OrderedDict((zip(abs_coef, features)))
-    sorted(coef_dict.items(), reverse=True)
-
-    # save model
-    pickle.dump(lr, open('models/linear_regression_score.p', 'wb'))
+'''
