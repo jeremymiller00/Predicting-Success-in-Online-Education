@@ -33,13 +33,13 @@ def only_completed(X_train, y_train, X_test, y_test, y_train_not_comp, y_test_no
 ######################################################################
 
 if __name__ == '__main__':
-    # change path to get appropriate cutoff (first_half, first_half, first_half; CHANGE PATH IN WRITE OUT!)
-    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
-    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
+    # change path to get appropriate cutoff (first_quarter, first_quarter, first_quarter; CHANGE PATH IN WRITE OUT!)
+    X_train = pd.read_csv('data/processed/first_quarter/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_quarter/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
     y_train = y_train['estimated_final_score']
-    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
-    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_quarter/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_quarter/y_test.csv')
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 
@@ -89,9 +89,6 @@ if __name__ == '__main__':
              warm_start=False)
     gb_model.fit(X_train, y_train)
 
-    # save model
-    # pickle.dump(gb_model, open('models/gradient_boost_completion_first_half.p', 'wb')) 
-
     # cross validation
     cv = cross_validate(gb_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
     print(cv)
@@ -104,22 +101,19 @@ if __name__ == '__main__':
     print('RMSE: {}'.format(np.sqrt(-1*mse_cv)))
     print('r2 Score: {}'.format(r2_cv))
 
+    # save model
+    pickle.dump(gb_model, open('models/gradient_boost_score_first_quarter.p', 'wb')) 
+
 
 '''
     # final model evaluation (see jupyter notebook)
     predictions = gb_model.predict(X_test)
-    roc_auc = roc_auc_score(y_test, predictions)
-    probas = gb_model.predict_proba(X_test)[:, :1]
-    tprs, fprs, thresh = roc_curve(y_test, probas)
-    recall = recall_score(y_test, predictions)
-    conf_mat = standard_confusion_matrix(y_test, predictions)
-    class_report = classification_report(y_test, predictions)
+    rmse = np.sqrt(mean_squared_error(y_test, predictions))
+    evs = explained_variance_score(y_test, predictions)
+    r2 = r2_score(y_test, predictions)
 
-    print_roc_curve(y_test, probas, 'Gradient Boosting')
-    print('Best Model: {}'.format(gb_model))
-    print('\nRoc Auc: {}'.format(roc_auc))
-    print('\nRecall Score: {}'.format(recall))
-    print('\nClassification Report:\n {}'.format(class_report))
-    print('\nConfusion Matrix:\n {}'.format(standard_confusion_matrix(y_test, predictions)))
-
+    print('Root Mean Squared Error: {}'.format(rmse))
+    print('Target Standard Deviation: {}'.format(np.std(y_test)))
+    print('R-Squared: {}'.format(r2))
+    print('Explained Variance Score: {}'.format(evs))
 '''

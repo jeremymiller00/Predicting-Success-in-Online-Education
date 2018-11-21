@@ -103,17 +103,16 @@ def plot_residuals(stud_resid, target, features, data):
         plt.title("Residuals vs {}".format(f))
         plt.show()
 
-### test lines DELETE!
 ######################################################################
 
 if __name__ == '__main__':
 
-    X_train = pd.read_csv('data/processed/first_half/X_train.csv')
-    y_train = pd.read_csv('data/processed/first_half/y_train.csv')
+    X_train = pd.read_csv('data/processed/third_quarter/X_train.csv')
+    y_train = pd.read_csv('data/processed/third_quarter/y_train.csv')
     y_train_not_comp = y_train[['module_not_completed']]
     y_train = y_train['estimated_final_score']
-    X_test = pd.read_csv('data/processed/first_half/X_test.csv')
-    y_test = pd.read_csv('data/processed/first_half/y_test.csv')
+    X_test = pd.read_csv('data/processed/third_quarter/X_test.csv')
+    y_test = pd.read_csv('data/processed/third_quarter/y_test.csv')
     y_test_not_comp = y_test[['module_not_completed']]
     y_test = y_test['estimated_final_score']
 
@@ -161,15 +160,18 @@ if __name__ == '__main__':
     # lin_reg_model.summary()
 
     # cross-validation
-    cv = cross_validate(lin_reg_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
-    print(cv)
+    cv_mse = cross_validate(lin_reg_model,X_train,y_train,scoring='neg_mean_squared_error',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
+    print(cv_mse)
+
+    cv_r2 = cross_validate(lin_reg_model,X_train,y_train,scoring='r2',cv=5,n_jobs=-1, verbose=1,return_train_score=1)
+    print(cv_r2)
 
     # evaluation
-    mse_cv = np.sqrt((cross_val_score(lin_reg_model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)))
-    r2_cv = cross_val_score(lin_reg_model, X_train, y_train, scoring='r2', cv=5)
+    # mse_cv = np.sqrt((cross_val_score(lin_reg_model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)))
+    # r2_cv = cross_val_score(lin_reg_model, X_train, y_train, scoring='r2', cv=5)
 
-    print('CV Root Mean Squared Error: {}'.format(np.sqrt(-1*mse_cv)))
-    print('CV R-Squared: {}'.format(r2_cv))
+    # print('CV Root Mean Squared Error: {}'.format(np.sqrt(-1*mse_cv)))
+    # print('CV R-Squared: {}'.format(r2_cv))
 
     # check for homoscedasticity
     f_statistic, p_value, _ = sm.stats.diagnostic.het_goldfeldquandt(y_train, X_train, idx=1, alternative='two-sided')
@@ -181,23 +183,29 @@ if __name__ == '__main__':
         vif.append(variance_inflation_factor(X_train.values, v))
     features = list(X_test.columns)
     vif_dict = c.OrderedDict((zip(vif, features)))
-    sorted(vif_dict.items(), reverse=True)[:10]
+    var_inf = sorted(vif_dict.items(), reverse=True)[:10]
+    print(var_inf)
 
     # feature correlation
     cor = X_train.corr().abs()
     s = cor.unstack()
     so = s.sort_values(kind="quicksort", ascending=False)
-    so[58:150:2]
+    print(so[58:150:2])
 
     # plot residuals
-    stud_resid = lin_reg_model.residuals_
-    plot_residuals(stud_resid, y_train, X_train.columns, X_train)
+    predictions = lin_reg_model.predict(X_train)
+    residuals = y_train - predictions
+    Var_e = np.sum([(y_train - predictions)**2]) / (len(y_train) - 2)
+    SE_regression = Var_e**0.5
+    studentized_residuals = residuals / SE_regression
+    plot_residuals(studentized_residuals, y_train, X_train.columns, X_train)
 
     # QQ-plot
-    ax = sm.graphics.qqplot(stud_resid, line='45')
+    sm.graphics.qqplot(studentized_residuals, line='45')
+    plt.show()
 
     # save model
-    pickle.dump(lin_reg_model, open('models/linear_regression_score_first_half.p', 'wb'))
+    pickle.dump(lin_reg_model, open('models/linear_regression_score_third_quarter.p', 'wb'))
 
 
 '''
