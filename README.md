@@ -6,6 +6,7 @@
 * Problem Statement
 * Results
 * Data
+* Data Pipeline and Feature Engineering
 * Modeling process
 * Evaluation
 * Next Steps
@@ -34,9 +35,13 @@ The data schema is described in this figure:
 
 ![data](reports/figures/schema.png "Data Schema")
 
+## Data Pipeline and Feature Engineering
+With the goal being able to effectively predict whether a given students would successfully complete a given course, I began by eliminating records for students who were not enrolled on the first day of the course (many students registered for a course, then withdrew before the first day). 
+
 
 ## Modeling process
-With the goal being able to effectively predict whether a given students would successfully complete a given course, I began by eliminating records for students who were not enrolled on the first day of the course (many students registered for a course, then withdrew before the first day). I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. THe classifiers tested were:
+My primary modeling concerns were evaluating the classifer based in the true positive rate and ROC AUC score. A strong true positive rate directly minimizes false negatives, which in this situation are a "worst case scenario (in my model, "positive" is defined as non-cmpletion). I also sought a model with strong inferenetial characteristics. Knowing why a student is predicted not to complete a course would be be important in designing an intervention. I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. THe classifiers tested were:
+
 * Logistic Regression
 * Random Forest
 * Gradient Boosting
@@ -44,13 +49,14 @@ With the goal being able to effectively predict whether a given students would s
 * K-Nearest Neighbors
 * Multi-layer Perceptron
 
+Logistic Regression, Random Forest, and Gradient Boosting performed better initially. I then performed an extensive grid search and model hyperparamnter tuning to get the best performance out of each classifier type. Random Forest and Gradient Boosting performed equally well, with each outperforming Logistic Regression by a siginifcant margin. I chose the Random Forest Classifier as my final model given it's strong performance and relatively high level of interpretability. 
 
 ## Evaluation
 Models were evaluated prirmarily using the ROC AUC score and the true positive rate (recall). ROC AUC was chosen because ot provides a clear general of sense of how a binary classification perform thoughout the range of prediction thresholds. True prositive rate was chosen because it directly accounts for the proportion of the false negative predictions.  
 
 plots
 
-Though the strength of the predictions relies on the use of many feautres, the following feature were determined to contribute most to predicitions of non-completion:
+Though the strength of the predictions relies on the use of many feautres (as detemined by recursive feature elimination with cross-validation), the following feature were determined to contribute most to predicitions of non-completion:
 
 
 ## Next Steps
