@@ -56,11 +56,9 @@ Models were evaluated prirmarily using the ROC AUC score and the true positive r
 
 For the purposes of model evaluation, baseline is determined to be a similar Random Forest Classifier which takes as its features only the information about the students. Hence my final classifier shows how much predicitive power can be obtained by considering students' actions and behaviors. 
 
-<img src="reports/figures/rf_roc.png" width=300/>
-<img src="reports/figures/bl_roc.png" width=300/>
+<img src="reports/figures/rf_roc.png" width=300/><img src="reports/figures/bl_roc.png" width=300/>
 
-<img src="reports/figures/rf_conf_mat.png" width=300/>
-<img src="reports/figures/bl_conf_mat.png" width=300/>
+<img src="reports/figures/rf_conf_mat.png" width=300/><img src="reports/figures/bl_conf_mat.png" width=300/>
 
 Though the strength of the predictions relies on the use of many feautres (as detemined by recursive feature elimination with cross-validation), the following feature were determined to contribute most to predicitions of non-completion:
 
