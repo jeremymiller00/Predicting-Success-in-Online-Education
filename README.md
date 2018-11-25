@@ -19,7 +19,7 @@ The goal of this project is to use behavior and demographics to predict if stude
 
 ## Results
 
-A random forest classifier provides a true positive rate of ~0.75. This means that about 75% of the students who will actually fail are predicted to do so by the mdoel. This is significantly better than the baseline true positive rate of ~0.58.
+After spliting the data based on time and using the first 1/4 of the course time, a random forest classifier provides a true positive rate of ~0.75. This means that about 75% of the students who will actually fail are predicted to do so by the mdoel. This is significantly better than the baseline true positive rate of ~0.58.
 
 ![classifier roc curve](reports/figures/rf_roc.png "Classifier ROC Curve")
 
@@ -29,14 +29,14 @@ A random forest classifier provides a true positive rate of ~0.75. This means th
 
 The data come from the Open University Learning Analytics dataset, which can be found [here](https://analyse.kmi.open.ac.uk/open_dataset). The dataset contains anonynmised data from seven online courses over a two-year period from 2013-2014 with terms starting in either February or October. There are data about courses, students, and students' interactions with the online Viritual Learning Environment.
 
-For purposes of statistical modeling, I split the data into three subdivisions: data from the first 1/4 of the course, data from the first half of the course, and data from the fir st 3/4 of the course.
+The first half of the course, and data from the fir st 3/4 of the course.
 
 The data schema is described in this figure:
 
 ![data](reports/figures/schema.png "Data Schema")
 
 ## Data Pipeline and Feature Engineering
-With the goal being able to effectively predict whether a given students would successfully complete a given course, I began by eliminating records for students who were not enrolled on the first day of the course (many students registered for a course, then withdrew before the first day). I then estimated the student's final score (it was not provided in the data) by taking the weighted sum of assessments (weights were provided). After realizing the some of the estimated final scores ranged up to 200, and determined which courses were "double-modules" and halved those estimated final score. A double-module is worth twice the credit of a single course and scored on a scale of 200. I then joined and aggregated the data to create the following features:
+With the goal being able to effectively predict whether a given students would successfully complete a given course, I split the data into three subdivisions: data from the first 1/4 of the course, data from the first half of the course, and data from the fir st 3/4 of the course. I also eliminated records for students who were not enrolled on the first day of the course (many students registered for a course, then withdrew before the first day). I then estimated the student's final score (it was not provided in the data) by taking the weighted sum of assessments (weights were provided). After realizing the some of the estimated final scores ranged up to 200, and determined which courses were "double-modules" and halved those estimated final score. A double-module is worth twice the credit of a single course and scored on a scale of 200. I then joined and aggregated the data to create the following features:
 
 * Demographics and Student Information
     * gender 
@@ -107,6 +107,8 @@ The final classifier was evaluated using the ROC AUC score and the true positive
 
 <img src="reports/figures/rf_conf_mat.png" width=425/><img src="reports/figures/bl_conf_mat.png" width=425/>
 
+After evaluating classifier performance using my three sets of data (1/4,1/2, or 3/4 of the course as measured in days since the course opened), I determined that model performance increased only a small amout as more data were used. Since the potential benefits of intervening earlier are likely higher, I decided to use only the first 1/4 of the data for my final classifier.
+
 Though the strength of the predictions relies on the use of many feautres (as detemined by recursive feature elimination with cross-validation), the following feature were determined to contribute most to predicitions of non-completion:
 
 Feature | Importance
@@ -129,3 +131,7 @@ The distributions of the key features split by completion / non-completion suppo
 ![Sum of Days VLE Accessed](reports/figures/vle_hist.png "Sum of Days VLE Accessed")
 
 ## Next Steps
+
+An important next step in this process would be to consult the relevant literature about the efficacy of type of interventions and perform a study attempting to assess which interventions are most effective. 
+
+It would also be valuable to obtain similar data from other institutions and upated to data from the Open Univeristy to learn how competion rates and their factors may vary across time and institution.
