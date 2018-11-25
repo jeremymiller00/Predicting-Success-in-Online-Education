@@ -58,7 +58,7 @@ For the purposes of model evaluation, baseline is determined to be a similar Ran
 
 <img src="reports/figures/rf_roc.png" width=400/><img src="reports/figures/bl_roc.png" width=400/>
 
-<img src="reports/figures/rf_conf_mat.png" width=400/><img src="reports/figures/bl_conf_mat.png" width=400/>
+<img src="reports/figures/rf_conf_mat.png" width=500/><img src="reports/figures/bl_conf_mat.png" width=500/>
 
 Though the strength of the predictions relies on the use of many feautres (as detemined by recursive feature elimination with cross-validation), the following feature were determined to contribute most to predicitions of non-completion:
 
