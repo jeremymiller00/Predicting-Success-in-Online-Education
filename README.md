@@ -1,7 +1,7 @@
-project_name
+# Predicting Success in Online Education
+
 ==============================
 
-capstone
 
 Project Organization
 ------------
