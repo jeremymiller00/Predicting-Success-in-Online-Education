@@ -12,13 +12,17 @@
 
 ## Problem Statement
 
-Non-completion rates are higher and more varied for online college courses than for traditional “classroom” courses. Identifying students at risk for failing or dropping is the first step towards intervention.
+Non-completion rates are higher and more varied for online college courses than for traditional “classroom” courses. Identifying students at risk for failing or dropping is the first step towards interventions which can lead to greater student success.
 
 The goal of this project is to use behavior and demographics to predict if students will successfully complete the course and flag students for intervention.
 
 ## Results
 
 A random forest classifier provides a true positive rate of ~0.75. This means that about 75% of the students who will actually fail are predicted to do so by the mdoel. This is significantly better than the baseline true positive rate of ~0.58.
+
+![classifier roc curve](reports/figures/rf_roc.png "Classifier ROC Curve")
+
+![classifier confusion matrix](reports/figures/rf_conf_mat.png "Classifier Confusion Matrix")
 
 ## Data
 
