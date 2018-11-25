@@ -26,8 +26,23 @@ A random forest classifier provides a true positive rate of ~0.75. This means th
 
 ## Data
 
+The data come from the Open University Learning Analytics dataset, which can be found [here](https://analyse.kmi.open.ac.uk/open_dataset). The dataset contains anonynmised data from seven online courses over a two-year period from 2013-2014 with terms starting in either February or October. There are data about courses, students, and students' interactions with the online Viritual Learning Environment.
+
+For purposes of statistical modeling, I split the data into three subdivisions: data from the first 1/4 of the course, data from the first half of the course, and data from the fir st 3/4 of the course.
+
+The data schema is described in this figure:
+
+![data](reports/figures/schema.png "Data Schema")
+
 
 ## Modeling process
+With the goal being able to effectively predict whether a given students would successfully complete a given course, I began by eliminating records for students who were not enrolled on the first day of the course (many students registered for a course, then withdrew before the first day). I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. THe classifiers tested were:
+* Logistic Regression
+* Random Forest
+* Gradient Boosting
+* Support Vector
+* K-Nearest Neighbors
+* Multi-layer Perceptron
 
 
 ## Evaluation
