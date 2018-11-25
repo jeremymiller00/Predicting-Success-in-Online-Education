@@ -3,7 +3,7 @@
 ==============================
 
 
-Project Organization
+The Project Organization
 ------------
 
     ├── LICENSE
