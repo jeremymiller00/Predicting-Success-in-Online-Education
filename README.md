@@ -40,7 +40,7 @@ With the goal being able to effectively predict whether a given students would s
 
 
 ## Modeling process
-My primary modeling concerns were evaluating the classifer based in the true positive rate and ROC AUC score. A strong true positive rate directly minimizes false negatives, which in this situation are a "worst case scenario (in my model, "positive" is defined as non-cmpletion). I also sought a model with strong inferenetial characteristics. Knowing why a student is predicted not to complete a course would be be important in designing an intervention. I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. THe classifiers tested were:
+My primary modeling concerns were evaluating the classifer based in the true positive rate and ROC AUC score. A strong true positive rate directly minimizes false negatives, which in this situation are a "worst case scenario (in my model, "positive" is defined as non-cmpletion). I also sought a model with strong inferenetial characteristics. Knowing why a student is predicted not to complete a course would be be important in designing an intervention. I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. The classifiers tested were:
 
 * Logistic Regression
 * Random Forest
@@ -54,9 +54,34 @@ Logistic Regression, Random Forest, and Gradient Boosting performed better initi
 ## Evaluation
 Models were evaluated prirmarily using the ROC AUC score and the true positive rate (recall). ROC AUC was chosen because ot provides a clear general of sense of how a binary classification perform thoughout the range of prediction thresholds. True prositive rate was chosen because it directly accounts for the proportion of the false negative predictions.  
 
-plots
+For the purposes of model evaluation, baseline is determined to be a similar Random Forest Classifier which takes as its features only the information about the students. Hence my final classifier shows how much predicitive power can be obtained by considering students' actions and behaviors. 
+
+<img src="reports/figures/rf_roc.png" width=300/>
+<img src="reports/figures/bl_roc.png" width=300/>
+
+<img src="reports/figures/rf_conf_mat.png" width=300/>
+<img src="reports/figures/bl_conf_mat.png" width=300/>
 
 Though the strength of the predictions relies on the use of many feautres (as detemined by recursive feature elimination with cross-validation), the following feature were determined to contribute most to predicitions of non-completion:
+
+Feature | Importance
+--- | ---
+avg_score | 0.0618
+avg_days_sub_early | 0.0092
+sum_days_vle_accessed | 0.0082
+code_module_GGG | 0.0074
+sum_click_quiz | 0.0046
+sum_click_oucontent | 0.0042
+days_early_first_assessment | 0.0034
+sum_click_homepage | 0.0030
+sum_click_page | 0.0028
+code_presentation_2014B | 0.0026
+
+The distributions of the key features split by completion / non-completion support this:
+
+![Average Assessment Score](reports/figures/avg_score_hist.png "Average Assessment Score")
+![Average Number of Days Assessments Were Submitted Early](reports/figures/sub_early_hist.png "Average Number of Days Assessments Were Submitted Early")
+![Sum of Days VLE Accessed](reports/figures/vle_hist.png "Sum of Days VLE Accessed")
 
 
 ## Next Steps
