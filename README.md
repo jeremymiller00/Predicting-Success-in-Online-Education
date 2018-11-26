@@ -87,7 +87,7 @@ The target for my model was:
 
 
 ## Modeling process
-My primary modeling concerns were evaluating the classifer based in the true positive rate (recall) and ROC AUC score. A strong true positive rate directly minimizes false negatives, which in this situation are a "worst case scenario" (in my model, "positive" is defined as non-completion). ROC AUC was chosen because it provides a clear general sense of how a binary classifier performs thoughout the range of prediction thresholds. I also sought a model with strong inferential characteristics. Knowing why a student is predicted not to complete a course would be important in designing an intervention. I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. The classifiers tested were:
+My primary modeling concerns were evaluating the classifer based on the true positive rate (recall) and ROC AUC score. A strong true positive rate directly minimizes false negatives, which in this situation are a "worst case scenario" (in my model, "positive" is defined as non-completion). ROC AUC was chosen because it provides a clear general sense of how a binary classifier performs thoughout the range of prediction thresholds. I also sought a model with strong inferential characteristics. Knowing why a student is predicted not to complete a course would be important in designing an intervention. I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. The classifiers tested were:
 
 * Logistic Regression
 * Random Forest
