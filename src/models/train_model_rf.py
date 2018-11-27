@@ -2,6 +2,7 @@
 """ 
 Random Forest Classifier to predict course completion
 """
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -52,12 +53,12 @@ def print_roc_curve(y_test, probabilities, model_type):
 ######################################################################
 
 if __name__ == '__main__':
-    # change path to get appropriate cutoff (third_quarter, third_quarter, third_quarter; CHANGE PATH IN WRITE OUT!)
-    X_train = pd.read_csv('data/processed/third_quarter/X_train.csv')
-    y_train = pd.read_csv('data/processed/third_quarter/y_train.csv')
+    # change path to get appropriate cutoff (first_quarter, first_quarter, first_quarter; CHANGE PATH IN WRITE OUT!)
+    X_train = pd.read_csv('data/processed/first_quarter/X_train.csv')
+    y_train = pd.read_csv('data/processed/first_quarter/y_train.csv')
     y_train = y_train['module_not_completed']
-    X_test = pd.read_csv('data/processed/third_quarter/X_test.csv')
-    y_test = pd.read_csv('data/processed/third_quarter/y_test.csv')
+    X_test = pd.read_csv('data/processed/first_quarter/X_test.csv')
+    y_test = pd.read_csv('data/processed/first_quarter/y_test.csv')
     y_test = y_test['module_not_completed']
 
     X_train.fillna(value = 0, inplace = True)
@@ -90,7 +91,11 @@ if __name__ == '__main__':
     # rf_model.fit(X_train, y_train)
 
     # save model
-    pickle.dump(rf_model, open('models/random_forest_completion_third_quarter.p', 'wb')) 
+    pickle.dump(rf_model, open('models/random_forest_completion_first_quarter.p', 'wb')) 
+
+    # save for flask
+    # pickle.dump(rf_model, open('web_app/model.p', 'wb')) 
+    # sys.exit()
 
     # cross validate
     cv = cross_validate(rf_model, X_train, y_train, scoring = 'roc_auc', cv=5, return_train_score=1)
