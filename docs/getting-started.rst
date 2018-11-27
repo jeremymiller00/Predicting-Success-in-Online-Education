@@ -1,6 +1,16 @@
 Getting started
 ===============
 
-This is where you describe how to get set up on a clean install, including the
-commands necessary to get the raw data (using the `sync_data_from_s3` command,
-for example), and then how to make the cleaned, final data sets.
+The data are available here: https://analyse.kmi.open.ac.uk/open_dataset
+
+To get started, download the seven csv files and store them in a directorty titled data/raw. 
+
+To replicate and explore my resuults:
+
+Run src/features/build_features.py
+
+Run src/models/train_model_rf.py
+
+Run src/models/predict_evaluate_model.py
+
+Enjoy!
