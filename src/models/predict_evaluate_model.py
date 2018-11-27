@@ -104,6 +104,19 @@ def plot_target_hist(feature, h_range, bins=50, alpha=0.8):
     plt.legend(prop={'size': 30})
     plt.title(feature, fontsize=30)
 
+def plot_target_violin(df, feature):
+    '''
+    Plot a violin plt of a feature with color indicating model prediction.
+    
+    feature: model feature as represented by a column in a dataframe
+    
+    '''
+    df1 = df.copy()
+    df1['Predict Pass'] = y_test*-1+1
+    plt.figure(figsize=(12,8))
+    sns.violinplot(x = 'Predict Pass', y=feature, data=df1)
+    plt.title(feature, fontsize=30)
+
 def compare_hist(df1, df2, l1, l2):
     '''
     Prints overlayed histograms for comparison of distributions in two dataframes.
