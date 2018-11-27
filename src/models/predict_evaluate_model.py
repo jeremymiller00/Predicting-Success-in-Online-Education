@@ -48,7 +48,7 @@ def standard_confusion_matrix(y_true, y_pred):
     [[tn, fp], [fn, tp]] = confusion_matrix(y_true, y_pred, labels=[0,1])
     return np.array([[tp, fp], [fn, tn]])
 
-def print_roc_curve(y_test, probabilities, model_name, recall):
+def print_roc_curve(y_test, probabilities, model_name, roc_auc, recall):
     '''
     Calculates and prints a ROC curve given a set of test classes and probabilities from a trained classifier
     
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     conf_mat = confusion_matrix(y_test, predictions, labels=None) #     sklearn way
     class_report = classification_report(y_test, predictions)
 
-    print_roc_curve(y_test, probas, 'Random Forest', recall)
+    print_roc_curve(y_test, probas, 'Random Forest', roc_auc, recall)
     plt.savefig('../reports/figures/rf_roc.png')
     print_confusion_matrix(conf_mat, 'Classifier')
     plt.savefig('../reports/figures/rf_conf_mat.png')
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     bl_conf_mat = confusion_matrix(y_test, bl_predictions) # sklearn way
     bl_class_report = classification_report(y_test, bl_predictions)
 
-    print_roc_curve(y_test, bl_probas, 'Baseline Thresholds', bl_recall)
+    print_roc_curve(y_test, bl_probas, 'Baseline Thresholds', bl_roc_auc, bl_recall)
     plt.savefig('../reports/figures/bl_roc.png')
     print_confusion_matrix(bl_conf_mat, 'Classifier')
     plt.savefig('../reports/figures/bl_conf_mat.png')
