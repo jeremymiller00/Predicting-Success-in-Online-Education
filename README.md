@@ -19,7 +19,7 @@ The goal of this project is to use behavior and demographics to predict whether 
 
 ## Results
 
-After splitting the data based on time and using the first 1/4 of the course time, a random forest classifier provides a true positive rate of ~0.75. This means that about 75% of the students who will actually fail are predicted to do so by the model. This is significantly better than the baseline true positive rate of ~0.58.
+After splitting the data based on time and using the first 1/4 of the course time, a random forest classifier provides a true positive rate of ~0.73. This means that about 73% of the students who will actually fail are predicted to do so by the model. This is significantly better than the baseline true positive rate of ~0.38.
 
 ![classifier roc curve](reports/figures/rf_roc.png "Classifier ROC Curve")
 
