@@ -19,7 +19,7 @@ The goal of this project is to use behavior and demographics to predict whether 
 
 ## Results
 
-After splitting the data based on time and using the first 1/4 of the course time, a random forest classifier provides a true positive rate of ~0.73. This means that about 73% of the students who will actually fail are predicted to do so by the model. This is significantly better than the baseline true positive rate of ~0.38.
+After splitting the data based on time and using the first 1/4 of the course time, a random forest classifier provides a true positive rate of ~0.73. This means that about 73% of the students who will actually fail are predicted to do so by the model. This is significantly better than the baseline true positive rate of ~0.58.
 
 ![classifier roc curve](reports/figures/rf_roc.png "Classifier ROC Curve")
 
@@ -87,7 +87,7 @@ The target for my model was:
 
 
 ## Modeling process
-My primary modeling concerns were evaluating the classifier based on the true positive rate (recall) and ROC AUC score. A strong true positive rate directly minimizes false negatives, which in this situation are a "worst case scenario" (in my model, "positive" is defined as non-completion). ROC AUC was chosen because it provides a clear general sense of how a binary classifier performs thoughout the range of prediction thresholds. I also sought a model with strong inferential characteristics. Knowing why a student is predicted not to complete a course would be important in designing an intervention. I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. The classifiers tested were:
+My primary modeling concerns were evaluating the classifier based on the true positive rate (recall) and ROC AUC score. A strong true positive rate directly minimizes false negatives, which in this situation are a "worst case scenario" (in my model, "positive" is defined as non-completion). ROC AUC was chosen because it provides a clear general sense of how a binary classifier performs throughout the range of prediction thresholds. I also sought a model with strong inferential characteristics. Knowing why a student is predicted not to complete a course would be important in designing an intervention. I began by testing numerous classifier types to determine which provided the best out-of-the-box performance. The classifiers tested were:
 
 * Logistic Regression
 * Random Forest
@@ -105,9 +105,9 @@ The final classifier was evaluated using the ROC AUC score and the true positive
 
 <img src="reports/figures/rf_conf_mat.png" width=425/><img src="reports/figures/bl_conf_mat.png" width=425/>
 
-After evaluating classifier performance using my three sets of data (1/4,1/2, or 3/4 of the course completed as measured in days since the course opened), I determined that model performance increased only a small amout as more data were used. Since the potential benefits of intervening earlier are likely higher, I decided to use only the first 1/4 of the data for my final classifier.
+After evaluating classifier performance using my three sets of data (1/4,1/2, or 3/4 of the course completed as measured in days since the course opened), I determined that model performance increased only a small amount as more data were used. Since the potential benefits of intervening earlier are likely higher, I decided to use only the first 1/4 of the data for my final classifier.
 
-Though the strength of the predictions relies on the use of many features (as detemined by recursive feature elimination with cross-validation), the following features were determined to contribute most to predictions of non-completion:
+Though the strength of the predictions relies on the use of many features (as determined by recursive feature elimination with cross-validation), the following features were determined to contribute most to predictions of non-completion:
 
 Feature | Importance
 --- | ---
